@@ -1,0 +1,95 @@
+imports:
+  - { resource: events.yml }
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    CoreShop2VueStorefrontBundle\Controller\:
+        resource: '../../Controller'
+        public: true
+        tags: ['controller.service_arguments']
+
+    CoreShop2VueStorefrontBundle\Bridge\EnginePersister: ~
+
+    CoreShop2VueStorefrontBundle\Bridge\DocumentMapper\DocumentProductMapper: ~
+
+    CoreShop2VueStorefrontBundle\Bridge\DocumentMapper\DocumentCategoryMapper: ~
+
+    CoreShop2VueStorefrontBundle\Bridge\DocumentMapper\DocumentAttributeMapper: ~
+
+    CoreShop2VueStorefrontBundle\Bridge\Attribute\AttributeIdGenerator: ~
+
+    CoreShop2VueStorefrontBundle\Bridge\Helper\DocumentHelper: ~
+
+    CoreShop2VueStorefrontBundle\Bridge\Helper\PriceHelper: ~
+
+    CoreShop2VueStorefrontBundle\Repository\ProductRepository: ~
+
+    CoreShop2VueStorefrontBundle\Repository\CategoryRepository: ~
+
+    CoreShop2VueStorefrontBundle\Bridge\DocumentMapper\DocumentMapperFactory: ~
+
+    CoreShop2VueStorefrontBundle\Bridge\Response\ResponseBodyCreator:
+        arguments:
+          - '@coreshop.repository.index'
+
+    CoreShop2VueStorefrontBundle\Bridge\Response\Order\OrderResponse:
+        arguments:
+          - '@coreshop.repository.index'
+
+    CoreShop2VueStorefrontBundle\Bridge\Response\Cart\CartResponse:
+        arguments:
+          - '@coreshop.repository.index'
+
+    CoreShop2VueStorefrontBundle\Security\User\UserProvider: ~
+
+    CoreShop2VueStorefrontBundle\Bridge\Customer\CustomerManager:
+        arguments:
+            - "@coreshop.factory.customer"
+            - "@coreshop.factory.address"
+
+    CoreShop2VueStorefrontBundle\Bridge\Order\ProductItemToOrderItemTransformer:
+        arguments:
+            - "@coreshop.object_service"
+            - "%coreshop.folder.order_item%"
+
+    CoreShop2VueStorefrontBundle\Bridge\Order\AddressDataToAddressItemTransformer:
+        arguments:
+            - "@coreshop.factory.address"
+            - "@coreshop.object_service"
+            - "%coreshop.folder.address%"
+
+    CoreShop2VueStorefrontBundle\Bridge\Order\OrderManager:
+        arguments:
+            - "@coreshop.factory.order"
+            - "%coreshop.folder.order%"
+            - "@coreshop.object_service"
+            - "@coreshop.factory.order_item"
+            - "@coreshop.state_machine_applier"
+
+    CoreShop2VueStorefrontBundle\Command\IndexCommand:
+        tags: ['console.command']
+
+    CoreShop2VueStorefrontBundle\Worker\ElasticSearchWorker:
+        arguments:
+            - '@coreshop.registry.index.extensions'
+            - '@coreshop.registry.index.getter'
+            - '@coreshop.registry.index.interpreter'
+            - '@coreshop.index.filter_group_helper'
+        shared: false
+        calls:
+            - { method: setLogger, arguments: ['@logger'] }
+        tags:
+            - { name: coreshop.index.worker, type: elasticsearch, form-type: CoreShop2VueStorefrontBundle\Worker\Type\ElasticSearchWorkerType }
+
+    CoreShop2VueStorefrontBundle\Cart\CustomCartContext:
+        arguments:
+            - '@coreshop.context.customer'
+            - '@coreshop.context.store'
+            - '@coreshop.repository.cart'
+            - '@pimcore.http.request_helper'
+        tags:
+            - { name: coreshop.context.cart, priority: 100 }

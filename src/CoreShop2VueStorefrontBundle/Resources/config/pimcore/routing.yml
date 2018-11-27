@@ -1,0 +1,8 @@
+core_shop2_vue_storefront:
+    resource: "@CoreShop2VueStorefrontBundle/Controller/"
+    type:     annotation
+    prefix:   /
+
+gesdinet_jwt_refresh_token:
+    path:     /vsbridge/user/refresh
+    defaults: { _controller: gesdinet.jwtrefreshtoken:refresh }

@@ -1,0 +1,62 @@
+security:
+    providers:
+        customer_provider:
+            id: CoreShop2VueStorefrontBundle\Security\User\UserProvider
+
+    firewalls:
+        coreshop_frontend:
+            pattern: ^/(?!(admin|vsbridge)).*$
+
+        vsbridge_img:
+            pattern:  ^/img$
+            stateless: true
+            anonymous: true
+
+        vsbridge_refresh:
+            pattern:  ^/vsbridge/user/(refresh|reset-password)$
+            stateless: true
+            anonymous: true
+
+        vsbridge_order_create:
+            pattern:  ^/vsbridge/order$
+            stateless: true
+            anonymous: true
+
+        vsbridge_stock:
+            pattern:  ^/vsbridge/stock/check$
+            stateless: true
+            anonymous: true
+
+        vsbridge_register:
+            pattern: ^/vsbridge/user/create$
+            stateless: true
+            anonymous: true
+
+        vsbridge_login:
+            pattern:  ^/vsbridge/user/login$
+            stateless: true
+            provider: customer_provider
+            gfreeau_get_jwt:
+                username_parameter: username
+                password_parameter: password
+                authentication_provider: security.authentication.provider.dao
+                user_checker: security.user_checker
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
+        vsbridge:
+            pattern: ^/vsbridge
+            stateless: true
+            provider: customer_provider
+            guard:
+                authenticators:
+                    - lexik_jwt_authentication.jwt_token_authenticator
+
+    access_control:
+        - { path: ^/img$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/vsbridge/stock/check$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/vsbridge/order$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/vsbridge/user/(refresh|reset-password)$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/vsbridge/user/create$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/vsbridge/user/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/vsbridge, roles: IS_AUTHENTICATED_FULLY }

@@ -1,0 +1,8 @@
+imports:
+    - { resource: security.yml }
+    - { resource: jwt.yml }
+    - { resource: cors.yml }
+
+gesdinet_jwt_refresh_token:
+    firewall: vsbridge_refresh
+    user_provider: CoreShop2VueStorefrontBundle\Security\User\UserProvider
