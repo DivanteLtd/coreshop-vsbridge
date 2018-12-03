@@ -3,11 +3,13 @@ namespace CoreShop2VueStorefrontBundle\Cart;
 
 use CoreShop\Component\Customer\Context\CustomerContextInterface;
 use CoreShop\Component\Customer\Context\CustomerNotFoundException;
+use CoreShop\Component\Customer\Model\CustomerInterface;
 use CoreShop\Component\Order\Context\CartContextInterface;
 use CoreShop\Component\Order\Context\CartNotFoundException;
 use CoreShop\Component\Order\Repository\CartRepositoryInterface;
 use CoreShop\Component\Store\Context\StoreContextInterface;
 use CoreShop\Component\Store\Context\StoreNotFoundException;
+use CoreShop\Component\Store\Model\StoreInterface;
 use Pimcore\Http\RequestHelper;
 
 final class CustomCartContext implements CartContextInterface
@@ -68,11 +70,28 @@ final class CustomCartContext implements CartContextInterface
             throw new CartNotFoundException('CoreShop was not able to find the cart, as there is no logged in user.');
         }
 
-        $cart = $this->cartRepository->findLatestByStoreAndCustomer($store, $customer);
+        $cart = $this->findLatestByStoreAndCustomer($store, $customer);
         if (null === $cart) {
             throw new CartNotFoundException('CoreShop was not able to find the cart for currently logged in user.');
         }
 
         return $cart;
+    }
+
+    public function findLatestByStoreAndCustomer(StoreInterface $store, CustomerInterface $customer)
+    {
+        $list = $this->cartRepository->getList();
+        $list->setCondition('customer__id = ? AND store = ? AND order__id is null ', [$customer->getId(), $store->getId()]);
+        $list->setOrderKey('o_id');
+        $list->setOrder('DESC');
+        $list->load();
+
+        if ($list->getTotalCount() > 0) {
+            $objects = $list->getObjects();
+
+            return $objects[0];
+        }
+
+        return null;
     }
 }

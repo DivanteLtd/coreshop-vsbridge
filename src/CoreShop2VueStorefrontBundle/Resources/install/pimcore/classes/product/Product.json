@@ -1079,7 +1079,7 @@
     "icon": null,
     "previewUrl": null,
     "group": null,
-    "linkGeneratorReference": "@coreshop.object.link_generator.product",
+    "linkGeneratorReference": "@coreshop.object.link_generator.product1",
     "propertyVisibility": {
         "grid": {
             "id": true,

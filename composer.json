@@ -25,7 +25,8 @@
     "nelmio/cors-bundle": "^1.5",
     "pimcore/pimcore": "~5.4.0",
     "symfony-bundles/json-request-bundle": "^2.0",
-    "wikimedia/composer-merge-plugin": "^1.4"
+    "wikimedia/composer-merge-plugin": "^1.4",
+    "divanteltd/pimcoredevkit": "^0.6.6"
   },
   "require-dev": {
     "cache/integration-tests": "^0.15.0",
@@ -38,5 +39,10 @@
         "CoreShop2VueStorefrontBundle\\CoreShop2VueStorefrontBundle"
       ]
     }
+  },
+  "scripts": {
+    "post-package-install": [
+      "php bin/console pimcore:bundle:enable PimcoreDevkitBundle --no-interaction"
+    ]
   }
 }

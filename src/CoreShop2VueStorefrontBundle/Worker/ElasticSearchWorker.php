@@ -4,6 +4,7 @@ namespace CoreShop2VueStorefrontBundle\Worker;
 
 use CoreShop\Bundle\IndexBundle\Worker\AbstractWorker;
 use CoreShop\Component\Index\Condition\ConditionInterface;
+use CoreShop\Component\Index\Condition\ConditionRendererInterface;
 use CoreShop\Component\Index\Model\IndexableInterface;
 use CoreShop\Component\Index\Model\IndexColumnInterface;
 use CoreShop\Component\Index\Model\IndexInterface;
@@ -25,19 +26,21 @@ class ElasticSearchWorker extends AbstractWorker
     private $attributeIdGenerator;
 
     /**
-     * @param ServiceRegistryInterface $extensionsRegistry
-     * @param ServiceRegistryInterface $getterServiceRegistry
-     * @param ServiceRegistryInterface $interpreterServiceRegistry
+     * @param ServiceRegistryInterface   $extensionsRegistry
+     * @param ServiceRegistryInterface   $getterServiceRegistry
+     * @param ServiceRegistryInterface   $interpreterServiceRegistry
      * @param FilterGroupHelperInterface $filterGroupHelper
-     * @param DocumentAttributeMapper $documentAttributeBuilder
-     * @param Manager $manager
-     * @param AttributeIdGenerator $attributeIdGenerator
+     * @param ConditionRendererInterface $conditionRenderer
+     * @param DocumentAttributeMapper    $documentAttributeBuilder
+     * @param Manager                    $manager
+     * @param AttributeIdGenerator       $attributeIdGenerator
      */
     public function __construct(
         ServiceRegistryInterface $extensionsRegistry,
         ServiceRegistryInterface $getterServiceRegistry,
         ServiceRegistryInterface $interpreterServiceRegistry,
         FilterGroupHelperInterface $filterGroupHelper,
+        ConditionRendererInterface $conditionRenderer,
         DocumentAttributeMapper $documentAttributeBuilder,
         Manager $manager,
         AttributeIdGenerator $attributeIdGenerator
@@ -46,7 +49,8 @@ class ElasticSearchWorker extends AbstractWorker
             $extensionsRegistry,
             $getterServiceRegistry,
             $interpreterServiceRegistry,
-            $filterGroupHelper
+            $filterGroupHelper,
+            $conditionRenderer
         );
 
         $this->documentAttributeBuilder = $documentAttributeBuilder;
@@ -131,5 +135,13 @@ class ElasticSearchWorker extends AbstractWorker
                 $this->manager->commit();
             }
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function typeCastValues(IndexColumnInterface $column, $value)
+    {
+        return $value;
     }
 }

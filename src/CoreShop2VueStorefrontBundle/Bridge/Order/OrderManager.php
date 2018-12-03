@@ -6,9 +6,11 @@ use Carbon\Carbon;
 use CoreShop\Bundle\CustomerBundle\Pimcore\Repository\CustomerRepository;
 use CoreShop\Bundle\OrderBundle\Pimcore\Repository\OrderRepository;
 use CoreShop\Bundle\WorkflowBundle\Applier\StateMachineApplierInterface;
+use CoreShop\Component\Core\Model\CartInterface;
 use CoreShop\Component\Order\Model\OrderInterface;
 use CoreShop\Component\Order\OrderStates;
 use CoreShop\Component\Order\OrderTransitions;
+use CoreShop\Component\Order\Transformer\ProposalTransformerInterface;
 use CoreShop\Component\Pimcore\DataObject\ObjectServiceInterface;
 use CoreShop\Component\Resource\Factory\PimcoreFactory;
 use CoreShop\Component\Resource\Factory\PimcoreFactoryInterface;
@@ -36,6 +38,8 @@ class OrderManager
     private $addressDataToAddressItemTransformer;
     /** @var StateMachineApplierInterface */
     private $stateMachineApplier;
+    /** @var ProposalTransformerInterface */
+    private $proposalTransformer;
     /** @var StoreRepositoryInterface */
     private $storeRepository;
 
@@ -48,6 +52,7 @@ class OrderManager
         ObjectServiceInterface $objectService,
         PimcoreFactoryInterface $orderItemFactory,
         StateMachineApplierInterface $stateMachineApplier,
+        ProposalTransformerInterface $proposalTransformer,
         OrderRepository $orderRepository,
         CustomerRepository $customerRepository,
         ProductItemToOrderItemTransformer $productItemToOrderItemTransformer,
@@ -63,26 +68,26 @@ class OrderManager
         $this->productItemToOrderItemTransformer = $productItemToOrderItemTransformer;
         $this->addressDataToAddressItemTransformer = $addressDataToAddressItemTransformer;
         $this->stateMachineApplier = $stateMachineApplier;
+        $this->proposalTransformer = $proposalTransformer;
         $this->storeRepository = $storeRepository;
     }
 
     /**
-     * @param string $orderNumber
-     * @param string $customerId
-     * @param string $cartId
-     * @param array  $products
-     * @param array  $addressInformation
+     * @param string        $orderNumber
+     * @param string        $customerId
+     * @param CartInterface $cart
+//     * @param array         $products
+     * @param array         $addressInformation
      *
      * @return void
      * @throws \Exception
-     *
      * @todo
      */
     public function createOrder(
         string $orderNumber,
         string $customerId,
-        string $cartId,
-        array $products,
+        CartInterface $cart,
+//        array $products,
         array $addressInformation
     ) {
         $order = $this->orderRepository->findOneBy(['orderNumber' => $orderNumber]);
@@ -108,21 +113,8 @@ class OrderManager
         if (!$customer) {
             throw new LogicException(sprintf("Can't create order for not existing customer"));
         }
-
-        $newOrder->setCustomer($customer);
-        $newOrder->save();
-
-        foreach ($products as $product) {
-            /** @var Product */
-            $orderItem = $this->orderItemFactory->createNew();
-            $productOrder = $this->productItemToOrderItemTransformer->transform($product, $newOrder, $orderItem);
-            if ($productOrder) {
-                $newOrder->addItem($productOrder);
-            }
-        }
-
         if (isset($addressInformation['shippingAddress'])) {
-            $newOrder->setShippingAddress(
+            $cart->setShippingAddress(
                 $this->addressDataToAddressItemTransformer->transform(
                     $addressInformation['shippingAddress'],
                     $newOrder,
@@ -132,7 +124,7 @@ class OrderManager
         }
 
         if (isset($addressInformation['billingAddress'])) {
-            $newOrder->setInvoiceAddress(
+            $cart->setInvoiceAddress(
                 $this->addressDataToAddressItemTransformer->transform(
                     $addressInformation['billingAddress'],
                     $newOrder,
@@ -140,10 +132,22 @@ class OrderManager
                 )
             );
         }
+        $newOrder = $this->proposalTransformer->transform($cart, $newOrder);
+
+        $newOrder->setCustomer($customer);
+        $newOrder->save();
+
+//        foreach ($products as $product) {
+//            /** @var Product */
+//            $orderItem = $this->orderItemFactory->createNew();
+//            $productOrder = $this->productItemToOrderItemTransformer->transform($product, $newOrder, $orderItem);
+//            if ($productOrder) {
+//                $newOrder->addItem($productOrder);
+//            }
+//        }
 
         $newOrder->setOrderState(OrderStates::STATE_INITIALIZED);
         $newOrder->setShippingState(OrderStates::STATE_NEW);
-        $newOrder->setInvoiceState(OrderStates::STATE_NEW);
         $newOrder->setInvoiceState(OrderStates::STATE_NEW);
         $newOrder->save();
 
@@ -151,4 +155,5 @@ class OrderManager
             $this->stateMachineApplier->apply($newOrder, 'coreshop_order', OrderTransitions::TRANSITION_CREATE);
         }
     }
+
 }
