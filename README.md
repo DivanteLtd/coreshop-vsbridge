@@ -1,5 +1,5 @@
 
-# First Progressive Web App for Pimcore eCommerce Framework and Core Shop
+# First Progressive Web App for Pimcore and CoreShop
 
 This projects bring You the [Pimcore](https://pimcore.com) plus [Coreshop](http://www.coreshop.org/) support as a backend platform for [Vue Storefront - first Progressive Web App for e-Commerce](https://github.com/DivanteLtd/vue-storefront). 
 
