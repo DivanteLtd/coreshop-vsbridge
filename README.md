@@ -93,7 +93,7 @@ lexik_jwt_authentication:
 
 After successfull Pimcore bundle installation Your Pimcore instance will be handling all the dynamic requests from Vue Storefront. Thereof You need to modify `vue-storefront/config/local.json` (assuming that Your Pimcore base URL is https://vuestorefrontcoreshop.localhost and ElasticSearch running on)
 
-**Note**: As the Vue Stoerfront will be connecting to ElasticSearch from the client's browser You probably should put some kind of Proxy in front of ElasticSearch for scalability and security reasons. Please consider using the [vue-storefront-api](). It's endpoint [`/api/catalog`](https://github.com/DivanteLtd/vue-storefront-api/blob/master/src/api/catalog.js) works as a ElasticSearch HTTP(s) proxy. You can achieve the same results using nginx either Varnish.
+**Note**: As the Vue Storefront will be connecting to ElasticSearch from the client's browser You probably should put some kind of Proxy in front of ElasticSearch for scalability and security reasons. Please consider using the [vue-storefront-api](). It's endpoint [`/api/catalog`](https://github.com/DivanteLtd/vue-storefront-api/blob/master/src/api/catalog.js) works as a ElasticSearch HTTP(s) proxy. You can achieve the same results using nginx either Varnish.
 
 ```
   "elasticsearch": {
