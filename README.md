@@ -106,7 +106,7 @@ For demonstration purposes we do support all the standard entities like:
 Please visit [Vue Storefront site](http://vuestorefront.io) to check out why it's so cool!
 
 ![Admin panel integration](doc/20181204-111321.png)
-This is the standard Pimcore panel where You can edit Your products, categories and assets.
+<br />This is the standard Pimcore panel where You can edit Your products, categories and assets.
 
 ![Category admin panel](doc/20181204-111306.png)
 
@@ -114,7 +114,7 @@ Here is the order as it was transmited from Vue Storefront to Coreshop
 ![Order admin panel](doc/20181204-111251.png)
 
 All the products attributes, description, categories assets and other meta data is synchronized with Vue Storefront in real time
-![The frontend integration](doc/20181204-111107.png)
+![The frontend integration](doc/20181204-111019.png)
 
 
 
