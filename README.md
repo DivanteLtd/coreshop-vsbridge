@@ -13,7 +13,7 @@ Vue Storefront is a standalone PWA storefront for your eCommerce, possible to co
 Sign up for a demo at https://vuestorefront.io/ (Vue Storefront integrated with Pimcore OR Magento2).
 
 # Pimcore data bridge
-Vue Storefront is platform agnostic - which mean: it can be connected to virtually any eCommerce CMS. This project is a data connector for *Coreshop* and *Pimcore* data structures
+Vue Storefront is platform agnostic - which mean: it can be connected to virtually any eCommerce CMS. This project is a data connector for *CoreShop* and *Pimcore* data structures
 
 The module is created as a Pimcore Symfony Bundle and provides the native data exchange capabilities of:
 - pushing the entities marked as Products (maped in the Pimcore Admin panel) to Elastic Search (including support for configurable products),
@@ -151,7 +151,7 @@ For demonstration purposes we do support all the standard entities like:
 - products: localized attributes, single photo (can be easily extendend), variants, prices.
 
 
-![Coreshop integration architecture](doc/pimcore2vuestorefront-architecture.png)
+![CoreShop integration architecture](doc/pimcore2vuestorefront-architecture.png)
 
 # Screenshots
 
@@ -162,7 +162,7 @@ Please visit [Vue Storefront site](http://vuestorefront.io) to check out why it'
 
 ![Category admin panel](doc/20181204-111306.png)
 
-Here is the order as it was transmited from Vue Storefront to Coreshop
+Here is the order as it was transmited from Vue Storefront to CoreShop
 ![Order admin panel](doc/20181204-111251.png)
 
 All the products attributes, description, categories assets and other meta data is synchronized with Vue Storefront in real time
@@ -182,5 +182,5 @@ If You have any questions regarding this project feel free to contact us:
 - [Slack](http://slack.vuestorefront.io)
 
 # Licence 
-Coreshop VsBridge source code is completely free and released under the [MIT License](https://github.com/DivanteLtd/vue-storefront/blob/master/LICENSE).
+CoreShop VsBridge source code is completely free and released under the [MIT License](https://github.com/DivanteLtd/vue-storefront/blob/master/LICENSE).
 
