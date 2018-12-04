@@ -1,5 +1,8 @@
 
 # First Progressive Web App for Pimcore and CoreShop
+![Branch stable](https://img.shields.io/badge/stable%20branch-master-blue.svg)
+![Branch Develop](https://img.shields.io/badge/dev%20branch-develop-blue.svg)
+<a href="https://join.slack.com/t/vuestorefront/shared_invite/enQtMzA4MTM2NTE5NjM2LTI1M2RmOWIyOTk0MzFlMDU3YzJlYzcyYzNiNjUyZWJiMTZjZjc3MjRlYmE5ZWQ1YWRhNTQyM2ZjN2ZkMzZlNTg">![Branch Develop](https://img.shields.io/badge/community%20chat-slack-FF1493.svg)</a>
 
 This projects bring You the [Pimcore](https://pimcore.com) plus [Coreshop](http://www.coreshop.org/) support as a backend platform for [Vue Storefront - first Progressive Web App for e-Commerce](https://github.com/DivanteLtd/vue-storefront). 
 
