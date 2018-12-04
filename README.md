@@ -93,17 +93,29 @@ lexik_jwt_authentication:
 
 # Data formats and architecture
 As Pimcore is a very extensible Framework, the data structures and format may vary. By default we do support official [CoreShop](http://coreshop.org) data structures.
-For demonstration purposes we do support pretty basic elements of eCommerce Framework data structures:
+For demonstration purposes we do support all the standard entities like:
 - set of required attributes,
 - categories,
 - products: localized attributes, single photo (can be easily extendend), variants, prices.
 
 
-![Pimcore2vuestorefront architecture](doc/pimcore2vuestorefront-architecture.png)
+![Coreshop integration architecture](doc/pimcore2vuestorefront-architecture.png)
 
 # Screenshots
 
 Please visit [Vue Storefront site](http://vuestorefront.io) to check out why it's so cool!
+
+![Admin panel integration](doc/20181204-111321.png)
+This is the standard Pimcore panel where You can edit Your products, categories and assets.
+
+![Category admin panel](doc/20181204-111306.png)
+
+Here is the order as it was transmited from Vue Storefront to Coreshop
+![Order admin panel](doc/20181204-111251.png)
+
+All the products attributes, description, categories assets and other meta data is synchronized with Vue Storefront in real time
+![The frontend integration](doc/20181204-111107.png)
+
 
 
 # Licence 
