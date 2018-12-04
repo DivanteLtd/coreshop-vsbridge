@@ -6,7 +6,7 @@ This projects bring You the [Pimcore](https://pimcore.com) plus [Coreshop](http:
 Vue Storefront is a standalone PWA storefront for your eCommerce, possible to connect with any eCommerce backend (eg. Magento, Pimcore, Prestashop or Shopware) through the API.
 
  ## Video demo
- [![See how it works!](doc/media/Fil-Rakowski-VS-Demo-Youtube.png)](https://www.youtube.com/watch?v=L4K-mq9JoaQ)
+ [![See how it works!](/DivanteLtd/vue-storefront/raw/master/doc/media/Fil-Rakowski-VS-Demo-Youtube.png)](https://www.youtube.com/watch?v=L4K-mq9JoaQ)
 Sign up for a demo at https://vuestorefront.io/ (Vue Storefront integrated with Pimcore OR Magento2).
 
 # Pimcore data bridge
