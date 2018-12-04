@@ -1,7 +1,7 @@
 {
   "name": "divanteltd/coreshop-vsbridge",
   "type": "pimcore-bundle",
-  "license": "GPL-3.0-or-later",
+  "license": "MIT",
   "description": "coreshop-vsbridge",
   "keywords": [
     "pimcore",
