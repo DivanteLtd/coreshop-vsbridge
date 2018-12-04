@@ -89,6 +89,55 @@ lexik_jwt_authentication:
             name: token
 ```
 
+## Vue Storefront Configuration
+
+After successfull Pimcore bundle installation Your Pimcore instance will be handling all the dynamic requests from Vue Storefront. Thereof You need to modify `vue-storefront/config/local.json` (assuming that Your Pimcore base URL is https://vuestorefrontcoreshop.localhost and ElasticSearch running on)
+
+**Note**: As the Vue Stoerfront will be connecting to ElasticSearch from the client's browser You probably should put some kind of Proxy in front of ElasticSearch for scalability and security reasons. Please consider using the [vue-storefront-api](). It's endpoint [`/api/catalog`](https://github.com/DivanteLtd/vue-storefront-api/blob/master/src/api/catalog.js) works as a ElasticSearch HTTP(s) proxy. You can achieve the same results using nginx either Varnish.
+
+```
+  "elasticsearch": {
+    "httpAuth": "",
+    "host": "localhost:9200",
+    "index": "vue_storefront_catalog",
+    "min_score": 0.02,
+    "csrTimeout": 5000,
+    "ssrTimeout": 1000
+  },
+ "cart": {
+    "create_endpoint": "http://vuestorefrontcoreshop.localhost/vsbridge/cart/create?token={{token}}",
+    "updateitem_endpoint": "http://vuestorefrontcoreshop.localhost/vsbridge/cart/update?token={{token}}&cartId={{cartId}}",
+    "deleteitem_endpoint": "http://vuestorefrontcoreshop.localhost/vsbridge/cart/delete?token={{token}}&cartId={{cartId}}",
+    "pull_endpoint": "http://vuestorefrontcoreshop.localhost/vsbridge/cart/pull?token={{token}}&cartId={{cartId}}",
+    "totals_endpoint": "http://localhost:8080/api/cart/totals?token={{token}}&cartId={{cartId}}",
+    "paymentmethods_endpoint": "http://vuestorefrontcoreshop.localhost/vsbridge/cart/payment-methods?token={{token}}&cartId={{cartId}}",
+    "shippingmethods_endpoint": "http://vuestorefrontcoreshop.localhost/vsbridge/cart/shipping-methods?token={{token}}&cartId={{cartId}}",
+    "shippinginfo_endpoint": "http://vuestorefrontcoreshop.localhost/vsbridge/cart/shipping-information?token={{token}}&cartId={{cartId}}",
+    "collecttotals_endpoint": "http://localhost:8080/api/cart/collect-totals?token={{token}}&cartId={{cartId}}",
+    "deletecoupon_endpoint": "http://localhost:8080/api/cart/delete-coupon?token={{token}}&cartId={{cartId}}",
+    "applycoupon_endpoint": "http://localhost:8080/api/cart/apply-coupon?token={{token}}&cartId={{cartId}}&coupon={{coupon}}"
+  },
+ "orders": {
+    "endpoint": "http://vuestorefrontcoreshop.localhost/vsbridge/order?token={{token}}",
+  },
+  "users": {
+    "endpoint": "http://vuestorefrontcoreshop.localhost/vsbridge/user",
+    "history_endpoint": "http://vuestorefrontcoreshop.localhost/vsbridge/user/order-history?token={{token}}",
+    "resetPassword_endpoint": "http://vuestorefrontcoreshop.localhost/vsbridge/user/reset-password",
+    "changePassword_endpoint": "http://vuestorefrontcoreshop.localhost/vsbridge/user/change-password?token={{token}}",
+    "login_endpoint": "http://vuestorefrontcoreshop.localhost/vsbridge/user/login",
+    "create_endpoint": "http://vuestorefrontcoreshop.localhost/vsbridge/user/create",
+    "me_endpoint": "http://vuestorefrontcoreshop.localhost/vsbridge/user/me?token={{token}}",
+    "refresh_endpoint": "http://vuestorefrontcoreshop.localhost/vsbridge/user/refresh"
+  },  
+  "stock": {
+    "endpoint": "http://vuestorefrontcoreshop.localhost/vsbridge/stock"
+  },
+  "images": {
+    "baseUrl": "http://vuestorefrontcoreshop.localhost/img/",
+    "productPlaceholder": "/assets/placeholder.jpg"
+  },   
+```
 
 
 # Data formats and architecture
@@ -117,6 +166,11 @@ All the products attributes, description, categories assets and other meta data 
 ![The frontend integration](doc/20181204-111019.png)
 
 
+# Credits
+
+This module has been initially created by Divante's team:
+- Kamil Karkus - @kkarkus,
+- Kamil Wręczycki - @kwreczycki
 
 # Licence 
 Coreshop VsBridge source code is completely free and released under the [MIT License](https://github.com/DivanteLtd/vue-storefront/blob/master/LICENSE).
