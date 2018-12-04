@@ -172,6 +172,12 @@ This module has been initially created by Divante's team:
 - Kamil Karkus - @kkarkus,
 - Kamil Wręczycki - @kwreczycki
 
+# Support
+
+If You have any questions regarding this project feel free to contact us:
+- [E-mail](mailto:contributors@vuestorefront.io),
+- [Slack](http://slack.vuestorefront.io)
+
 # Licence 
 Coreshop VsBridge source code is completely free and released under the [MIT License](https://github.com/DivanteLtd/vue-storefront/blob/master/LICENSE).
 
