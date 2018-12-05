@@ -5,6 +5,7 @@ namespace CoreShop2VueStorefrontBundle\Controller;
 use CoreShop\Bundle\CoreBundle\Doctrine\ORM\CarrierRepository;
 use CoreShop\Bundle\CoreBundle\Doctrine\ORM\PaymentProviderRepository;
 use CoreShop\Component\Core\Model\CartInterface;
+use CoreShop\Component\Core\Repository\ProductRepositoryInterface;
 use CoreShop\Component\Inventory\Model\StockableInterface;
 use CoreShop\Component\Order\Context\CartContextInterface;
 use CoreShop\Component\Order\Manager\CartManagerInterface;
@@ -14,8 +15,6 @@ use CoreShop\Component\Payment\Model\PaymentProviderInterface;
 use CoreShop\Component\Shipping\Model\Carrier;
 use CoreShop\Component\StorageList\StorageListModifierInterface;
 use CoreShop2VueStorefrontBundle\Bridge\Response\Cart\CartResponse;
-use CoreShop2VueStorefrontBundle\Repository\ProductRepository;
-use Pimcore\Bundle\EcommerceFrameworkBundle\CartManager\Cart;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -35,7 +34,7 @@ class CartController extends Controller
     {
         return $this->json([
             'status' => 200,
-            'result' => $this->getCart()->getId()
+            'result' => $this->getCart()->getId(),
         ]);
     }
 
@@ -49,13 +48,14 @@ class CartController extends Controller
      *
      * @todo handle cartId, I couldn't to this because VSF doesn't send it locally
      */
-    public function pull(CartResponse $cartResponse) {
+    public function pull(CartResponse $cartResponse)
+    {
 
         $items = $this->getCart()->getItems();
 
         return $this->json([
-            'code' => 200,
-            'result' => $cartResponse->cartItemsResponse($items)
+            'code'   => 200,
+            'result' => $cartResponse->cartItemsResponse($items),
         ]);
     }
 
@@ -63,10 +63,10 @@ class CartController extends Controller
      * @Route("/vsbridge/cart/update")
      * @Method("POST")
      *
-     * @param Request             $request
-     * @param CartResponse        $cartResponse
-     * @param TranslatorInterface $translator
-     * @param ProductRepository   $productRepository
+     * @param Request                    $request
+     * @param CartResponse               $cartResponse
+     * @param TranslatorInterface        $translator
+     * @param ProductRepositoryInterface $productRepository
      *
      * @return JsonResponse
      *
@@ -77,14 +77,17 @@ class CartController extends Controller
         Request $request,
         CartResponse $cartResponse,
         TranslatorInterface $translator,
-        ProductRepository $productRepository
+        ProductRepositoryInterface $productRepository
     ) {
         $payload = json_decode($request->getContent(), true);
-        $product = $productRepository->findOneBySkuAndAttributes($payload['cartItem']['sku'], $payload['cartItem']['product_option']);
+        $product = $productRepository->findOneBy([
+            'sku' => $payload['cartItem']['sku'],
+            'other' => $payload['cartItem']['product_option'] //@FIXME attributes resolver
+        ]);
 
         if (!$product instanceof PurchasableInterface) {
             return $this->json([
-                'code' => 500
+                'code' => 500,
             ]);
         }
 
@@ -97,12 +100,13 @@ class CartController extends Controller
         if ($product instanceof StockableInterface) {
             $quantityToCheckStock = $quantity;
 
-            $hasStock = $this->get('coreshop.inventory.availability_checker.default')->isStockSufficient($product, $quantityToCheckStock);
+            $hasStock = $this->get('coreshop.inventory.availability_checker.default')->isStockSufficient($product,
+                $quantityToCheckStock);
 
             if (!$hasStock) {
                 return $this->json([
-                    'code' => 500,
-                    'result' => $translator->trans('Out of stock.')
+                    'code'   => 500,
+                    'result' => $translator->trans('Out of stock.'),
                 ]);
             }
         }
@@ -113,8 +117,8 @@ class CartController extends Controller
         $this->get('coreshop.tracking.manager')->trackCartAdd($this->getCart(), $product, $quantity);
 
         return $this->json([
-            'code' => 200,
-            'result' => $cartResponse->singleCartItemResponse($item)
+            'code'   => 200,
+            'result' => $cartResponse->singleCartItemResponse($item),
         ]);
     }
 
@@ -124,17 +128,17 @@ class CartController extends Controller
      *
      * @param Request           $request
      *
-     * @param ProductRepository $productRepository
+     * @param ProductRepositoryInterface $productRepository
      *
      * @return JsonResponse
      * @todo handle cartId, I couldn't to this because VSF doesn't send it locally
      */
     public function delete(
         Request $request,
-        ProductRepository $productRepository
+        ProductRepositoryInterface $productRepository
     ) {
         $payload = json_decode($request->getContent(), true);
-        $product = $productRepository->findOneBySku($payload['cartItem']['sku']);
+        $product = $productRepository->findOneBy(['sku' => $payload['cartItem']['sku']]);
 
         if (!$product instanceof PurchasableInterface) {
             return $this->json([
@@ -159,11 +163,12 @@ class CartController extends Controller
         $this->getCartModifier()->removeItem($this->getCart(), $cartItem);
         $this->getCartManager()->persistCart($this->getCart());
 
-        $this->get('coreshop.tracking.manager')->trackCartRemove($this->getCart(), $cartItem->getProduct(), $cartItem->getQuantity());
+        $this->get('coreshop.tracking.manager')->trackCartRemove($this->getCart(), $cartItem->getProduct(),
+            $cartItem->getQuantity());
 
         return $this->json([
-            'code' => 200,
-            'result' => true
+            'code'   => 200,
+            'result' => true,
         ]);
     }
 
@@ -173,7 +178,7 @@ class CartController extends Controller
      *
      * @param Request           $request
      * @param CarrierRepository $carrierRepository
-     * @param Cart              $cartResponse
+     * @param CartResponse      $cartResponse
      *
      * @return JsonResponse
      * @todo handle different shipping methods
@@ -189,7 +194,7 @@ class CartController extends Controller
 
         return $this->json([
             'status' => 200,
-            'result' => $cartResponse->shippingMethodsResponse($defaultMethod)
+            'result' => $cartResponse->shippingMethodsResponse($defaultMethod),
         ]);
     }
 
@@ -210,11 +215,11 @@ class CartController extends Controller
     ) {
         /** @var PaymentProviderInterface $providers */
         $providers = $paymentProviderRepository->findActive();
-        $payload = json_decode($request->getContent(), true);
+        $payload   = json_decode($request->getContent(), true);
 
         return $this->json([
             'status' => 200,
-            'result' => $cartResponse->shippingInformationResponse($this->getCart(), $providers, $payload)
+            'result' => $cartResponse->shippingInformationResponse($this->getCart(), $providers, $payload),
         ]);
 
     }
@@ -236,7 +241,7 @@ class CartController extends Controller
         $providers = $paymentProviderRepository->findActive();
         return $this->json([
             'status' => 200,
-            'result' => $cartResponse->paymentMethodsResponse($providers)
+            'result' => $cartResponse->paymentMethodsResponse($providers),
         ]);
 
     }
