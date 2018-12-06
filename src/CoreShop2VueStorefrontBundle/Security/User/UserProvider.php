@@ -3,8 +3,7 @@
 namespace CoreShop2VueStorefrontBundle\Security\User;
 
 use CoreShop\Bundle\CustomerBundle\Pimcore\Repository\CustomerRepository;
-use CoreShop\Component\Customer\Model\CustomerInterface;
-use Pimcore\Model\DataObject\CoreShopCustomer;
+use CoreShop\Component\Core\Model\CustomerInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -36,7 +35,7 @@ class UserProvider implements UserProviderInterface
 
     public function refreshUser(UserInterface $user)
     {
-        if (!$user instanceof CoreShopCustomer) {
+        if (!$user instanceof CustomerInterface) {
             throw new UnsupportedUserException();
         }
 
@@ -45,6 +44,6 @@ class UserProvider implements UserProviderInterface
 
     public function supportsClass($class)
     {
-        return $class === CoreShopCustomer::class;
+        return is_subclass_of($class, CustomerInterface::class);
     }
 }

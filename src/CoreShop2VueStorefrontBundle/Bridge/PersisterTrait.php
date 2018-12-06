@@ -2,12 +2,13 @@
 
 namespace CoreShop2VueStorefrontBundle\Bridge;
 
+use CoreShop\Component\Core\Model\ProductInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 trait PersisterTrait
 {
     /**
-     * @param [] $objects
+     * @param ProductInterface[] $objects
      * @param OutputInterface $output
      * @param EnginePersister $enginePersister
      */

@@ -3,16 +3,17 @@
 namespace CoreShop2VueStorefrontBundle\Bridge\DocumentMapper;
 
 use Cocur\Slugify\SlugifyInterface;
-use CoreShop\Component\Product\Model\ProductInterface;
+use CoreShop\Component\Core\Model\ProductInterface;
+use CoreShop\Component\Core\Repository\ProductRepositoryInterface;
 use CoreShop2VueStorefrontBundle\Bridge\Helper\PriceHelper;
 use CoreShop2VueStorefrontBundle\Document\Attribute;
 use CoreShop2VueStorefrontBundle\Document\ConfigurableChildren;
 use CoreShop2VueStorefrontBundle\Document\ConfigurableOption;
+use CoreShop2VueStorefrontBundle\Document\DocumentFactory;
 use CoreShop2VueStorefrontBundle\Document\Product;
 use CoreShop2VueStorefrontBundle\Document\ProductCategory;
 use CoreShop2VueStorefrontBundle\Repository\AttributeRepository;
-use CoreShop2VueStorefrontBundle\Repository\ProductRepository;
-use Pimcore\Model\DataObject\CoreShopProduct;
+use Pimcore\Model\DataObject\AbstractObject;
 
 class DocumentConfigurableProductMapper extends DocumentProductMapper implements DocumentMapperInterface
 {
@@ -27,22 +28,24 @@ class DocumentConfigurableProductMapper extends DocumentProductMapper implements
 
     /**
      * @param SlugifyInterface $slugify
-     * @param ProductRepository $productRepository
+     * @param ProductRepositoryInterface $productRepository
      * @param AttributeRepository $attributeRepository
+     * @param DocumentFactory $documentFactory
      * @param PriceHelper $priceHelper
      */
     public function __construct(
         SlugifyInterface $slugify,
-        ProductRepository $productRepository,
+        ProductRepositoryInterface $productRepository,
         AttributeRepository $attributeRepository,
+        DocumentFactory $documentFactory,
         PriceHelper $priceHelper
     ) {
-        parent::__construct($slugify, $productRepository, $priceHelper);
+        parent::__construct($slugify, $productRepository, $priceHelper, $documentFactory);
         $this->attributeRepository = $attributeRepository;
     }
 
     /**
-     * @param CoreShopProduct $product
+     * @param ProductInterface $product
      * @return Product
      */
     public function mapToDocument($product): Product
@@ -62,7 +65,10 @@ class DocumentConfigurableProductMapper extends DocumentProductMapper implements
      */
     public function setConfigurableChildren(Product $esProduct, ProductInterface $product): void
     {
-        $variants = $this->productRepository->getVariants($product);
+        if ($product instanceof \CoreShop2VueStorefrontBundle\Bridge\Model\ProductInterface) {
+            return;
+        }
+        $variants = $product->getChildren([AbstractObject::OBJECT_TYPE_VARIANT], true);
 
         $categoryIds = array_map(function (ProductCategory $category) {
             return $category->getCategoryId();
@@ -77,7 +83,7 @@ class DocumentConfigurableProductMapper extends DocumentProductMapper implements
     }
 
     /**
-     * @param ProductInterface|\Pimcore\Model\DataObject\Product $variant
+     * @param ProductInterface $variant
      * @param array $catIds
      * @return ConfigurableChildren
      */
@@ -87,8 +93,11 @@ class DocumentConfigurableProductMapper extends DocumentProductMapper implements
         $configurableChildren->setId($variant->getId());
         $configurableChildren->setName($variant->getName() ?: $variant->getKey());
         $configurableChildren->setSku($variant->getSku());
-        $configurableChildren->setColor($variant->getColor());
-        $configurableChildren->setSize($variant->getSize());
+        if ($variant instanceof \CoreShop2VueStorefrontBundle\Bridge\Model\ProductInterface) {
+            $configurableChildren->setColor($variant->getColor());
+            $configurableChildren->setSize($variant->getSize());
+            //@todo consider more flexible way to add additional attributes
+        }
 
         $configurableChildren->setCategoryIds($catIds);
 

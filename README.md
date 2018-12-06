@@ -21,13 +21,47 @@ The module is created as a Pimcore Symfony Bundle and provides the native data e
 
 # Setup and installation
 
-The Data Bridge is provided as a Pimcore extenshion (Symfony Bundle)
+The Data Bridge is provided as a Pimcore extension (Symfony Bundle)
 
 ## Requirements 
 - php 7.1 or above
 - pimcore/pimcore 5.4 or above
 - coreshop/core-shop 2.0.x-dev
 - vuestorefront and vuestorefront api containers must be visible for pimcore and vice versa
+
+
+## Register bundles
+
+In `app/AppKernel.php` of Your Pimcore instance please add this line to `registerBundlesToCollection`:
+```
+        if (class_exists('\ONGR\ElasticsearchBundle\ONGRElasticsearchBundle')) {
+            $collection->addBundle(new ONGR\ElasticsearchBundle\ONGRElasticsearchBundle);
+        }
+
+        if (class_exists(\Cocur\Slugify\Bridge\Symfony\CocurSlugifyBundle::class)) {
+            $collection->addBundle(new \Cocur\Slugify\Bridge\Symfony\CocurSlugifyBundle());
+        }
+
+        if (class_exists(\SymfonyBundles\JsonRequestBundle\SymfonyBundlesJsonRequestBundle::class)) {
+            $collection->addBundle(new \SymfonyBundles\JsonRequestBundle\SymfonyBundlesJsonRequestBundle());
+        }
+
+        if (class_exists(\Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle::class)) {
+            $collection->addBundle(new \Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle());
+        }
+
+        if (class_exists(\Gfreeau\Bundle\GetJWTBundle\GfreeauGetJWTBundle::class)) {
+            $collection->addBundle(new \Gfreeau\Bundle\GetJWTBundle\GfreeauGetJWTBundle());
+        }
+
+        if (class_exists(\Nelmio\CorsBundle\NelmioCorsBundle::class)) {
+            $collection->addBundle(new Nelmio\CorsBundle\NelmioCorsBundle());
+        }
+
+        if (class_exists(Gesdinet\JWTRefreshTokenBundle\GesdinetJWTRefreshTokenBundle::class)) {
+            $collection->addBundle(new \Gesdinet\JWTRefreshTokenBundle\GesdinetJWTRefreshTokenBundle());
+        }
+```
 
 ## Configure ES connection
 In `app/config/config.yml` of Your Pimcore instance add this ElasticSearch configuration:
@@ -41,23 +75,6 @@ ongr_elasticsearch:
                     - es1:9200
             mappings:
                 - CoreShop2VueStorefrontBundle
-```
-
-## Configure CoreShop
-In `app/config/config.yml` add the default products and categories mapping:
-```
-core_shop_product:
-    pimcore:
-        category:
-            path: categories
-            classes:
-                model: CoreShop2VueStorefrontBundle\Model\Category
-                install_file: '@CoreShop2VueStorefrontBundle/Resources/install/pimcore/classes/category/Category.json'
-        product:
-            path: products
-            classes:
-                model: CoreShop2VueStorefrontBundle\Model\Product
-                install_file: '@CoreShop2VueStorefrontBundle/Resources/install/pimcore/classes/product/Product.json'
 ```
 
 ## Update database schema

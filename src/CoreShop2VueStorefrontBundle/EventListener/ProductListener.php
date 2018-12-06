@@ -9,8 +9,7 @@ use Exception;
 use ONGR\ElasticsearchBundle\Service\Manager;
 use Pimcore\Event\Model\DataObjectEvent;
 use Pimcore\Model\DataObject\AbstractObject;
-use Pimcore\Model\DataObject\CoreShopCategory;
-use Pimcore\Model\DataObject\CoreShopProduct;
+use Pimcore\Model\DataObject\Concrete;
 use Psr\Log\LoggerInterface;
 
 class ProductListener
@@ -29,7 +28,7 @@ class ProductListener
     public function postSave(DataObjectEvent $event)
     {
         try {
-            /** @var CoreShopProduct|CoreShopCategory $object */
+            /** @var ProductInterface|CategoryInterface|Concrete $object */
             $object = $event->getObject();
             if ($this->shouldSynchronizeWithVue($object)) {
                 if (!$object->isPublished() || $object->getType() == AbstractObject::OBJECT_TYPE_VARIANT) {

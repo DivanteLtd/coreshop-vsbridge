@@ -2,9 +2,9 @@
 
 namespace CoreShop2VueStorefrontBundle\Tests\Bridge\Helper;
 
+use CoreShop\Component\Product\Model\Category;
 use CoreShop\Component\Product\Model\CategoryInterface;
 use CoreShop2VueStorefrontBundle\Bridge\Helper\DocumentHelper;
-use CoreShop2VueStorefrontBundle\Model\Category;
 use CoreShop2VueStorefrontBundle\Tests\MockeryTestCase;
 use Mockery as m;
 
