@@ -4,35 +4,30 @@ namespace CoreShop2VueStorefrontBundle\Bridge\DocumentMapper;
 
 use Cocur\Slugify\SlugifyInterface;
 use CoreShop\Component\Core\Model\CategoryInterface;
-use CoreShop\Component\Core\Repository\CategoryRepositoryInterface;
 use CoreShop2VueStorefrontBundle\Bridge\Helper\DocumentHelper;
 use CoreShop2VueStorefrontBundle\Document\Category;
-use CoreShop2VueStorefrontBundle\Document\DocumentFactory;
+use CoreShop2VueStorefrontBundle\Repository\CategoryRepository;
 
 class DocumentCategoryMapper extends AbstractMapper implements DocumentMapperInterface
 {
     const CATEGORY_DEFAULT_PARENT_ID = 2;
 
-    /** @var CategoryRepositoryInterface */
+    /** @var CategoryRepository */
     private $categoryRepository;
     /** @var SlugifyInterface */
     private $slugify;
     /** @var DocumentHelper */
     private $documentHelper;
-    /** @var DocumentFactory */
-    private $documentFactory;
 
     /**
-     * @param CategoryRepositoryInterface $categoryRepository
-     * @param SlugifyInterface            $slugify
-     * @param DocumentHelper              $documentHelper
-     * @param DocumentFactory             $documentFactory
+     * @param CategoryRepository $categoryRepository
+     * @param SlugifyInterface $slugify
+     * @param DocumentHelper $documentHelper
      */
     public function __construct(
-        CategoryRepositoryInterface $categoryRepository,
+        CategoryRepository $categoryRepository,
         SlugifyInterface $slugify,
-        DocumentHelper $documentHelper,
-        DocumentFactory $documentFactory
+        DocumentHelper $documentHelper
     ) {
         $this->categoryRepository = $categoryRepository;
         $this->slugify = $slugify;
@@ -40,7 +35,7 @@ class DocumentCategoryMapper extends AbstractMapper implements DocumentMapperInt
     }
 
     /**
-     * @param \CoreShop\Component\Product\Model\CategoryInterface $category
+     * @param \Pimcore\Model\DataObject\Category $category
      * @param int $level
      * @param int $position
      * @param int $parentId
@@ -53,19 +48,19 @@ class DocumentCategoryMapper extends AbstractMapper implements DocumentMapperInt
         $position = self::CATEGORY_DEFAULT_POSITION,
         $parentId = self::CATEGORY_DEFAULT_PARENT_ID
     ): Category {
-        $esCategory = $this->documentFactory->getOrCreate(Category::class, $category->getId());
+        $esCategory = $this->categoryRepository->getOrCreate(Category::class, $category->getId());
 
         $categoryName = $category->getName() ?: $category->getKey();
 
         $esCategory->setId($category->getId());
         $esCategory->setParentId($parentId);
         $esCategory->setName($categoryName);
-        $esCategory->setIsActive($category->getPublished());
+        $esCategory->setIsActive($category->getIsActive());
         $esCategory->setLevel($level);
         $esCategory->setCreatedAt($this->getDateTime($category->getCreationDate()));
         $esCategory->setUpdatedAt($this->getDateTime($category->getModificationDate()));
         $esCategory->setPath($this->documentHelper->buildPath($category));
-        $esCategory->setIncludeInMenu($category->getIncludeInMenu()); //@FIXME
+        $esCategory->setIncludeInMenu($category->getIncludeInMenu());
         $esCategory->setDisplayMode(self::CATEGORY_DEFAULT_DISPLAY_MODE);
         $esCategory->setPageLayout(self::CATEGORY_DEFAULT_PAGE_LAYOUT);
         $esCategory->setChildrenData($this->buildChildrenData($category->getChildCategories(), ++$level));

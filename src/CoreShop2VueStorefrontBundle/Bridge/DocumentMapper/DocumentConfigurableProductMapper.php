@@ -3,8 +3,7 @@
 namespace CoreShop2VueStorefrontBundle\Bridge\DocumentMapper;
 
 use Cocur\Slugify\SlugifyInterface;
-use CoreShop\Component\Core\Model\ProductInterface;
-use CoreShop\Component\Core\Repository\ProductRepositoryInterface;
+use CoreShop\Component\Product\Model\ProductInterface;
 use CoreShop2VueStorefrontBundle\Bridge\Helper\PriceHelper;
 use CoreShop2VueStorefrontBundle\Document\Attribute;
 use CoreShop2VueStorefrontBundle\Document\ConfigurableChildren;
@@ -12,7 +11,8 @@ use CoreShop2VueStorefrontBundle\Document\ConfigurableOption;
 use CoreShop2VueStorefrontBundle\Document\Product;
 use CoreShop2VueStorefrontBundle\Document\ProductCategory;
 use CoreShop2VueStorefrontBundle\Repository\AttributeRepository;
-use Pimcore\Model\DataObject\AbstractObject;
+use CoreShop2VueStorefrontBundle\Repository\ProductRepository;
+use Pimcore\Model\DataObject\CoreShopProduct;
 
 class DocumentConfigurableProductMapper extends DocumentProductMapper implements DocumentMapperInterface
 {
@@ -27,13 +27,13 @@ class DocumentConfigurableProductMapper extends DocumentProductMapper implements
 
     /**
      * @param SlugifyInterface $slugify
-     * @param ProductRepositoryInterface $productRepository
+     * @param ProductRepository $productRepository
      * @param AttributeRepository $attributeRepository
      * @param PriceHelper $priceHelper
      */
     public function __construct(
         SlugifyInterface $slugify,
-        ProductRepositoryInterface $productRepository,
+        ProductRepository $productRepository,
         AttributeRepository $attributeRepository,
         PriceHelper $priceHelper
     ) {
@@ -42,7 +42,7 @@ class DocumentConfigurableProductMapper extends DocumentProductMapper implements
     }
 
     /**
-     * @param ProductInterface $product
+     * @param CoreShopProduct $product
      * @return Product
      */
     public function mapToDocument($product): Product
@@ -62,10 +62,7 @@ class DocumentConfigurableProductMapper extends DocumentProductMapper implements
      */
     public function setConfigurableChildren(Product $esProduct, ProductInterface $product): void
     {
-        if (!method_exists($product, 'getChildren')) {
-            return;
-        }
-        $variants = $product->getChildren([AbstractObject::OBJECT_TYPE_VARIANT], true);
+        $variants = $this->productRepository->getVariants($product);
 
         $categoryIds = array_map(function (ProductCategory $category) {
             return $category->getCategoryId();
@@ -80,7 +77,7 @@ class DocumentConfigurableProductMapper extends DocumentProductMapper implements
     }
 
     /**
-     * @param ProductInterface $variant
+     * @param ProductInterface|\Pimcore\Model\DataObject\Product $variant
      * @param array $catIds
      * @return ConfigurableChildren
      */
@@ -90,7 +87,7 @@ class DocumentConfigurableProductMapper extends DocumentProductMapper implements
         $configurableChildren->setId($variant->getId());
         $configurableChildren->setName($variant->getName() ?: $variant->getKey());
         $configurableChildren->setSku($variant->getSku());
-        $configurableChildren->setColor($variant->getColor()); //@FIXME
+        $configurableChildren->setColor($variant->getColor());
         $configurableChildren->setSize($variant->getSize());
 
         $configurableChildren->setCategoryIds($catIds);
