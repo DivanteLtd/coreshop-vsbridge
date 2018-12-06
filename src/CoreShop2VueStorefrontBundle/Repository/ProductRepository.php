@@ -8,7 +8,7 @@ use Pimcore\Model\DataObject\AbstractObject;
 use Pimcore\Model\DataObject\Product;
 use Pimcore\Model\DataObject\Product\Listing;
 
-class ProductRepository extends BaseRepository implements RepositoryInterface
+class ProductRepository extends DocumentFactory implements RepositoryInterface
 {
     /** @var AttributeRepository */
     protected $attributeRepository;
@@ -22,9 +22,8 @@ class ProductRepository extends BaseRepository implements RepositoryInterface
         $this->attributeRepository = $attributeRepository;
     }
 
-
     /**
-     * @param ProductInterface|Product $product
+     * @param ProductInterface $product
      * @return mixed
      */
     public function getVariants(ProductInterface $product)
@@ -32,6 +31,9 @@ class ProductRepository extends BaseRepository implements RepositoryInterface
         return $product->getChildren([AbstractObject::OBJECT_TYPE_VARIANT], true);
     }
 
+    /**
+     * @return Listing
+     */
     public function fetchAll()
     {
         $products = new Listing();
@@ -42,7 +44,7 @@ class ProductRepository extends BaseRepository implements RepositoryInterface
 
     /**
      * @param string $sku
-     * @return Product
+     * @return ProductInterface
      *
      * @throws Exception
      */
@@ -67,7 +69,7 @@ class ProductRepository extends BaseRepository implements RepositoryInterface
      * @param string $sku
      * @param array  $attributes
      *
-     * @return Product
+     * @return ProductInterface
      * @throws Exception
      */
     public function findOneBySkuAndAttributes(string $sku, array $attributes)
