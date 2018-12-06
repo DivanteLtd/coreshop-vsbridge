@@ -3,43 +3,37 @@
 namespace CoreShop2VueStorefrontBundle\Bridge\DocumentMapper;
 
 use Cocur\Slugify\SlugifyInterface;
-use CoreShop\Component\Core\Model\ProductInterface;
-use CoreShop\Component\Core\Repository\ProductRepositoryInterface;
+use CoreShop\Component\Product\Model\ProductInterface;
 use CoreShop2VueStorefrontBundle\Bridge\Helper\PriceHelper;
-use CoreShop2VueStorefrontBundle\Document\DocumentFactory;
 use CoreShop2VueStorefrontBundle\Document\MediaGallery;
 use CoreShop2VueStorefrontBundle\Document\Product;
 use CoreShop2VueStorefrontBundle\Document\ProductCategory;
 use CoreShop2VueStorefrontBundle\Document\Stock;
+use CoreShop2VueStorefrontBundle\Repository\ProductRepository;
 use Pimcore\Model\Asset\Image;
 
 class DocumentProductMapper extends AbstractMapper implements DocumentMapperInterface
 {
     /** @var SlugifyInterface */
     protected $slugify;
-    /** @var ProductRepositoryInterface */
+    /** @var ProductRepository */
     protected $productRepository;
     /** @var PriceHelper */
     private $priceHelper;
-    /** @var DocumentFactory */
-    private $documentFactory;
 
     /**
-     * @param SlugifyInterface           $slugify
-     * @param ProductRepositoryInterface $productRepository
-     * @param PriceHelper                $priceHelper
-     * @param DocumentFactory            $documentFactory
+     * @param SlugifyInterface $slugify
+     * @param ProductRepository $productRepository
+     * @param PriceHelper $priceHelper
      */
     public function __construct(
         SlugifyInterface $slugify,
-        ProductRepositoryInterface $productRepository,
-        PriceHelper $priceHelper,
-        DocumentFactory $documentFactory
+        ProductRepository $productRepository,
+        PriceHelper $priceHelper
     ) {
         $this->slugify = $slugify;
         $this->productRepository = $productRepository;
         $this->priceHelper = $priceHelper;
-        $this->documentFactory = $documentFactory;
     }
 
     /**
@@ -49,7 +43,7 @@ class DocumentProductMapper extends AbstractMapper implements DocumentMapperInte
      */
     public function mapToDocument($product): Product
     {
-        $esProduct = $this->documentFactory->getOrCreate(Product::class, $product->getId());
+        $esProduct = $this->productRepository->getOrCreate(Product::class, $product->getId());
 
         $productName = $product->getName() ?: $product->getKey();
 
@@ -121,7 +115,7 @@ class DocumentProductMapper extends AbstractMapper implements DocumentMapperInte
     }
 
     /**
-     * @param ProductInterface $product
+     * @param ProductInterface|\CoreShop2VueStorefrontBundle\Model\Product $product
      *
      * @return Stock
      */

@@ -21,7 +21,7 @@ The module is created as a Pimcore Symfony Bundle and provides the native data e
 
 # Setup and installation
 
-The Data Bridge is provided as a Pimcore extension (Symfony Bundle)
+The Data Bridge is provided as a Pimcore extenshion (Symfony Bundle)
 
 ## Requirements 
 - php 7.1 or above
@@ -41,6 +41,23 @@ ongr_elasticsearch:
                     - es1:9200
             mappings:
                 - CoreShop2VueStorefrontBundle
+```
+
+## Configure CoreShop
+In `app/config/config.yml` add the default products and categories mapping:
+```
+core_shop_product:
+    pimcore:
+        category:
+            path: categories
+            classes:
+                model: CoreShop2VueStorefrontBundle\Model\Category
+                install_file: '@CoreShop2VueStorefrontBundle/Resources/install/pimcore/classes/category/Category.json'
+        product:
+            path: products
+            classes:
+                model: CoreShop2VueStorefrontBundle\Model\Product
+                install_file: '@CoreShop2VueStorefrontBundle/Resources/install/pimcore/classes/product/Product.json'
 ```
 
 ## Update database schema

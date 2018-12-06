@@ -2,9 +2,8 @@
 
 namespace CoreShop2VueStorefrontBundle\Bridge;
 
-use CoreShop\Component\Core\Model\ProductInterface;
+use CoreShop\Component\Product\Model\ProductInterface;
 use CoreShop2VueStorefrontBundle\Bridge\DocumentMapper\DocumentMapperFactory;
-use ONGR\ElasticsearchBundle\Exception\BulkWithErrorsException;
 use ONGR\ElasticsearchBundle\Service\Manager;
 
 class EnginePersister
@@ -23,9 +22,9 @@ class EnginePersister
     /**
      * @param ProductInterface $object
      * @param string $lang
-     * @throws BulkWithErrorsException
+     * @throws \ONGR\ElasticsearchBundle\Exception\BulkWithErrorsException
      */
-    public function persist($object, string $lang = 'en'): void
+    public function persist($object, string $lang = 'pl'): void
     {
         $documentMapper = $this->documentMapperFactory->factory($object);
         $esDocument = $documentMapper->mapToDocument($object);
