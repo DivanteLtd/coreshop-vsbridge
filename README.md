@@ -1,16 +1,19 @@
 
 # First Progressive Web App for Pimcore and CoreShop
+![Branch stable](https://img.shields.io/badge/stable%20branch-master-blue.svg)
+![Branch Develop](https://img.shields.io/badge/dev%20branch-develop-blue.svg)
+<a href="https://join.slack.com/t/vuestorefront/shared_invite/enQtMzA4MTM2NTE5NjM2LTI1M2RmOWIyOTk0MzFlMDU3YzJlYzcyYzNiNjUyZWJiMTZjZjc3MjRlYmE5ZWQ1YWRhNTQyM2ZjN2ZkMzZlNTg">![Branch Develop](https://img.shields.io/badge/community%20chat-slack-FF1493.svg)</a>
 
 This projects bring You the [Pimcore](https://pimcore.com) plus [Coreshop](http://www.coreshop.org/) support as a backend platform for [Vue Storefront - first Progressive Web App for e-Commerce](https://github.com/DivanteLtd/vue-storefront). 
 
 Vue Storefront is a standalone PWA storefront for your eCommerce, possible to connect with any eCommerce backend (eg. Magento, Pimcore, Prestashop or Shopware) through the API.
 
  ## Video demo
- [![See how it works!](https://github.com/DivanteLtd/vue-storefront/raw/master/doc/media/Fil-Rakowski-VS-Demo-Youtube.png)](https://www.youtube.com/watch?v=L4K-mq9JoaQ)
+ [![See how it works!](https://github.com/DivanteLtd/vue-storefront/raw/master/docs/.vuepress/public/Fil-Rakowski-VS-Demo-Youtube.png)](https://www.youtube.com/watch?v=L4K-mq9JoaQ)
 Sign up for a demo at https://vuestorefront.io/ (Vue Storefront integrated with Pimcore OR Magento2).
 
 # Pimcore data bridge
-Vue Storefront is platform agnostic - which mean: it can be connected to virtually any eCommerce CMS. This project is a data connector for *Coreshop* and *Pimcore* data structures
+Vue Storefront is platform agnostic - which mean: it can be connected to virtually any eCommerce CMS. This project is a data connector for *CoreShop* and *Pimcore* data structures
 
 The module is created as a Pimcore Symfony Bundle and provides the native data exchange capabilities of:
 - pushing the entities marked as Products (maped in the Pimcore Admin panel) to Elastic Search (including support for configurable products),
@@ -148,7 +151,7 @@ For demonstration purposes we do support all the standard entities like:
 - products: localized attributes, single photo (can be easily extendend), variants, prices.
 
 
-![Coreshop integration architecture](doc/pimcore2vuestorefront-architecture.png)
+![CoreShop integration architecture](doc/pimcore2vuestorefront-architecture.png)
 
 # Screenshots
 
@@ -159,7 +162,7 @@ Please visit [Vue Storefront site](http://vuestorefront.io) to check out why it'
 
 ![Category admin panel](doc/20181204-111306.png)
 
-Here is the order as it was transmited from Vue Storefront to Coreshop
+Here is the order as it was transmited from Vue Storefront to CoreShop
 ![Order admin panel](doc/20181204-111251.png)
 
 All the products attributes, description, categories assets and other meta data is synchronized with Vue Storefront in real time
@@ -179,5 +182,5 @@ If You have any questions regarding this project feel free to contact us:
 - [Slack](http://slack.vuestorefront.io)
 
 # Licence 
-Coreshop VsBridge source code is completely free and released under the [MIT License](https://github.com/DivanteLtd/vue-storefront/blob/master/LICENSE).
+CoreShop VsBridge source code is completely free and released under the [MIT License](https://github.com/DivanteLtd/vue-storefront/blob/master/LICENSE).
 
