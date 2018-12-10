@@ -3,7 +3,9 @@
 namespace CoreShop2VueStorefrontBundle\Bridge\DocumentMapper;
 
 use CoreShop2VueStorefrontBundle\Document\Attribute;
+use CoreShop2VueStorefrontBundle\Document\DocumentFactory;
 use CoreShop2VueStorefrontBundle\Repository\AttributeRepository;
+use Pimcore\Model\DataObject\ClassDefinition;
 
 class DocumentAttributeMapper extends AbstractMapper implements DocumentMapperInterface
 {
@@ -11,14 +13,19 @@ class DocumentAttributeMapper extends AbstractMapper implements DocumentMapperIn
 
     /** @var AttributeRepository */
     private $attributeRepository;
+    /** @var DocumentFactory */
+    private $documentFactory;
 
-    public function __construct(AttributeRepository $attributeRepository)
-    {
+    public function __construct(
+        AttributeRepository $attributeRepository,
+        DocumentFactory $documentFactory
+    ) {
         $this->attributeRepository = $attributeRepository;
+        $this->documentFactory = $documentFactory;
     }
 
     /**
-     * @param $fieldDefinition
+     * @param ClassDefinition\Data $fieldDefinition
      *
      * @return Attribute
      */
@@ -26,7 +33,7 @@ class DocumentAttributeMapper extends AbstractMapper implements DocumentMapperIn
     {
         $id = $fieldDefinition->id;
 
-        $attribute = $this->attributeRepository->getOrCreate(Attribute::class, $id);
+        $attribute = $this->documentFactory->getOrCreate(Attribute::class, $id);
 
         $attribute->setId($id);
         $attribute->setIsWyswigEnabled(self::BOOLEAN_FALSE);

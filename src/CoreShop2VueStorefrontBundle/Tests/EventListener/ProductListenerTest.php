@@ -2,6 +2,8 @@
 
 namespace CoreShop2VueStorefrontBundle\Tests\EventListener;
 
+use CoreShop\Component\Core\Model\CategoryInterface;
+use CoreShop\Component\Core\Model\ProductInterface;
 use CoreShop2VueStorefrontBundle\Bridge\EnginePersister;
 use CoreShop2VueStorefrontBundle\EventListener\ProductListener;
 use CoreShop2VueStorefrontBundle\Tests\MockeryTestCase;
@@ -9,6 +11,7 @@ use Mockery\Mock;
 use Pimcore\Event\Model\DataObjectEvent;
 use Pimcore\Model\DataObject\AbstractObject;
 use Pimcore\Model\DataObject\Category;
+use Pimcore\Model\DataObject\Concrete;
 use Pimcore\Model\DataObject\Product;
 use Psr\Log\LoggerInterface;
 
@@ -32,7 +35,7 @@ class ProductListenerTest extends MockeryTestCase
     /** @test */
     public function itShouldNotSynchronizeVariants()
     {
-        $product = \mock(Product::class);
+        $product = \mock(ProductInterface::class);
         $product->shouldReceive('isPublished')->once()->andReturnTrue();
         $product->shouldReceive('getType')->once()->andReturn(AbstractObject::OBJECT_TYPE_VARIANT);
 
@@ -43,7 +46,7 @@ class ProductListenerTest extends MockeryTestCase
     /** @test */
     public function itShouldNotSynchronizeNotPublishedProduct()
     {
-        $product = \mock(Product::class);
+        $product = \mock(ProductInterface::class);
         $product->shouldReceive('isPublished')->once()->andReturnFalse();
 
         $actual = $this->invokeListener($product, true);
@@ -57,7 +60,8 @@ class ProductListenerTest extends MockeryTestCase
      */
     private function invokeListener($possibleObjectToSync, bool $customAssert = false)
     {
-        $event = new DataObjectEvent($possibleObjectToSync);
+        $event = \mock(DataObjectEvent::class, [new Concrete()]); //@FIXME: hack
+        $event->shouldReceive('getObject')->once()->andReturn($possibleObjectToSync);
         $result = $this->listener->postSave($event);
 
         if (false === $customAssert) {
@@ -70,8 +74,8 @@ class ProductListenerTest extends MockeryTestCase
     public function objectToSync()
     {
         return [
-            [\mock(Category::class)],
-            [\mock(Product::class)]
+            [\mock(CategoryInterface::class)],
+            [\mock(ProductInterface::class)]
         ];
     }
 

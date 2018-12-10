@@ -1,6 +1,7 @@
 <?php
-namespace CoreShop2VueStorefrontBundle\Cart;
+namespace CoreShop2VueStorefrontBundle\Bridge\Cart;
 
+use CoreShop\Component\Core\Model\CartInterface;
 use CoreShop\Component\Customer\Context\CustomerContextInterface;
 use CoreShop\Component\Customer\Context\CustomerNotFoundException;
 use CoreShop\Component\Customer\Model\CustomerInterface;
@@ -12,7 +13,7 @@ use CoreShop\Component\Store\Context\StoreNotFoundException;
 use CoreShop\Component\Store\Model\StoreInterface;
 use Pimcore\Http\RequestHelper;
 
-final class CustomCartContext implements CartContextInterface
+final class CartContext implements CartContextInterface
 {
     /**
      * @var CustomerContextInterface
@@ -78,13 +79,21 @@ final class CustomCartContext implements CartContextInterface
         return $cart;
     }
 
+    /**
+     * @param StoreInterface    $store
+     * @param CustomerInterface $customer
+     *
+     * @return null|CartInterface
+     */
     public function findLatestByStoreAndCustomer(StoreInterface $store, CustomerInterface $customer)
     {
         $list = $this->cartRepository->getList();
-        $list->setCondition('customer__id = ? AND store = ? AND order__id is null ', [$customer->getId(), $store->getId()]);
-        $list->setOrderKey('o_id');
-        $list->setOrder('DESC');
-        $list->load();
+        $list
+            ->setCondition('customer__id = ? AND store = ? AND order__id is null ', [$customer->getId(), $store->getId()])
+            ->setOrderKey('o_id')
+            ->setOrder('DESC')
+            ->setLimit(1)
+            ->load();
 
         if ($list->getTotalCount() > 0) {
             $objects = $list->getObjects();

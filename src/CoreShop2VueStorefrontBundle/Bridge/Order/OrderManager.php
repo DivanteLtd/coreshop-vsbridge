@@ -7,7 +7,7 @@ use CoreShop\Bundle\CustomerBundle\Pimcore\Repository\CustomerRepository;
 use CoreShop\Bundle\OrderBundle\Pimcore\Repository\OrderRepository;
 use CoreShop\Bundle\WorkflowBundle\Applier\StateMachineApplierInterface;
 use CoreShop\Component\Core\Model\CartInterface;
-use CoreShop\Component\Order\Model\OrderInterface;
+use CoreShop\Component\Core\Model\OrderInterface;
 use CoreShop\Component\Order\OrderStates;
 use CoreShop\Component\Order\OrderTransitions;
 use CoreShop\Component\Order\Transformer\ProposalTransformerInterface;
@@ -17,7 +17,6 @@ use CoreShop\Component\Resource\Factory\PimcoreFactoryInterface;
 use CoreShop\Component\Store\Repository\StoreRepositoryInterface;
 use LogicException;
 use Pimcore\File;
-use Pimcore\Model\DataObject\Product;
 
 class OrderManager
 {
@@ -32,8 +31,6 @@ class OrderManager
     private $objectService;
     /** @var PimcoreFactoryInterface */
     private $orderItemFactory;
-    /** @var ProductItemToOrderItemTransformer */
-    private $productItemToOrderItemTransformer;
     /** @var AddressDataToAddressItemTransformer */
     private $addressDataToAddressItemTransformer;
     /** @var StateMachineApplierInterface */
@@ -55,7 +52,6 @@ class OrderManager
         ProposalTransformerInterface $proposalTransformer,
         OrderRepository $orderRepository,
         CustomerRepository $customerRepository,
-        ProductItemToOrderItemTransformer $productItemToOrderItemTransformer,
         AddressDataToAddressItemTransformer $addressDataToAddressItemTransformer,
         StoreRepositoryInterface $storeRepository
     ) {
@@ -65,7 +61,6 @@ class OrderManager
         $this->orderFolderPath = $orderFolderPath;
         $this->objectService = $objectService;
         $this->orderItemFactory = $orderItemFactory;
-        $this->productItemToOrderItemTransformer = $productItemToOrderItemTransformer;
         $this->addressDataToAddressItemTransformer = $addressDataToAddressItemTransformer;
         $this->stateMachineApplier = $stateMachineApplier;
         $this->proposalTransformer = $proposalTransformer;
@@ -76,7 +71,6 @@ class OrderManager
      * @param string        $orderNumber
      * @param string        $customerId
      * @param CartInterface $cart
-//     * @param array         $products
      * @param array         $addressInformation
      *
      * @return void
@@ -87,7 +81,6 @@ class OrderManager
         string $orderNumber,
         string $customerId,
         CartInterface $cart,
-//        array $products,
         array $addressInformation
     ) {
         $order = $this->orderRepository->findOneBy(['orderNumber' => $orderNumber]);
@@ -136,15 +129,6 @@ class OrderManager
 
         $newOrder->setCustomer($customer);
         $newOrder->save();
-
-//        foreach ($products as $product) {
-//            /** @var Product */
-//            $orderItem = $this->orderItemFactory->createNew();
-//            $productOrder = $this->productItemToOrderItemTransformer->transform($product, $newOrder, $orderItem);
-//            if ($productOrder) {
-//                $newOrder->addItem($productOrder);
-//            }
-//        }
 
         $newOrder->setOrderState(OrderStates::STATE_INITIALIZED);
         $newOrder->setShippingState(OrderStates::STATE_NEW);

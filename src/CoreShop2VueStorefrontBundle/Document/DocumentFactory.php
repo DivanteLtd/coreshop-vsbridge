@@ -1,17 +1,19 @@
 <?php
 
-namespace CoreShop2VueStorefrontBundle\Repository;
+namespace CoreShop2VueStorefrontBundle\Document;
 
-use CoreShop2VueStorefrontBundle\Document\Attribute;
-use CoreShop2VueStorefrontBundle\Document\Category;
-use CoreShop2VueStorefrontBundle\Document\Product;
 use ONGR\ElasticsearchBundle\Service\Manager;
 
-class BaseRepository
+class DocumentFactory
 {
     /** @var Manager */
     protected $manager;
 
+    /**
+     * DocumentFactory constructor.
+     *
+     * @param Manager $manager
+     */
     public function __construct(Manager $manager)
     {
         $this->manager = $manager;

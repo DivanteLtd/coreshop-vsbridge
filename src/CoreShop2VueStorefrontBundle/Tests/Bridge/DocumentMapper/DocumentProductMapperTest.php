@@ -3,12 +3,13 @@
 namespace CoreShop2VueStorefrontBundle\Tests\Bridge\DocumentMapper;
 
 use Cocur\Slugify\SlugifyInterface;
+use CoreShop\Component\Core\Repository\ProductRepositoryInterface;
 use CoreShop2VueStorefrontBundle\Bridge\DocumentMapper\DocumentProductMapper;
 use CoreShop2VueStorefrontBundle\Bridge\Helper\PriceHelper;
+use CoreShop2VueStorefrontBundle\Document\DocumentFactory;
 use CoreShop2VueStorefrontBundle\Document\Product;
 use CoreShop2VueStorefrontBundle\Document\ProductCategory;
 use CoreShop2VueStorefrontBundle\Document\Stock;
-use CoreShop2VueStorefrontBundle\Repository\ProductRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Mockery as m;
 
@@ -17,7 +18,7 @@ class DocumentProductMapperTest extends BaseProductMapperTest
     /** @test */
     public function itShouldBuildDocumentForSimpleProduct()
     {
-        $this->productRepository->shouldReceive('getOrCreate')->once()->andReturn(new Product());
+        $this->documentFactory->shouldReceive('getOrCreate')->once()->andReturn(new Product());
 
         $product = $this->mockProduct();
 
@@ -75,18 +76,20 @@ class DocumentProductMapperTest extends BaseProductMapperTest
 
     public function setUp()
     {
-        $this->productRepository = m::mock(ProductRepository::class);
+        $this->productRepository = m::mock(ProductRepositoryInterface::class);
         $this->productRepository->shouldReceive('getVariants');
 
         $this->slugify = m::mock(SlugifyInterface::class);
         $this->priceHelper = m::mock(PriceHelper::class);
+        $this->documentFactory = m::mock(DocumentFactory::class);
 
         $this->priceHelper->shouldReceive('getItemPrice')->once()->andReturn(20);
 
         $this->documentProductMapper = new DocumentProductMapper(
             $this->slugify,
             $this->productRepository,
-            $this->priceHelper
+            $this->priceHelper,
+            $this->documentFactory
         );
     }
     /** @var m\Mock $productRepository */

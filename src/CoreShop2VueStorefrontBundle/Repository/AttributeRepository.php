@@ -5,20 +5,26 @@ namespace CoreShop2VueStorefrontBundle\Repository;
 use CoreShop\Component\Product\Model\ProductInterface;
 use CoreShop2VueStorefrontBundle\Bridge\Attribute\AttributeIdGenerator;
 use CoreShop2VueStorefrontBundle\Document\Attribute;
+use CoreShop2VueStorefrontBundle\Document\DocumentFactory;
 use ONGR\ElasticsearchBundle\Service\Manager;
 
-class AttributeRepository extends BaseRepository
+class AttributeRepository
 {
     /** @var AttributeIdGenerator */
     private $attributeIdGenerator;
+    /** @var Manager */
+    private $manager;
 
     /**
      * @param Manager $manager
      * @param AttributeIdGenerator $attributeIdGenerator
      */
-    public function __construct(Manager $manager, AttributeIdGenerator $attributeIdGenerator)
+    public function __construct(
+        Manager $manager,
+        AttributeIdGenerator $attributeIdGenerator
+    )
     {
-        parent::__construct($manager);
+        $this->manager = $manager;
         $this->attributeIdGenerator = $attributeIdGenerator;
     }
 
@@ -42,7 +48,11 @@ class AttributeRepository extends BaseRepository
      */
     public function findOneOrNull(ProductInterface $product, string $fieldName):? Attribute
     {
-        $id = $this->attributeIdGenerator->getId($product->getClassName(), $fieldName);
+        try {
+            $id = $this->attributeIdGenerator->getId((new \ReflectionClass($product))->getShortName(), $fieldName);
+        } catch (\ReflectionException $e) {
+            return null;
+        }
         return $this->manager->find(Attribute::class, $id);
     }
 

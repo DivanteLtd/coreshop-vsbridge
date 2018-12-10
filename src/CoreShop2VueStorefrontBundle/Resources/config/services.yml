@@ -22,13 +22,11 @@ services:
 
     CoreShop2VueStorefrontBundle\Bridge\Attribute\AttributeIdGenerator: ~
 
+    CoreShop2VueStorefrontBundle\Bridge\Attribute\AttributeResolver: ~
+
     CoreShop2VueStorefrontBundle\Bridge\Helper\DocumentHelper: ~
 
     CoreShop2VueStorefrontBundle\Bridge\Helper\PriceHelper: ~
-
-    CoreShop2VueStorefrontBundle\Repository\ProductRepository: ~
-
-    CoreShop2VueStorefrontBundle\Repository\CategoryRepository: ~
 
     CoreShop2VueStorefrontBundle\Bridge\DocumentMapper\DocumentMapperFactory: ~
 
@@ -51,11 +49,6 @@ services:
             - "@coreshop.factory.customer"
             - "@coreshop.factory.address"
 
-    CoreShop2VueStorefrontBundle\Bridge\Order\ProductItemToOrderItemTransformer:
-        arguments:
-            - "@coreshop.object_service"
-            - "%coreshop.folder.order_item%"
-
     CoreShop2VueStorefrontBundle\Bridge\Order\AddressDataToAddressItemTransformer:
         arguments:
             - "@coreshop.factory.address"
@@ -74,6 +67,8 @@ services:
     CoreShop2VueStorefrontBundle\Command\IndexCommand:
         tags: ['console.command']
 
+    CoreShop2VueStorefrontBundle\Document\DocumentFactory: ~
+
     CoreShop2VueStorefrontBundle\Worker\ElasticSearchWorker:
         arguments:
             - '@coreshop.registry.index.extensions'
@@ -87,7 +82,7 @@ services:
         tags:
             - { name: coreshop.index.worker, type: elasticsearch, form-type: CoreShop2VueStorefrontBundle\Worker\Type\ElasticSearchWorkerType }
 
-    CoreShop2VueStorefrontBundle\Cart\CustomCartContext:
+    CoreShop2VueStorefrontBundle\Bridge\Cart\CartContext:
         arguments:
             - '@coreshop.context.customer'
             - '@coreshop.context.store'

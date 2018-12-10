@@ -4,38 +4,44 @@ namespace CoreShop2VueStorefrontBundle\Bridge\DocumentMapper;
 
 use Cocur\Slugify\SlugifyInterface;
 use CoreShop\Component\Core\Model\CategoryInterface;
+use CoreShop\Component\Core\Repository\CategoryRepositoryInterface;
 use CoreShop2VueStorefrontBundle\Bridge\Helper\DocumentHelper;
 use CoreShop2VueStorefrontBundle\Document\Category;
-use CoreShop2VueStorefrontBundle\Repository\CategoryRepository;
+use CoreShop2VueStorefrontBundle\Document\DocumentFactory;
 
 class DocumentCategoryMapper extends AbstractMapper implements DocumentMapperInterface
 {
     const CATEGORY_DEFAULT_PARENT_ID = 2;
 
-    /** @var CategoryRepository */
+    /** @var CategoryRepositoryInterface */
     private $categoryRepository;
     /** @var SlugifyInterface */
     private $slugify;
     /** @var DocumentHelper */
     private $documentHelper;
+    /** @var DocumentFactory */
+    private $documentFactory;
 
     /**
-     * @param CategoryRepository $categoryRepository
-     * @param SlugifyInterface $slugify
-     * @param DocumentHelper $documentHelper
+     * @param CategoryRepositoryInterface $categoryRepository
+     * @param SlugifyInterface            $slugify
+     * @param DocumentHelper              $documentHelper
+     * @param DocumentFactory             $documentFactory
      */
     public function __construct(
-        CategoryRepository $categoryRepository,
+        CategoryRepositoryInterface $categoryRepository,
         SlugifyInterface $slugify,
-        DocumentHelper $documentHelper
+        DocumentHelper $documentHelper,
+        DocumentFactory $documentFactory
     ) {
         $this->categoryRepository = $categoryRepository;
         $this->slugify = $slugify;
         $this->documentHelper = $documentHelper;
+        $this->documentFactory = $documentFactory;
     }
 
     /**
-     * @param \Pimcore\Model\DataObject\Category $category
+     * @param \CoreShop\Component\Product\Model\CategoryInterface $category
      * @param int $level
      * @param int $position
      * @param int $parentId
@@ -48,19 +54,17 @@ class DocumentCategoryMapper extends AbstractMapper implements DocumentMapperInt
         $position = self::CATEGORY_DEFAULT_POSITION,
         $parentId = self::CATEGORY_DEFAULT_PARENT_ID
     ): Category {
-        $esCategory = $this->categoryRepository->getOrCreate(Category::class, $category->getId());
+        $esCategory = $this->documentFactory->getOrCreate(Category::class, $category->getId());
 
         $categoryName = $category->getName() ?: $category->getKey();
 
         $esCategory->setId($category->getId());
         $esCategory->setParentId($parentId);
         $esCategory->setName($categoryName);
-        $esCategory->setIsActive($category->getIsActive());
         $esCategory->setLevel($level);
         $esCategory->setCreatedAt($this->getDateTime($category->getCreationDate()));
         $esCategory->setUpdatedAt($this->getDateTime($category->getModificationDate()));
         $esCategory->setPath($this->documentHelper->buildPath($category));
-        $esCategory->setIncludeInMenu($category->getIncludeInMenu());
         $esCategory->setDisplayMode(self::CATEGORY_DEFAULT_DISPLAY_MODE);
         $esCategory->setPageLayout(self::CATEGORY_DEFAULT_PAGE_LAYOUT);
         $esCategory->setChildrenData($this->buildChildrenData($category->getChildCategories(), ++$level));
@@ -70,7 +74,15 @@ class DocumentCategoryMapper extends AbstractMapper implements DocumentMapperInt
         $esCategory->setPosition($position);
         $esCategory->setUrlKey($this->slugify->slugify($categoryName));
         $esCategory->setUrlPath($this->documentHelper->buildUrlPath($category->getFullPath()));
-        $esCategory->setProductCount($category->getIncludeInMenu() ? 1 : 0); //@todo add count for products per category
+        if ($category instanceof \CoreShop2VueStorefrontBundle\Bridge\Model\CategoryInterface) {
+            $esCategory->setIncludeInMenu($category->getIncludeInMenu()); //@FIXME
+            $esCategory->setIsActive($category->getIsActive());
+            $esCategory->setProductCount($category->getIncludeInMenu() ? 1 : 0); //@todo add count for products per category
+        } else {
+            $esCategory->setIncludeInMenu($category->getPublished());
+            $esCategory->setIsActive($category->getPublished());
+            $esCategory->setProductCount($category->getPublished() ? 1 : 0); //@todo add count for products per category
+        }
 
         return $esCategory;
     }
