@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/5.7/phpunit.xsd"
+         bootstrap="tests/bootstrap.php"
+         colors="true">
+    <testsuites>
+        <testsuite name="default">
+            <directory suffix="Test.php">./tests</directory>
+        </testsuite>
+        <testsuite name="Project">
+            <directory>src/*Bundle/Tests</directory>
+        </testsuite>
+    </testsuites>
+
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">src</directory>
+            <exclude>
+                <directory>src/*Bundle/Resources</directory>
+                <directory>src/*/*Bundle/Resources</directory>
+                <directory>src/*/Bundle/*Bundle/Resources</directory>
+            </exclude>
+        </whitelist>
+    </filter>
+
+    <php>
+        <!-- adjust as needed -->
+        <env name="PIMCORE_ENVIRONMENT" value="test" />
+        <env name="PIMCORE_PROJECT_ROOT" value="." />
+        <env name="KERNEL_DIR" value="app" />
+        <env name="KERNEL_CLASS" value="AppKernel" />
+    </php>
+</phpunit>
