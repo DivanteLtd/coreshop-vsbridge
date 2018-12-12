@@ -1,5 +1,6 @@
 
 # First Progressive Web App for Pimcore and CoreShop
+[![Build Status](https://travis-ci.org/kkarkus/coreshop-vsbridge.svg?branch=master)](https://travis-ci.org/kkarkus/coreshop-vsbridge)
 ![Branch stable](https://img.shields.io/badge/stable%20branch-master-blue.svg)
 ![Branch Develop](https://img.shields.io/badge/dev%20branch-develop-blue.svg)
 <a href="https://join.slack.com/t/vuestorefront/shared_invite/enQtMzA4MTM2NTE5NjM2LTI1M2RmOWIyOTk0MzFlMDU3YzJlYzcyYzNiNjUyZWJiMTZjZjc3MjRlYmE5ZWQ1YWRhNTQyM2ZjN2ZkMzZlNTg">![Branch Develop](https://img.shields.io/badge/community%20chat-slack-FF1493.svg)</a>
@@ -38,27 +39,27 @@ In `app/AppKernel.php` of Your Pimcore instance please add this line to `registe
             $collection->addBundle(new ONGR\ElasticsearchBundle\ONGRElasticsearchBundle);
         }
 
-        if (class_exists(\Cocur\Slugify\Bridge\Symfony\CocurSlugifyBundle::class)) {
+        if (class_exists('\Cocur\Slugify\Bridge\Symfony\CocurSlugifyBundle')) {
             $collection->addBundle(new \Cocur\Slugify\Bridge\Symfony\CocurSlugifyBundle());
         }
 
-        if (class_exists(\SymfonyBundles\JsonRequestBundle\SymfonyBundlesJsonRequestBundle::class)) {
+        if (class_exists('\SymfonyBundles\JsonRequestBundle\SymfonyBundlesJsonRequestBundle')) {
             $collection->addBundle(new \SymfonyBundles\JsonRequestBundle\SymfonyBundlesJsonRequestBundle());
         }
 
-        if (class_exists(\Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle::class)) {
+        if (class_exists('\Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle')) {
             $collection->addBundle(new \Lexik\Bundle\JWTAuthenticationBundle\LexikJWTAuthenticationBundle());
         }
 
-        if (class_exists(\Gfreeau\Bundle\GetJWTBundle\GfreeauGetJWTBundle::class)) {
+        if (class_exists('\Gfreeau\Bundle\GetJWTBundle\GfreeauGetJWTBundle')) {
             $collection->addBundle(new \Gfreeau\Bundle\GetJWTBundle\GfreeauGetJWTBundle());
         }
 
-        if (class_exists(\Nelmio\CorsBundle\NelmioCorsBundle::class)) {
+        if (class_exists('\Nelmio\CorsBundle\NelmioCorsBundle')) {
             $collection->addBundle(new Nelmio\CorsBundle\NelmioCorsBundle());
         }
-
-        if (class_exists(Gesdinet\JWTRefreshTokenBundle\GesdinetJWTRefreshTokenBundle::class)) {
+        
+        if (class_exists('Gesdinet\JWTRefreshTokenBundle\GesdinetJWTRefreshTokenBundle')) {
             $collection->addBundle(new \Gesdinet\JWTRefreshTokenBundle\GesdinetJWTRefreshTokenBundle());
         }
 ```
@@ -94,8 +95,8 @@ openssl rsa -pubout -in config/jwt/private.pem -out config/jwt/public.pem
 2. In the main config file - `app/config/config.yml` please do add the following section:
 ```
 lexik_jwt_authentication:
-    secret_key: '%kernel.project_dir%/config/jwt/private-test.pem'
-    public_key: '%kernel.project_dir%/config/jwt/public-test.pem' 
+    secret_key: '%kernel.project_dir%/config/jwt/private.pem'
+    public_key: '%kernel.project_dir%/config/jwt/public.pem' 
     pass_phrase: 'enterYourPhrase' 
     token_ttl:  3600
     token_extractors:

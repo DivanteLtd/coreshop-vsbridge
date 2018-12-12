@@ -21,15 +21,13 @@
     "gfreeau/get-jwt-bundle": "^2.0",
     "ongr/elasticsearch-bundle": "^5.2",
     "lexik/jwt-authentication-bundle": "^2.5",
-    "mockery/mockery": "^1.1",
     "nelmio/cors-bundle": "^1.5",
     "pimcore/pimcore": "^5.4.0",
-    "symfony-bundles/json-request-bundle": "^2.0",
-    "wikimedia/composer-merge-plugin": "^1.4"
+    "symfony-bundles/json-request-bundle": "^2.0"
   },
   "require-dev": {
     "cache/integration-tests": "^0.15.0",
-    "codeception/codeception": "~2.3.8"
+    "mockery/mockery": "^1.1"
   },
   "minimum-stability": "dev",
   "extra": {

@@ -1,0 +1,50 @@
+sudo: false
+language: php
+
+services:
+  - redis
+  - elasticsearch
+
+addons:
+  mariadb: '10.1'
+  hosts:
+    - coreshop-vsbridge-test.dev
+
+matrix:
+  include:
+    - os: linux
+      sudo: required
+      php: 7.1
+    - os: linux
+      sudo: required
+      php: 7.2
+#    - os: linux
+#      sudo: required
+#      php: 7.3
+
+cache:
+  directories:
+    - $HOME/.cache/composer
+
+env:
+  global:
+    - PIMCORE_ENVIRONMENT=test
+    - PIMCORE_TEST=1
+    - PIMCORE_TEST_URL=http://coreshop-vsbridge-test.dev
+    - PIMCORE_TEST_DB_DSN="mysql://root@localhost/coreshop_vsbridge_test"
+
+before_install:
+  - mysql --version
+  - mysql -e "SET GLOBAL innodb_file_format=Barracuda;"
+  - mysql -e "SET GLOBAL innodb_large_prefix=1;"
+  - mysql -e "CREATE DATABASE coreshop_vsbridge_test CHARSET=utf8mb4;"
+
+install:
+  - .travis/setup-tests.sh
+
+before_script:
+  - .travis/setup-php.sh
+  - .travis/setup-functional-tests.sh
+
+script:
+  - .travis/run-tests.sh

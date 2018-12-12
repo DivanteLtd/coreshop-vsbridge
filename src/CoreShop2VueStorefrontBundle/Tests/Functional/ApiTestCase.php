@@ -8,6 +8,11 @@ use Symfony\Bundle\FrameworkBundle\Client;
 abstract class ApiTestCase extends WebTestCase
 {
     /**
+     * @var Client
+     */
+    protected $client;
+
+    /**
      * @param string $username
      * @param string $password
      *
@@ -17,7 +22,7 @@ abstract class ApiTestCase extends WebTestCase
     {
         $data = ['username' => $username, 'password' => $password];
 
-        $authenticatedClient = static::createClient(['environment' => 'test']);
+        $authenticatedClient = $this->client;
 
         $authenticatedClient->request('POST', '/vsbridge/user/login', $data);
 
@@ -45,7 +50,7 @@ abstract class ApiTestCase extends WebTestCase
             "password" => $password
         ];
 
-        $client = static::createClient(['environment' => 'test']);
+        $client = $this->client;
 
         $client->request('POST', '/vsbridge/user/create', $data);
 
@@ -67,5 +72,18 @@ abstract class ApiTestCase extends WebTestCase
         foreach ($keys as $key) {
             $this->assertArrayHasKey($key, $stack, $message);
         }
+    }
+
+    protected function setUp()
+    {
+        parent::setUp();
+
+        $this->client = static::createClient(['environment' => 'test']);
+    }
+
+    protected function tearDown()
+    {
+        parent::tearDown();
+        static::$kernel = null;
     }
 }
