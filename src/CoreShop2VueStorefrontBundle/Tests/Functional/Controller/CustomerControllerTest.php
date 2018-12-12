@@ -70,8 +70,6 @@ class CustomerControllerTest extends ApiTestCase
      */
     public function itShouldGetProfile()
     {
-        $this->markTestSkipped();
-
         $email = 'test2@tester.com';
         $password = 'SecretPassword';
 
@@ -99,7 +97,7 @@ class CustomerControllerTest extends ApiTestCase
             'addresses'
         ], $responseResult);
 
-/*        $address = $responseResult['addresses'][0];
+        $address = $responseResult['addresses'][0];
 
         $this->assertArrayHasKeys([
             'id',
@@ -113,6 +111,6 @@ class CustomerControllerTest extends ApiTestCase
             'city',
             'firstname',
             'lastname'
-        ], $address);*/
+        ], $address);
     }
 }
