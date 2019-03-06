@@ -144,4 +144,12 @@ class ElasticSearchWorker extends AbstractWorker
     {
         return $value;
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function handleArrayValues(IndexInterface $index, array $value)
+    {
+        return ',' . implode($value, ',') . ',';
+    }
 }
