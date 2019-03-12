@@ -34,8 +34,13 @@ class OrderController extends Controller
                 $this->getStoreContext()->getStore(),
                 $this->getCustomerRepository()->find($request->get('user_id'))
             );
+
+	    $orderId = $request->get('order_id');
+	    if (is_null($orederId))
+		$orderId = "0";
+
             $orderManager->createOrder(
-                $request->get('order_id'),
+                $orderId,
                 $request->get('user_id'),
                 $cart,
                 $request->get('addressInformation')
