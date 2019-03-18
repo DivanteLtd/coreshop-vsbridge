@@ -34,8 +34,9 @@ class OrderController extends Controller
                 $this->getStoreContext()->getStore(),
                 $this->getCustomerRepository()->find($request->get('user_id'))
             );
+
             $orderManager->createOrder(
-                $request->get('order_id'),
+		$request->get('order_id',0),
                 $request->get('user_id'),
                 $cart,
                 $request->get('addressInformation')
