@@ -44,7 +44,7 @@ class ImageController extends AbstractController
 
             if (file_exists($pathToThumbnail)) {
                 $response = new Response();
-                $disposition = $response->headers->makeDisposition(ResponseHeaderBag::DISPOSITION_INLINE, basepath($relativeUrl));
+                $disposition = $response->headers->makeDisposition(ResponseHeaderBag::DISPOSITION_INLINE, basename($relativeUrl));
                 $response->headers->set('Content-Disposition', $disposition);
                 $response->headers->set('Content-Type', $asset->getEXIFData()['MimeType']);
                 $response->setContent(file_get_contents($pathToThumbnail));
