@@ -76,6 +76,7 @@ services:
             - '@coreshop.registry.index.interpreter'
             - '@coreshop.index.filter_group_helper'
             - '@coreshop.index.condition.renderer'
+            - '@coreshop.index.order.renderer'
         shared: false
         calls:
             - { method: setLogger, arguments: ['@logger'] }
