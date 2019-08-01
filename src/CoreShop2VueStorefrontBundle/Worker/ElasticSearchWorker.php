@@ -8,9 +8,11 @@ use CoreShop\Component\Index\Condition\ConditionRendererInterface;
 use CoreShop\Component\Index\Model\IndexableInterface;
 use CoreShop\Component\Index\Model\IndexColumnInterface;
 use CoreShop\Component\Index\Model\IndexInterface;
+use CoreShop\Component\Index\Order\OrderRendererInterface;
 use CoreShop\Component\Index\Worker\FilterGroupHelperInterface;
 use CoreShop\Component\Registry\ServiceRegistryInterface;
 use CoreShop2VueStorefrontBundle\Bridge\Attribute\AttributeIdGenerator;
+
 use CoreShop2VueStorefrontBundle\Bridge\DocumentMapper\DocumentAttributeMapper;
 use ONGR\ElasticsearchBundle\Service\Manager;
 use Pimcore\Model\DataObject\ClassDefinition;
@@ -41,6 +43,7 @@ class ElasticSearchWorker extends AbstractWorker
         ServiceRegistryInterface $interpreterServiceRegistry,
         FilterGroupHelperInterface $filterGroupHelper,
         ConditionRendererInterface $conditionRenderer,
+        OrderRendererInterface $orderRenderer,
         DocumentAttributeMapper $documentAttributeBuilder,
         Manager $manager,
         AttributeIdGenerator $attributeIdGenerator
@@ -50,7 +53,8 @@ class ElasticSearchWorker extends AbstractWorker
             $getterServiceRegistry,
             $interpreterServiceRegistry,
             $filterGroupHelper,
-            $conditionRenderer
+            $conditionRenderer,
+            $orderRenderer
         );
 
         $this->documentAttributeBuilder = $documentAttributeBuilder;
@@ -143,5 +147,13 @@ class ElasticSearchWorker extends AbstractWorker
     protected function typeCastValues(IndexColumnInterface $column, $value)
     {
         return $value;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function handleArrayValues(IndexInterface $index, array $value)
+    {
+        return ',' . implode($value, ',') . ',';
     }
 }

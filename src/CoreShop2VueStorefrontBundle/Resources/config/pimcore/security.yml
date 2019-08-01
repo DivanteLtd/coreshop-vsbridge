@@ -27,6 +27,11 @@ security:
             stateless: true
             anonymous: true
 
+        vsbridge_cart_create:
+            pattern:  ^/vsbridge/cart/create
+            stateless: true
+            anonymous: true
+
         vsbridge_register:
             pattern: ^/vsbridge/user/create$
             stateless: true
@@ -55,6 +60,7 @@ security:
     access_control:
         - { path: ^/img$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/vsbridge/stock/check$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/vsbridge/cart/create, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/vsbridge/order$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/vsbridge/user/(refresh|reset-password)$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/vsbridge/user/create$, roles: IS_AUTHENTICATED_ANONYMOUSLY }

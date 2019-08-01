@@ -99,7 +99,9 @@ class ResponseBodyCreator
         $address['region']['region'] = null;
         $address['region']['region_id'] = 0;
         $address['region_id'] = 0;
-        $address['country_id'] = $defaultAddress->getCountry();
+        if (!is_null($defaultAddress->getCountry())) {
+            $address['country_id'] = $defaultAddress->getCountry()->getIsoCode();
+        }
         $address['street'][] = $defaultAddress->getStreet();
         $address['street'][] = $defaultAddress->getNumber();
         $address['telephone'] = $defaultAddress->getPhoneNumber();

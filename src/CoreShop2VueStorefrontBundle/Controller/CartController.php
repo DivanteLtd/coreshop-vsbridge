@@ -25,9 +25,6 @@ use Symfony\Component\Translation\TranslatorInterface;
 
 class CartController extends Controller
 {
-    /** @var AttributeResolver */
-    private $attributeResolver;
-
     /**
      * @Route("/vsbridge/cart/create")
      * @Method("POST")
@@ -37,7 +34,7 @@ class CartController extends Controller
     public function cartCreate()
     {
         return $this->json([
-            'status' => 200,
+            'code' => 200,
             'result' => $this->getCart()->getId(),
         ]);
     }
@@ -84,7 +81,11 @@ class CartController extends Controller
     ) {
         $payload = json_decode($request->getContent(), true);
 
-        $attributes = $this->attributeResolver->resolve($payload['cartItem']['product_option']);
+        $attributeResolver = \Pimcore::getContainer()->get(AttributeResolver::class);
+        $attributes = [];
+        if (isset($payload['cartItem']['product_option'])) {
+            $attributes = $attributeResolver->resolve($payload['cartItem']['product_option']);
+        }
         if (!isset($attributes['sku'])) {
             $attributes['sku'] = $payload['cartItem']['sku'];
         }
@@ -198,7 +199,7 @@ class CartController extends Controller
         $defaultMethod = $carrierRepository->findOneBy(['identifier' => 'default']);
 
         return $this->json([
-            'status' => 200,
+            'code' => 200,
             'result' => $cartResponse->shippingMethodsResponse($defaultMethod),
         ]);
     }
@@ -223,7 +224,7 @@ class CartController extends Controller
         $payload   = json_decode($request->getContent(), true);
 
         return $this->json([
-            'status' => 200,
+            'code' => 200,
             'result' => $cartResponse->shippingInformationResponse($this->getCart(), $providers, $payload),
         ]);
 
@@ -245,7 +246,7 @@ class CartController extends Controller
         /** @var PaymentProviderInterface $providers */
         $providers = $paymentProviderRepository->findActive();
         return $this->json([
-            'status' => 200,
+            'code' => 200,
             'result' => $cartResponse->paymentMethodsResponse($providers),
         ]);
 

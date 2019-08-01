@@ -63,6 +63,7 @@ services:
             - "@coreshop.factory.order_item"
             - "@coreshop.state_machine_applier"
             - "@coreshop.order.transformer.cart_to_order"
+            - "@coreshop.repository.customer"
 
     CoreShop2VueStorefrontBundle\Command\IndexCommand:
         tags: ['console.command']
@@ -76,6 +77,7 @@ services:
             - '@coreshop.registry.index.interpreter'
             - '@coreshop.index.filter_group_helper'
             - '@coreshop.index.condition.renderer'
+            - '@coreshop.index.order.renderer'
         shared: false
         calls:
             - { method: setLogger, arguments: ['@logger'] }
