@@ -32,7 +32,7 @@ class OrderController extends Controller
         try {
             $orderManager = $this->get(OrderManager::class);
             $orderRepository = $this->get('coreshop.repository.order');
-            $orderId = $request->get('order_id',0);
+            $orderId = $request->get('order_id', 0);
 
             $order = $orderRepository->findOneBy(['orderNumber' => $orderNumber]); //@FIXME
             if ($order instanceof OrderInterface) {
