@@ -56,6 +56,7 @@ class DocumentProductMapper extends AbstractMapper implements DocumentMapperInte
         $esProduct->setId($product->getId());
         $esProduct->setAttributeSetId(self::PRODUCT_DEFAULT_ATTRIBUTE_SET_ID);
         $esProduct->setPrice($this->priceHelper->getItemPrice($product));
+        $esProduct->setFinalPrice($this->priceHelper->getItemPrice($product));
         $esProduct->setStatus(self::PRODUCT_DEFAULT_STATUS);
         $esProduct->setVisibility(self::PRODUCT_DEFAULT_VISIBILITY);
         $esProduct->setTypeId(self::PRODUCT_SIMPLE_TYPE);

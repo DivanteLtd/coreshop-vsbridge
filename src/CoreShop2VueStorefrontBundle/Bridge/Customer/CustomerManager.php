@@ -94,12 +94,12 @@ class CustomerManager
 
         $addressData = $customerData['addresses'][0] ?? [];
 
-	if (!empty($addressData)) {
-	    if (!is_null($this->countryRepository->findByCode($addressData['country_id']))) {
-		$byCodeCountryId = $this->countryRepository->findByCode($addressData['country_id'])->getId();
-		$addressData['country_id'] = $byCodeCountryId;
-	    }
-	}
+        if (!empty($addressData)) {
+            if (!is_null($this->countryRepository->findByCode($addressData['country_id']))) {
+                $byCodeCountryId = $this->countryRepository->findByCode($addressData['country_id'])->getId();
+                $addressData['country_id'] = $byCodeCountryId;
+            }
+        }
 
         $address->setLastname($addressData['lastname']);
         $address->setFirstname($addressData['firstname']);

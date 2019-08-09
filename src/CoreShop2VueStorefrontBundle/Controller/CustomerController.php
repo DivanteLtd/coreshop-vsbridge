@@ -163,7 +163,7 @@ class CustomerController extends AbstractController
     }
 
     /**
-     * @Route("/vsbridge/user/changePassword")
+     * @Route("/vsbridge/user/change-password")
      * @Method("POST")
      *
      * @param Request $request

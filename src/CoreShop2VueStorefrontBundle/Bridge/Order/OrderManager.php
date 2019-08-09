@@ -20,8 +20,6 @@ use Pimcore\File;
 
 class OrderManager
 {
-    /** @var OrderRepository */
-    private $orderRepository;
     /** @var CustomerRepository */
     private $customerRepository;
     /** @var PimcoreFactory */
@@ -50,12 +48,10 @@ class OrderManager
         PimcoreFactoryInterface $orderItemFactory,
         StateMachineApplierInterface $stateMachineApplier,
         ProposalTransformerInterface $proposalTransformer,
-        OrderRepository $orderRepository,
         CustomerRepository $customerRepository,
         AddressDataToAddressItemTransformer $addressDataToAddressItemTransformer,
         StoreRepositoryInterface $storeRepository
     ) {
-        $this->orderRepository = $orderRepository;
         $this->customerRepository = $customerRepository;
         $this->orderFactory = $pimcoreFactory;
         $this->orderFolderPath = $orderFolderPath;
@@ -83,11 +79,6 @@ class OrderManager
         CartInterface $cart,
         array $addressInformation
     ) {
-        $order = $this->orderRepository->findOneBy(['orderNumber' => $orderNumber]);
-        if ($order instanceof OrderInterface) {
-            throw new LogicException(sprintf("Order number %s already exists", $orderNumber));
-        }
-
         /** @var OrderInterface $newOrder */
         $newOrder = $this->orderFactory->createNew();
         $newOrder->setOrderNumber($orderNumber);

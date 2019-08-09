@@ -2,6 +2,7 @@
 
 namespace CoreShop2VueStorefrontBundle\Controller;
 
+use CoreShop\Bundle\OrderBundle\Pimcore\Repository\OrderRepository;
 use CoreShop\Component\Customer\Model\CustomerInterface;
 use CoreShop\Component\Customer\Repository\CustomerRepositoryInterface;
 use CoreShop\Component\Order\Repository\CartRepositoryInterface;
@@ -11,9 +12,9 @@ use CoreShop2VueStorefrontBundle\Bridge\Order\OrderManager;
 use Exception;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 class OrderController extends Controller
 {
@@ -23,20 +24,28 @@ class OrderController extends Controller
      * @Method("POST")
      *
      * @param Request $request
-     * @param OrderManager $orderManager
      *
      * @return JsonResponse
      */
-    public function createOrder(Request $request, OrderManager $orderManager)
+    public function createOrder(Request $request)
     {
         try {
+            $orderManager = $this->get(OrderManager::class);
+            $orderRepository = $this->get('coreshop.repository.order');
+            $orderId = $request->get('order_id', 0);
+
+            $order = $orderRepository->findOneBy(['orderNumber' => $orderNumber]); //@FIXME
+            if ($order instanceof OrderInterface) {
+                throw new LogicException(sprintf("Order number %s already exists", $orderNumber));
+            }
+
             $cart = $this->findLatestByStoreAndCustomer(
                 $this->getStoreContext()->getStore(),
                 $this->getCustomerRepository()->find($request->get('user_id'))
             );
 
             $orderManager->createOrder(
-		$request->get('order_id',0),
+                $orderId,
                 $request->get('user_id'),
                 $cart,
                 $request->get('addressInformation')

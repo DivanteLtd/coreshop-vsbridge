@@ -63,6 +63,7 @@ services:
             - "@coreshop.factory.order_item"
             - "@coreshop.state_machine_applier"
             - "@coreshop.order.transformer.cart_to_order"
+            - "@coreshop.repository.customer"
 
     CoreShop2VueStorefrontBundle\Command\IndexCommand:
         tags: ['console.command']
