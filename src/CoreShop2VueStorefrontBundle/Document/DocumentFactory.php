@@ -27,7 +27,7 @@ class DocumentFactory
     public function getOrCreate(string $className, $objectId)
     {
         $object = $this->manager->find($className, $objectId);
-        if (!$object && class_exists($className, false)) {
+        if (!$object && class_exists($className)) {
             $object = new $className();
         }
 

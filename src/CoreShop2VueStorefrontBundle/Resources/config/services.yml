@@ -12,13 +12,17 @@ services:
         public: true
         tags: ['controller.service_arguments']
 
-    CoreShop2VueStorefrontBundle\Bridge\EnginePersister: ~
+    CoreShop2VueStorefrontBundle\Bridge\EnginePersister:
+        arguments:
+            - '@es.manager.default'
 
     CoreShop2VueStorefrontBundle\Bridge\DocumentMapper\DocumentProductMapper: ~
 
     CoreShop2VueStorefrontBundle\Bridge\DocumentMapper\DocumentCategoryMapper: ~
 
     CoreShop2VueStorefrontBundle\Bridge\DocumentMapper\DocumentAttributeMapper: ~
+
+    CoreShop2VueStorefrontBundle\Bridge\DocumentMapper\DocumentConfigurableProductMapper: ~
 
     CoreShop2VueStorefrontBundle\Bridge\Attribute\AttributeIdGenerator: ~
 
@@ -42,18 +46,24 @@ services:
         arguments:
           - '@coreshop.repository.index'
 
-    CoreShop2VueStorefrontBundle\Security\User\UserProvider: ~
+    CoreShop2VueStorefrontBundle\Security\User\UserProvider:
+        arguments:
+            - "@coreshop.repository.customer"
 
     CoreShop2VueStorefrontBundle\Bridge\Customer\CustomerManager:
         arguments:
             - "@coreshop.factory.customer"
             - "@coreshop.factory.address"
+            - "@coreshop.customer.registration_service"
+            - "@coreshop.repository.country"
+            - "@coreshop.repository.customer"
 
     CoreShop2VueStorefrontBundle\Bridge\Order\AddressDataToAddressItemTransformer:
         arguments:
             - "@coreshop.factory.address"
             - "@coreshop.object_service"
             - "%coreshop.folder.address%"
+            - "@coreshop.repository.country"
 
     CoreShop2VueStorefrontBundle\Bridge\Order\OrderManager:
         arguments:
@@ -63,20 +73,30 @@ services:
             - "@coreshop.factory.order_item"
             - "@coreshop.state_machine_applier"
             - "@coreshop.order.transformer.cart_to_order"
+            - "@coreshop.repository.customer"
 
     CoreShop2VueStorefrontBundle\Command\IndexCommand:
         tags: ['console.command']
+        arguments:
+             $repository: '@coreshop.repository.product'
 
-    CoreShop2VueStorefrontBundle\Document\DocumentFactory: ~
+    CoreShop2VueStorefrontBundle\Document\DocumentFactory:
+        arguments:
+            - '@es.manager.default'
+
+    CoreShop2VueStorefrontBundle\Repository\AttributeRepository:
+        arguments:
+            - '@es.manager.default'
 
     CoreShop2VueStorefrontBundle\Worker\ElasticSearchWorker:
         arguments:
-            - '@coreshop.registry.index.extensions'
-            - '@coreshop.registry.index.getter'
-            - '@coreshop.registry.index.interpreter'
-            - '@coreshop.index.filter_group_helper'
-            - '@coreshop.index.condition.renderer'
-            - '@coreshop.index.order.renderer'
+            $extensionsRegistry: '@coreshop.registry.index.extensions'
+            $getterServiceRegistry: '@coreshop.registry.index.getter'
+            $interpreterServiceRegistry: '@coreshop.registry.index.interpreter'
+            $filterGroupHelper: '@coreshop.index.filter_group_helper'
+            $conditionRenderer: '@coreshop.index.condition.renderer'
+            $orderRenderer: '@coreshop.index.order.renderer'
+            $manager: '@es.manager.default'
         shared: false
         calls:
             - { method: setLogger, arguments: ['@logger'] }

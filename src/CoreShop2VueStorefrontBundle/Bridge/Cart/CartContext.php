@@ -1,6 +1,8 @@
 <?php
 namespace CoreShop2VueStorefrontBundle\Bridge\Cart;
 
+use CoreShop\Bundle\OrderBundle\Manager\CartManager;
+use CoreShop\Component\Core\Model\Cart;
 use CoreShop\Component\Core\Model\CartInterface;
 use CoreShop\Component\Customer\Context\CustomerContextInterface;
 use CoreShop\Component\Customer\Context\CustomerNotFoundException;
@@ -8,6 +10,7 @@ use CoreShop\Component\Customer\Model\CustomerInterface;
 use CoreShop\Component\Order\Context\CartContextInterface;
 use CoreShop\Component\Order\Context\CartNotFoundException;
 use CoreShop\Component\Order\Repository\CartRepositoryInterface;
+use CoreShop\Component\Resource\Factory\PimcoreFactory;
 use CoreShop\Component\Store\Context\StoreContextInterface;
 use CoreShop\Component\Store\Context\StoreNotFoundException;
 use CoreShop\Component\Store\Model\StoreInterface;
@@ -101,6 +104,22 @@ final class CartContext implements CartContextInterface
             return $objects[0];
         }
 
-        return null;
+        /** @var PimcoreFactory $factory */
+        $factory = \Pimcore::getContainer()->get('coreshop.factory.cart');
+        /** @var CartManager $cartManager */
+        $cartManager = \Pimcore::getContainer()->get('coreshop.cart.manager');
+
+        /** @var Cart $cart */
+        $cart = $factory->createNew();
+        $cart->setStore($store);
+        $cart->setCustomer($customer);
+        $cart->setKey(uniqid());
+        $cart->setPublished(true);
+        $cart->setCurrency(
+            \Pimcore::getContainer()->get('coreshop.repository.currency')->getByCode('pln')
+        );
+        $cartManager->persistCart($cart);
+
+        return $cart;
     }
 }
