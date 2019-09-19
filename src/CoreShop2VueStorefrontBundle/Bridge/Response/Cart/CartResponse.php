@@ -2,6 +2,7 @@
 
 namespace CoreShop2VueStorefrontBundle\Bridge\Response\Cart;
 
+use CoreShop\Bundle\MoneyBundle\Formatter\MoneyFormatter;
 use CoreShop\Component\Core\Model\CartInterface;
 use CoreShop2VueStorefrontBundle\Bridge\Response\ResponseBodyCreator;
 use CoreShop\Component\Core\Model\ProductInterface;
@@ -77,21 +78,26 @@ class CartResponse extends ResponseBodyCreator
         return $ret;
     }
 
-    public function shippingMethodsResponse(CarrierInterface $defaultMethod): array
+    public function shippingMethodsResponse($shippingMethods): array
     {
-        $defaultShipping                   = [];
-        $defaultShipping['carrier_code']   = $defaultMethod->getIdentifier();
-        $defaultShipping['method_code']    = $defaultMethod->getIdentifier();
-        $defaultShipping['carrier_title']  = $defaultMethod->getTitle();
-        $defaultShipping['method_title']   = $defaultMethod->getTitle();
-        $defaultShipping['amount']         = 5;
-        $defaultShipping['base_amount']    = 5;
-        $defaultShipping['available']      = true;
-        $defaultShipping['error_message']  = "";
-        $defaultShipping['price_excl_tax'] = 5;
-        $defaultShipping['price_incl_tax'] = 5;
+        $ret = [];
+        /** @var CarrierInterface $shippingMethod */
+        foreach ($shippingMethods as $shippingMethod) {
+            $tmp                   = [];
+            $tmp['carrier_code']   = $shippingMethod->getIdentifier();
+            $tmp['method_code']    = $shippingMethod->getIdentifier();
+            $tmp['carrier_title']  = $shippingMethod->getTitle();
+            $tmp['method_title']   = $shippingMethod->getTitle();
+            $tmp['amount']         = 5; //@todo
+            $tmp['base_amount']    = 5;
+            $tmp['available']      = true;
+            $tmp['error_message']  = "";
+            $tmp['price_excl_tax'] = 5;
+            $tmp['price_incl_tax'] = 5;
+            $ret[] = $tmp;
+        }
 
-        return $defaultShipping;
+        return $ret;
     }
 
     /**
@@ -101,6 +107,8 @@ class CartResponse extends ResponseBodyCreator
      */
     public function singleCartItemResponse(ProposalItemInterface $item): array
     {
+        /** @var MoneyFormatter $moneyFormatter */
+        $moneyFormatter = \Pimcore::getContainer()->get('coreshop.money_formatter');
         $type    = 'simple';
         $product = $item->getProduct();
         if ($product instanceof AbstractObject) {
@@ -112,7 +120,7 @@ class CartResponse extends ResponseBodyCreator
         $ret = [
             'item_id'        => $item->getId(),
             'name '          => $product->getName(),
-            'price'          => $item->getItemPrice(),
+            'price'          => $moneyFormatter->format($item->getItemPrice(), 'USD'),
             'product_type'   => $type,
             'qty'            => $item->getQuantity(),
             'product_option' => [
@@ -139,6 +147,8 @@ class CartResponse extends ResponseBodyCreator
      */
     public function shippingInformationResponse($cart, array $providers, array $payload): array
     {
+        /** @var MoneyFormatter $moneyFormatter */
+        $moneyFormatter = \Pimcore::getContainer()->get('coreshop.money_formatter');
         $items = [];
         $totalQty = 0;
         foreach ($cart->getItems() as $cartItem) {
@@ -146,22 +156,22 @@ class CartResponse extends ResponseBodyCreator
             $totalQty += $cartItem->getQuantity();
             $items[]      = [
                 'item_id'                 => $purchasable->getId(),
-                'price'                   => $cartItem->getItemPrice(false),
-                'base_price'              => $cartItem->getItemPrice(false),
+                'price'                   => $moneyFormatter->format($cartItem->getItemPrice(false), 'USD'),
+                'base_price'              => $moneyFormatter->format($cartItem->getItemPrice(false), 'USD'),
                 'qty'                     => $cartItem->getQuantity(),
-                'row_total'               => $cartItem->getTotal(false),
-                'base_row_total'          => $cartItem->getTotal(false),
+                'row_total'               => $moneyFormatter->format($cartItem->getTotal(false), 'USD'),
+                'base_row_total'          => $moneyFormatter->format($cartItem->getTotal(false), 'USD'),
                 'row_total_with_discount' => 0,
-                'tax_amount'              => $cartItem->getTotalTax(),
-                'base_tax_amount'         => $cartItem->getTotalTax(),
+                'tax_amount'              => $moneyFormatter->format($cartItem->getTotalTax(), 'USD'),
+                'base_tax_amount'         => $moneyFormatter->format($cartItem->getTotalTax(), 'USD'),
                 'tax_percent'             => 23,
                 'discount_amount'         => 0,
                 'base_discount_amount'    => 0,
                 'discount_percent'        => 0,
-                'price_incl_tax'          => $cartItem->getItemPrice(),
-                'base_price_incl_tax'     => $cartItem->getItemPrice(),
-                'row_total_incl_tax'      => $cartItem->getTotal(),
-                'base_row_total_incl_tax' => $cartItem->getTotal(),
+                'price_incl_tax'          => $moneyFormatter->format($cartItem->getItemPrice(), 'USD'),
+                'base_price_incl_tax'     => $moneyFormatter->format($cartItem->getItemPrice(), 'USD'),
+                'row_total_incl_tax'      => $moneyFormatter->format($cartItem->getTotal(), 'USD'),
+                'base_row_total_incl_tax' => $moneyFormatter->format($cartItem->getTotal(), 'USD'),
                 'options'                 => '[]',
                 'weee_tax_applied_amount' => null,
                 'weee_tax_applied'        => null,
@@ -171,26 +181,26 @@ class CartResponse extends ResponseBodyCreator
         $ret   = [
             'payment_methods' => $this->paymentMethodsResponse($providers),
             'totals'          => [
-                'grand_total'                   => $cart->getTotal(),
-                'base_grand_total'              => $cart->getSubtotal(),
-                'subtotal'                      => $cart->getSubtotal(),
-                'base_subtotal'                 => $cart->getSubtotal(),
+                'grand_total'                   => $moneyFormatter->format($cart->getTotal(), 'USD'),
+                'base_grand_total'              => $moneyFormatter->format($cart->getSubtotal(), 'USD'),
+                'subtotal'                      => $moneyFormatter->format($cart->getSubtotal(), 'USD'),
+                'base_subtotal'                 => $moneyFormatter->format($cart->getSubtotal(), 'USD'),
                 'discount_amount'               => 0,
                 'base_discount_amount'          => 0,
-                'subtotal_with_discount'        => $cart->getSubtotal(),
-                'base_subtotal_with_discount'   => $cart->getSubtotal(),
-                'shipping_amount'               => $cart->getShipping(false),
-                'base_shipping_amount'          => $cart->getShipping(false),
+                'subtotal_with_discount'        => $moneyFormatter->format($cart->getSubtotal(), 'USD'),
+                'base_subtotal_with_discount'   => $moneyFormatter->format($cart->getSubtotal(), 'USD'),
+                'shipping_amount'               => $moneyFormatter->format($cart->getShipping(false), 'USD'),
+                'base_shipping_amount'          => $moneyFormatter->format($cart->getShipping(false), 'USD'),
                 'shipping_discount_amount'      => 0,
                 'base_shipping_discount_amount' => 0,
-                'tax_amount'                    => $cart->getTotalTax(),
-                'base_tax_amount'               => $cart->getTotalTax(),
+                'tax_amount'                    => $moneyFormatter->format($cart->getTotalTax(), 'USD'),
+                'base_tax_amount'               => $moneyFormatter->format($cart->getTotalTax(), 'USD'),
                 'weee_tax_applied_amount'       => null,
-                'shipping_tax_amount'           => $cart->getShippingTax(),
-                'base_shipping_tax_amount'      => $cart->getShippingTax(),
-                'subtotal_incl_tax'             => $cart->getSubtotal(),
-                'shipping_incl_tax'             => $cart->getShipping(),
-                'base_shipping_incl_tax'        => $cart->getShipping(),
+                'shipping_tax_amount'           => $moneyFormatter->format($cart->getShippingTax(), 'USD'),
+                'base_shipping_tax_amount'      => $moneyFormatter->format($cart->getShippingTax(), 'USD'),
+                'subtotal_incl_tax'             => $moneyFormatter->format($cart->getSubtotal(), 'USD'),
+                'shipping_incl_tax'             => $moneyFormatter->format($cart->getShipping(), 'USD'),
+                'base_shipping_incl_tax'        => $moneyFormatter->format($cart->getShipping(), 'USD'),
                 'base_currency_code'            => 'USD',
                 'quote_currency_code'           => 'USD',
                 'items_qty'                     => $totalQty,
@@ -199,12 +209,12 @@ class CartResponse extends ResponseBodyCreator
                     0 => [
                         'code'  => 'subtotal',
                         'title' => 'Subtotal',
-                        'value' => $cart->getSubtotal(),
+                        'value' => $moneyFormatter->format($cart->getSubtotal(), 'USD'),
                     ],
                     1 => [
                         'code'  => 'shipping',
                         'title' => 'Shipping & Handling (Flat Rate - Fixed)',
-                        'value' => $cart->getShipping(),
+                        'value' => $moneyFormatter->format($cart->getShipping(), 'USD'),
                     ],
                     2 => [
                         'code'  => 'discount',
@@ -214,12 +224,12 @@ class CartResponse extends ResponseBodyCreator
                     3 => [
                         'code'                 => 'tax',
                         'title'                => 'Tax',
-                        'value'                => $cart->getTotalTax(),
+                        'value'                => $moneyFormatter->format($cart->getTotalTax(), 'USD'),
                         'area'                 => 'taxes',
                         'extension_attributes' => [
                             'tax_grandtotal_details' => [
                                 0 => [
-                                    'amount'   => $cart->getTotalTax(),
+                                    'amount'   => $moneyFormatter->format($cart->getTotalTax(), 'USD'),
                                     'rates'    => [
                                         0 => [
                                             'percent' => '23',
@@ -234,7 +244,7 @@ class CartResponse extends ResponseBodyCreator
                     4 => [
                         'code'  => 'grand_total',
                         'title' => 'Grand Total',
-                        'value' => $cart->getTotal(),
+                        'value' => $moneyFormatter->format($cart->getTotal(), 'USD'),
                         'area'  => 'footer',
                     ],
                 ],

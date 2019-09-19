@@ -2,6 +2,7 @@
 
 namespace CoreShop2VueStorefrontBundle\Bridge\Response\Order;
 
+use CoreShop\Bundle\MoneyBundle\Formatter\MoneyFormatter;
 use CoreShop\Component\Address\Model\AddressInterface;
 use CoreShop\Component\Core\Model\CustomerInterface;
 use CoreShop\Component\Order\Model\OrderInterface;
@@ -24,6 +25,8 @@ class OrderResponse extends ResponseBodyCreator
      */
     public function orderHistoryResponse(array $orderHistory): array
     {
+        /** @var MoneyFormatter $moneyFormatter */
+        $moneyFormatter = \Pimcore::getContainer()->get('coreshop.money_formatter');
         $orderResponse = [];
 
         /** @var OrderInterface $order */
@@ -35,16 +38,16 @@ class OrderResponse extends ResponseBodyCreator
             $orderResponseItem['applied_rule_ids'] = "1,5";
             $orderResponseItem['base_currency_code'] = 'USD';
             $orderResponseItem['base_discount_amount'] = "";
-            $orderResponseItem['base_grand_total'] = $order->getBaseTotal(false);
+            $orderResponseItem['base_grand_total'] = $moneyFormatter->format($order->getBaseTotal(false), 'USD');
             $orderResponseItem['base_discount_tax_compensation_amount'] = 0;
-            $orderResponseItem['base_shipping_amount'] = $order->getShipping(false);
+            $orderResponseItem['base_shipping_amount'] = $moneyFormatter->format($order->getShipping(false), 'USD');
             $orderResponseItem['base_shipping_discount_amount'] = 0;
-            $orderResponseItem['base_shipping_incl_tax'] = $order->getBaseShipping();
-            $orderResponseItem['base_shipping_tax_amount'] = $order->getBaseShippingTax();
-            $orderResponseItem['base_subtotal'] = $order->getBaseSubtotal(false);
-            $orderResponseItem['base_subtotal_incl_tax'] = $order->getBaseSubtotal();
-            $orderResponseItem['base_tax_amount'] = $order->getBaseTotalTax();
-            $orderResponseItem['base_total_due'] = $order->getBaseTotal();
+            $orderResponseItem['base_shipping_incl_tax'] = $moneyFormatter->format($order->getBaseShipping(), 'USD');
+            $orderResponseItem['base_shipping_tax_amount'] = $moneyFormatter->format($order->getBaseShippingTax(), 'USD');
+            $orderResponseItem['base_subtotal'] = $moneyFormatter->format($order->getBaseSubtotal(false), 'USD');
+            $orderResponseItem['base_subtotal_incl_tax'] = $moneyFormatter->format($order->getBaseSubtotal(), 'USD');
+            $orderResponseItem['base_tax_amount'] = $moneyFormatter->format($order->getBaseTotalTax(), 'USD');
+            $orderResponseItem['base_total_due'] = $moneyFormatter->format($order->getBaseTotal(), 'USD');
             $orderResponseItem['base_to_global_rate'] = 1;
             $orderResponseItem['base_to_order_rate'] = 1;
             $orderResponseItem['billing_address_id'] = $invoiceAddress ? $invoiceAddress->getId() : null;
@@ -57,19 +60,19 @@ class OrderResponse extends ResponseBodyCreator
             $orderResponseItem['email_sent'] = 1;
             $orderResponseItem['entity_id'] = $order->getId();
             $orderResponseItem['global_currency_code'] = 'USD';
-            $orderResponseItem['grand_total'] = $order->getTotal();
+            $orderResponseItem['grand_total'] = $moneyFormatter->format($order->getTotal(), 'USD');
             $orderResponseItem['discount_tax_compensation_amount'] = 0;
             $orderResponseItem['increment_id'] = "000000" . $order->getId();
             $orderResponseItem['is_virtual'] = 0;
             $orderResponseItem['order_currency_code'] = 'USD';
             $orderResponseItem['protect_code'] = null;
             $orderResponseItem['quote_id'] = null;
-            $orderResponseItem['shipping_amount'] = $order->getShipping(false);
+            $orderResponseItem['shipping_amount'] = $moneyFormatter->format($order->getShipping(false), 'USD');
             $orderResponseItem['shipping_description'] = "Flat Rate - Fixed";
             $orderResponseItem['shipping_discount_amount'] = 0;
             $orderResponseItem['shipping_discount_tax_compensation_amount'] = 0;
-            $orderResponseItem['shipping_incl_tax'] = $order->getShipping();
-            $orderResponseItem['shipping_tax_amount'] = $order->getShippingTax();
+            $orderResponseItem['shipping_incl_tax'] = $moneyFormatter->format($order->getShipping(), 'USD');
+            $orderResponseItem['shipping_tax_amount'] = $moneyFormatter->format($order->getShippingTax(), 'USD');
             $orderResponseItem['state'] = $order->getOrderState();
             $orderResponseItem['status'] = $order->getPaymentState();
             $orderResponseItem['store_currency_code'] = 'USD';
@@ -77,10 +80,10 @@ class OrderResponse extends ResponseBodyCreator
             $orderResponseItem['store_name'] = "Default";
             $orderResponseItem['store_to_base_rate'] = 0;
             $orderResponseItem['store_to_order_rate'] = 0;
-            $orderResponseItem['subtotal'] = $order->getSubtotal(false);
-            $orderResponseItem['subtotal_incl_tax'] = $order->getSubtotal();
-            $orderResponseItem['tax_amount'] = $order->getSubtotalTax();
-            $orderResponseItem['total_due'] = $order->getTotal();
+            $orderResponseItem['subtotal'] = $moneyFormatter->format($order->getSubtotal(false), 'USD');
+            $orderResponseItem['subtotal_incl_tax'] = $moneyFormatter->format($order->getSubtotal(), 'USD');
+            $orderResponseItem['tax_amount'] = $moneyFormatter->format($order->getSubtotalTax(), 'USD');
+            $orderResponseItem['total_due'] = $moneyFormatter->format($order->getTotal(), 'USD');
             $orderItems = $order->getItems();
             $orderResponseItem['total_item_count'] = count($orderItems);
             $orderResponseItem['total_qty_ordered'] = array_sum(array_map(function ($orderItem) {
@@ -114,6 +117,10 @@ class OrderResponse extends ResponseBodyCreator
 
     private function orderProductItems(array $productItems): array
     {
+        /** @var MoneyFormatter $moneyFormatter */
+        $moneyFormatter = \Pimcore::getContainer()->get('coreshop.money_formatter');
+        $orderResponse = [];
+
         $orderProductItemsResponse = [];
 
         $orderProductItem  = [];
@@ -126,13 +133,13 @@ class OrderResponse extends ResponseBodyCreator
             $orderProductItem['base_discount_amount'] = 0;
             $orderProductItem['base_discount_invoiced'] = 0;
             $orderProductItem['base_discount_tax_compensation_amount'] = 0;
-            $orderProductItem['base_original_price'] = $orderItem->getBaseItemPriceNet();
-            $orderProductItem['base_price'] = $orderItem->getBaseItemPriceNet();
-            $orderProductItem['base_price_incl_tax'] = $orderItem->getBaseItemPriceGross();
+            $orderProductItem['base_original_price'] = $moneyFormatter->format($orderItem->getBaseItemPriceNet(), 'USD');
+            $orderProductItem['base_price'] = $moneyFormatter->format($orderItem->getBaseItemPriceNet(), 'USD');
+            $orderProductItem['base_price_incl_tax'] = $moneyFormatter->format($orderItem->getBaseItemPriceGross(), 'USD');
             $orderProductItem['base_row_invoiced'] = 0;
-            $orderProductItem['base_row_total'] = $orderItem->getBaseTotal(false);
-            $orderProductItem['base_row_total_incl_tax'] = $orderItem->getBaseTotalTax();
-            $orderProductItem['base_tax_amount'] = $orderItem->getBaseTotalTax();
+            $orderProductItem['base_row_total'] = $moneyFormatter->format($orderItem->getBaseTotal(false), 'USD');
+            $orderProductItem['base_row_total_incl_tax'] = $moneyFormatter->format($orderItem->getBaseTotalTax(), 'USD');
+            $orderProductItem['base_tax_amount'] = $moneyFormatter->format($orderItem->getBaseTotalTax(), 'USD');
             $orderProductItem['base_tax_invoiced'] = 0;
             $orderProductItem['created_at'] = $this->formatDate($orderItem->getCreationDate());
             $orderProductItem['discount_amount'] = 0;
@@ -146,9 +153,9 @@ class OrderResponse extends ResponseBodyCreator
             $orderProductItem['name'] = $orderItem->getName();
             $orderProductItem['no_discount'] = 0;
             $orderProductItem['order_id'] = $orderItem->getOrder()->getId();
-            $orderProductItem['original_price'] = $orderItem->getBaseItemPriceNet();
-            $orderProductItem['price'] = $orderItem->getBaseItemPriceNet();
-            $orderProductItem['price_incl_tax'] = $orderItem->getBaseItemPriceGross();
+            $orderProductItem['original_price'] = $moneyFormatter->format($orderItem->getBaseItemPriceNet(), 'USD');
+            $orderProductItem['price'] = $moneyFormatter->format($orderItem->getBaseItemPriceNet(), 'USD');
+            $orderProductItem['price_incl_tax'] = $moneyFormatter->format($orderItem->getBaseItemPriceGross(), 'USD');
             $orderProductItem['product_id'] = $orderItem->getId();
             $orderProductItem['product_type'] = $orderItem->getType();
             $orderProductItem['qty_canceled'] = 0;
@@ -158,12 +165,12 @@ class OrderResponse extends ResponseBodyCreator
             $orderProductItem['qty_shipped'] = 0;
             $orderProductItem['quote_item_id'] = 0;
             $orderProductItem['row_invoiced'] = 0;
-            $orderProductItem['row_total'] = $orderItem->getTotal(false);
-            $orderProductItem['row_total_incl_tax'] = $orderItem->getTotal();
+            $orderProductItem['row_total'] = $moneyFormatter->format($orderItem->getTotal(false), 'USD');
+            $orderProductItem['row_total_incl_tax'] = $moneyFormatter->format($orderItem->getTotal(), 'USD');
             $orderProductItem['row_weight'] = $orderItem->getItemWeight();
             $orderProductItem['sku'] = $orderItem->getProduct()->getSku();
             $orderProductItem['store_id'] = 1;
-            $orderProductItem['tax_amount'] = $orderItem->getTotalTax();
+            $orderProductItem['tax_amount'] = $moneyFormatter->format($orderItem->getTotalTax(), 'USD');
             $orderProductItem['tax_invoiced'] = 0;
             $orderProductItem['tax_percent'] = 23;
             $orderProductItem['updated_at'] = $this->formatDate($orderItem->getModificationDate());

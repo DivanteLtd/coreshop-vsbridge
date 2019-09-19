@@ -77,8 +77,10 @@ class ResponseBodyCreator
         $response['lastname'] = $customer->getLastname();
         $response['store_id'] = 1;
         $response['website_id'] = 1;
-        $response['addresses'][] = $this->getAddress($address, $customer->getId());
-            
+        if ($address) {
+            $response['addresses'][] = $this->getAddress($address, $customer->getId());
+        }
+
         $response['disable_auto_group_change'] = 0;
 
         return $response;

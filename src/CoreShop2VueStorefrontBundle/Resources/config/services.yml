@@ -110,4 +110,4 @@ services:
             - '@coreshop.repository.cart'
             - '@pimcore.http.request_helper'
         tags:
-            - { name: coreshop.context.cart, priority: 100 }
+            - { name: coreshop.context.cart, priority: -99 }

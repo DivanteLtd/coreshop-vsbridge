@@ -195,12 +195,11 @@ class CartController extends Controller
         CartResponse $cartResponse
     ) {
         $countryId = $request->get('address');
-        /** @var Carrier $defaultMethod */
-        $defaultMethod = $carrierRepository->findOneBy(['identifier' => 'default']);
+        $shippingMethods = $carrierRepository->findAll();
 
         return $this->json([
             'code' => 200,
-            'result' => $cartResponse->shippingMethodsResponse($defaultMethod),
+            'result' => $cartResponse->shippingMethodsResponse($shippingMethods),
         ]);
     }
 
