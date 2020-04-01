@@ -36,12 +36,7 @@ class Category
 
     /** @ES\Property(type="integer", name="product_count") */
     public $product_count;
-
-    /**
-     * @ES\Property(type="nested")
-     *
-     * @ES\Embedded(class="CoreShop2VueStorefrontBundle\Document\Category", multiple=true)
-     */
+    
     public $children_data;
 
     /** @ES\Property(type="text") */
