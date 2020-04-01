@@ -2,10 +2,12 @@
 
 namespace CoreShop2VueStorefrontBundle\Document;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use ONGR\ElasticsearchBundle\Annotation as ES;
 
 /**
  * @ES\Document()
+ * @ES\ObjectType()
  */
 class Category
 {
@@ -34,7 +36,12 @@ class Category
 
     /** @ES\Property(type="integer", name="product_count") */
     public $product_count;
-    
+
+    /**
+     * @ES\Property(type="nested")
+     *
+     * @ES\Embedded(class="CoreShop2VueStorefrontBundle\Document\Category", multiple=true)
+     */
     public $children_data;
 
     /** @ES\Property(type="text") */
@@ -72,6 +79,11 @@ class Category
 
     /** @ES\Property(type="text", name="url_path") */
     public $url_path;
+
+    public function __construct()
+    {
+        $this->children_data = new ArrayCollection();
+    }
 
     public function setId(int $id)
     {

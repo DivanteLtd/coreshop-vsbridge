@@ -48,12 +48,11 @@ class DocumentCategoryMapper extends AbstractMapper implements DocumentMapperInt
         $categoryName = $category->getName() ?: $category->getKey();
         $parentCategory = $category->getParentCategory();
 
-        $level = substr_count($category->getFullPath(), '/') - 1;
+        $level = $this->documentHelper->countSeparator($category->getFullPath(), '/');
 
         $esCategory->setId($category->getId());
         $esCategory->setParentId($parentCategory ? $parentCategory->getId() : 0);
         $esCategory->setName($categoryName);
-        $esCategory->setLevel($level);
         $esCategory->setCreatedAt($this->getDateTime($category->getCreationDate()));
         $esCategory->setUpdatedAt($this->getDateTime($category->getModificationDate()));
         $esCategory->setPath($this->documentHelper->buildPath($category));
@@ -61,11 +60,20 @@ class DocumentCategoryMapper extends AbstractMapper implements DocumentMapperInt
         $esCategory->setPageLayout(self::CATEGORY_DEFAULT_PAGE_LAYOUT);
         $esCategory->setChildrenData($this->buildChildrenData($category->getChildCategories(), $level + 1));
         $esCategory->setChildren($this->documentHelper->buildChildrenIds($category->getChildCategories()));
-        $esCategory->setChildrenCount($this->documentHelper->buildChildrenCount($esCategory->children));
-        $esCategory->setIsAnchor("1");
+        $esCategory->setChildrenCount($this->documentHelper->countSeparator($esCategory->children, ','));
+        $esCategory->setIsAnchor("0");
+
+        $esCategory->setLevel($level);
         $esCategory->setPosition($category->getIndex());
-        $esCategory->setUrlKey($this->slugify->slugify($categoryName));
-        $esCategory->setUrlPath($this->documentHelper->buildUrlPath($category->getFullPath()));
+
+        if ($category instanceof \CoreShop2VueStorefrontBundle\Bridge\Model\UrlInterface) {
+            $esCategory->setUrlKey($category->getUrlKey());
+            $esCategory->setUrlPath($category->getUrlPath());
+        } else {
+            $esCategory->setUrlKey($this->slugify->slugify($categoryName));
+            $esCategory->setUrlPath($this->documentHelper->buildUrlPath($category));
+        }
+
         if ($category instanceof \CoreShop2VueStorefrontBundle\Bridge\Model\CategoryInterface) {
             $esCategory->setIncludeInMenu($category->getIncludeInMenu()); //@FIXME
             $esCategory->setIsActive($category->getIsActive());
