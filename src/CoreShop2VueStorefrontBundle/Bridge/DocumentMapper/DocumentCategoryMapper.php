@@ -11,8 +11,6 @@ use CoreShop2VueStorefrontBundle\Document\DocumentFactory;
 
 class DocumentCategoryMapper extends AbstractMapper implements DocumentMapperInterface
 {
-    const CATEGORY_DEFAULT_PARENT_ID = 2;
-
     /** @var CategoryRepositoryInterface */
     private $categoryRepository;
     /** @var SlugifyInterface */
@@ -42,24 +40,18 @@ class DocumentCategoryMapper extends AbstractMapper implements DocumentMapperInt
 
     /**
      * @param \CoreShop\Component\Product\Model\CategoryInterface $category
-     * @param int $level
-     * @param int $position
-     * @param int $parentId
-     *
-     * @return Category
      */
-    public function mapToDocument(
-        $category,
-        $level = self::CATEGORY_DEFAULT_LEVEL,
-        $position = self::CATEGORY_DEFAULT_POSITION,
-        $parentId = self::CATEGORY_DEFAULT_PARENT_ID
-    ): Category {
+    public function mapToDocument($category): Category
+    {
         $esCategory = $this->documentFactory->getOrCreate(Category::class, $category->getId());
 
         $categoryName = $category->getName() ?: $category->getKey();
+        $parentCategory = $category->getParentCategory();
+
+        $level = substr_count($category->getFullPath(), '/') - 1;
 
         $esCategory->setId($category->getId());
-        $esCategory->setParentId($parentId);
+        $esCategory->setParentId($parentCategory ? $parentCategory->getId() : 0);
         $esCategory->setName($categoryName);
         $esCategory->setLevel($level);
         $esCategory->setCreatedAt($this->getDateTime($category->getCreationDate()));
@@ -67,11 +59,11 @@ class DocumentCategoryMapper extends AbstractMapper implements DocumentMapperInt
         $esCategory->setPath($this->documentHelper->buildPath($category));
         $esCategory->setDisplayMode(self::CATEGORY_DEFAULT_DISPLAY_MODE);
         $esCategory->setPageLayout(self::CATEGORY_DEFAULT_PAGE_LAYOUT);
-        $esCategory->setChildrenData($this->buildChildrenData($category->getChildCategories(), ++$level));
+        $esCategory->setChildrenData($this->buildChildrenData($category->getChildCategories(), $level + 1));
         $esCategory->setChildren($this->documentHelper->buildChildrenIds($category->getChildCategories()));
         $esCategory->setChildrenCount($this->documentHelper->buildChildrenCount($esCategory->children));
-        $esCategory->setIsAnchor("0");
-        $esCategory->setPosition($position);
+        $esCategory->setIsAnchor("1");
+        $esCategory->setPosition($category->getIndex());
         $esCategory->setUrlKey($this->slugify->slugify($categoryName));
         $esCategory->setUrlPath($this->documentHelper->buildUrlPath($category->getFullPath()));
         if ($category instanceof \CoreShop2VueStorefrontBundle\Bridge\Model\CategoryInterface) {
@@ -88,23 +80,16 @@ class DocumentCategoryMapper extends AbstractMapper implements DocumentMapperInt
     }
 
     /**
-     * @param array $childCategories
-     * @param int $level
-     * @param int $position
+     * @param array<\CoreShop\Component\Product\Model\CategoryInterface> $categories
      *
-     * @return array
+     * @return array<CoreShop2VueStorefrontBundle\Document\Category>
      */
-    private function buildChildrenData(array $childCategories, int $level, int $position = 1): array
+    private function buildChildrenData(array $categories): array
     {
         $children = [];
-        foreach ($childCategories as $category) {
+        foreach ($categories as $category) {
             if ($category instanceof CategoryInterface) {
-                $children[] = $this->mapToDocument(
-                    $category,
-                    $level,
-                    $position++,
-                    $category->getParentId()
-                );
+                $children[] = $this->mapToDocument($category);
             }
         }
 

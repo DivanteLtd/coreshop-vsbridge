@@ -7,10 +7,8 @@ use ONGR\ElasticsearchBundle\Annotation as ES;
 
 trait ConfigurableProduct
 {
-    /** @ES\Property() */
     public $colorOptions = [];
 
-    /** @ES\Property() */
     public $sizeOptions = [];
 
     /** @ES\Property(type="string") */

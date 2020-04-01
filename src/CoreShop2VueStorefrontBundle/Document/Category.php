@@ -34,8 +34,7 @@ class Category
 
     /** @ES\Property(type="integer", name="product_count") */
     public $product_count;
-
-    /** @ES\Property() */
+    
     public $children_data;
 
     /** @ES\Property(type="text") */
@@ -50,7 +49,7 @@ class Category
     /** @ES\Property(type="text") */
     public $path;
 
-    /** @ES\Property(name="available_sort_by") */
+    
     public $available_sort_by = [];
 
     /** @ES\Property(type="boolean", name="include_in_menu") */

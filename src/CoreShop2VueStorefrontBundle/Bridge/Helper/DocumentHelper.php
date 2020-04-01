@@ -36,6 +36,10 @@ class DocumentHelper
 
     public function buildChildrenCount(string $children): int
     {
+        if ($children === '') {
+            return 0;
+        }
+
         return count(explode(',', $children));
     }
 

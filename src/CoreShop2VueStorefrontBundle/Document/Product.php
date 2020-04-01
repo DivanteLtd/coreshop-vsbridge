@@ -125,7 +125,6 @@ class Product
     /** @ES\Embedded(class="CoreShop2VueStorefrontBundle:MediaGallery", multiple=true) */
     public $mediaGallery;
 
-    /** @ES\Property() */
     public $categoryIds = [];
 
     /** @ES\Property(type="integer") */
@@ -133,8 +132,7 @@ class Product
 
     /** @ES\Property(type="integer") */
     public $requiredOptions = 0;
-
-    /** @ES\Property() */
+    
     public $productLinks = [];
 
     public function __construct()

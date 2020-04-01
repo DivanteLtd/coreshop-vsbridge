@@ -54,7 +54,6 @@ class ConfigurableChildren
     /** @ES\Property(type="string") */
     public $taxClassId = "2";
 
-    /** @ES\Property() */
     public $categoryIds = [];
 
     /** @ES\Property(type="string") */
