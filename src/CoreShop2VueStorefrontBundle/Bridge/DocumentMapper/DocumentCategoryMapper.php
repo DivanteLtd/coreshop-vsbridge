@@ -67,10 +67,13 @@ class DocumentCategoryMapper extends AbstractMapper implements DocumentMapperInt
         $esCategory->setPosition($category->getIndex());
 
         if ($category instanceof \CoreShop2VueStorefrontBundle\Bridge\Model\UrlInterface) {
+            $esCategory->setSlug($category->getSlug());
             $esCategory->setUrlKey($category->getUrlKey());
             $esCategory->setUrlPath($category->getUrlPath());
         } else {
-            $esCategory->setUrlKey($this->slugify->slugify($categoryName));
+            $slug = $this->slugify->slugify($categoryName);
+            $esCategory->setSlug($slug);
+            $esCategory->setUrlKey($slug);
             $esCategory->setUrlPath($this->documentHelper->buildUrlPath($category));
         }
 
