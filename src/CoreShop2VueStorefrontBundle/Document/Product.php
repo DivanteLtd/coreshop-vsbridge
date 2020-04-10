@@ -125,6 +125,7 @@ class Product
     /** @ES\Embedded(class="CoreShop2VueStorefrontBundle:MediaGallery", multiple=true) */
     public $mediaGallery;
 
+    /** @ES\Property(type="integer") */
     public $categoryIds = [];
 
     /** @ES\Property(type="integer") */
