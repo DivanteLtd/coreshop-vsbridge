@@ -20,8 +20,7 @@ class ConfigurableOption
 
     /** @ES\Property(type="integer") */
     public $position;
-
-    /** @ES\Property() */
+    
     public $values = [];
 
     /** @ES\Property(type="integer") */

@@ -2,11 +2,22 @@
 
 namespace CoreShop2VueStorefrontBundle\Bridge\Helper;
 
+use Cocur\Slugify\SlugifyInterface;
 use CoreShop\Component\Product\Model\CategoryInterface;
 
 class DocumentHelper
 {
     const CATEGORY_DEFAULT_PATH = "1/2";
+
+    /**
+     * @var SlugifyInterface
+     */
+    private $slugify;
+
+    public function __construct(SlugifyInterface $slugify)
+    {
+        $this->slugify = $slugify;
+    }
 
     public function buildChildrenIds(array $childCategories): string
     {
@@ -19,28 +30,36 @@ class DocumentHelper
 
     public function buildPath(CategoryInterface $category): string
     {
-        $chunks = [];
-        while ($category->getParent() != null) {
-            if ($category instanceof CategoryInterface) {
-                $chunks[] = $category->getId();
-            }
+        $chunks = [
+            $category->getId()
+        ];
+        while ($category->getParentCategory() !== null) {
+            $chunks[] = $category->getId();
+
             $category = $category->getParent();
         }
 
-        $path = empty($chunks)
-            ? $category->getId()
-            : implode("/", array_reverse($chunks));
-
-        return sprintf("%s/%s", self::CATEGORY_DEFAULT_PATH, $path);
+        return sprintf("%s/%s", self::CATEGORY_DEFAULT_PATH, implode("/", array_reverse($chunks)));
     }
 
-    public function buildChildrenCount(string $children): int
+    public function countSeparator(string $haystack, string $needle): int
     {
-        return count(explode(',', $children));
+        return substr_count(trim($haystack, $needle), $needle);
     }
 
-    public function buildUrlPath(string $path): string
+    public function buildUrlPath(CategoryInterface $category): string
     {
-        return str_replace("coreshop/categories/", "", mb_strtolower(ltrim($path, '/')));
+        $chunks = [
+            $this->slugify->slugify($category->getName())
+        ];
+        while ($category->getParentCategory() !== null) {
+            $category = $category->getParentCategory();
+
+            if ($category !== null) {
+                $chunks[] = $this->slugify->slugify($category->getName());
+            }
+        }
+
+        return implode('/', array_reverse($chunks));
     }
 }

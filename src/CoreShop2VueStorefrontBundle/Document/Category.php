@@ -2,6 +2,7 @@
 
 namespace CoreShop2VueStorefrontBundle\Document;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use ONGR\ElasticsearchBundle\Annotation as ES;
 
 /**
@@ -35,7 +36,6 @@ class Category
     /** @ES\Property(type="integer", name="product_count") */
     public $product_count;
 
-    /** @ES\Property() */
     public $children_data;
 
     /** @ES\Property(type="text") */
@@ -50,7 +50,7 @@ class Category
     /** @ES\Property(type="text") */
     public $path;
 
-    /** @ES\Property(name="available_sort_by") */
+    
     public $available_sort_by = [];
 
     /** @ES\Property(type="boolean", name="include_in_menu") */
@@ -73,6 +73,14 @@ class Category
 
     /** @ES\Property(type="text", name="url_path") */
     public $url_path;
+
+    /** @ES\Property(type="keyword", name="slug") */
+    public $slug;
+
+    public function __construct()
+    {
+        $this->children_data = new ArrayCollection();
+    }
 
     public function setId(int $id)
     {
@@ -235,5 +243,13 @@ class Category
     public function setUrlPath(string $urlPath): void
     {
         $this->url_path = $urlPath;
+    }
+
+    /**
+     * @param mixed $slug
+     */
+    public function setSlug(string $slug): void
+    {
+        $this->slug = $slug;
     }
 }

@@ -124,8 +124,7 @@ class Attribute
 
     /** @ES\Property(type="integer") */
     public $searchWeight;
-
-    /** @ES\Property() */
+    
     public $options = [];
 
     /** @ES\Property(type="boolean") */

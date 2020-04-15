@@ -18,11 +18,9 @@ abstract class AbstractMapper
     const PRODUCT_DEFAULT_OPTION_CLASS_ID = "Taxable Goods";
     const PRODUCT_DEFAULT_CATEGORY = "Default category";
 
-    const CATEGORY_DEFAULT_LEVEL = 2;
     const CATEGORY_DEFAULT_PATH = "1/2";
     const CATEGORY_DEFAULT_DISPLAY_MODE = "PAGE";
     const CATEGORY_DEFAULT_PAGE_LAYOUT = "1column";
-    const CATEGORY_DEFAULT_POSITION = 2;
 
     const BOOLEAN_FALSE = false;
     const BOOLEAN_TRUE = true;
@@ -34,6 +32,6 @@ abstract class AbstractMapper
 
     protected function getDateTime(int $date): string
     {
-        return Carbon::createFromTimestamp($date)->format('Y-m-d H:i:s');
+        return Carbon::createFromTimestamp($date)->format(\DateTimeInterface::RFC3339);
     }
 }
