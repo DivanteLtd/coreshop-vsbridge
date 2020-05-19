@@ -48,7 +48,7 @@ class DocumentCategoryMapper extends AbstractMapper implements DocumentMapperInt
         $categoryName = $category->getName() ?: $category->getKey();
         $parentCategory = $category->getParentCategory();
 
-        $level = $this->documentHelper->countSeparator($category->getFullPath(), '/');
+        $level = $this->documentHelper->countSeparator($category->getFullPath(), '/') + 1;
 
         $esCategory->setId($category->getId());
         $esCategory->setParentId($parentCategory ? $parentCategory->getId() : 0);
@@ -58,7 +58,7 @@ class DocumentCategoryMapper extends AbstractMapper implements DocumentMapperInt
         $esCategory->setPath($this->documentHelper->buildPath($category));
         $esCategory->setDisplayMode(self::CATEGORY_DEFAULT_DISPLAY_MODE);
         $esCategory->setPageLayout(self::CATEGORY_DEFAULT_PAGE_LAYOUT);
-        $esCategory->setChildrenData($this->buildChildrenData($category->getChildCategories(), $level + 1));
+        $esCategory->setChildrenData($this->buildChildrenData($category->getChildCategories(), $level));
         $esCategory->setChildren($this->documentHelper->buildChildrenIds($category->getChildCategories()));
         $esCategory->setChildrenCount($this->documentHelper->countSeparator($esCategory->children, ','));
         $esCategory->setIsAnchor("0");
