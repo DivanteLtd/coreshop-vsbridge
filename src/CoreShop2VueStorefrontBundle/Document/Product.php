@@ -26,10 +26,10 @@ class Product
     /** @ES\Property(type="text") */
     public $typeId;
 
-    /** @ES\Property(type="text") */
+    /** @ES\Property(type="keyword") */
     public $sku;
 
-    /** @ES\Property(type="text") */
+    /** @ES\Property(type="keyword") */
     public $urlKey;
 
     /** @ES\Property(type="text") */
