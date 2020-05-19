@@ -68,10 +68,10 @@ class Category
     /** @ES\Property(type="text", name="children_count") */
     public $children_count;
 
-    /** @ES\Property(type="text", name="url_key") */
+    /** @ES\Property(type="keyword", name="url_key") */
     public $url_key;
 
-    /** @ES\Property(type="text", name="url_path") */
+    /** @ES\Property(type="keyword", name="url_path") */
     public $url_path;
 
     /** @ES\Property(type="keyword", name="slug") */
