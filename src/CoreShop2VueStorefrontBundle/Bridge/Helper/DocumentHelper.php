@@ -28,18 +28,24 @@ class DocumentHelper
         }, $childCategories));
     }
 
+    public function buildParents(CategoryInterface $current): array
+    {
+        $parents = [];
+        do {
+            $parents[] = $current;
+            $current = $current->getParentCategory();
+        } while ($current !== null);
+
+        return array_reverse($parents);
+    }
+
     public function buildPath(CategoryInterface $category): string
     {
-        $chunks = [
-            $category->getId()
-        ];
-        while ($category->getParentCategory() !== null) {
-            $chunks[] = $category->getId();
+        $chunks = array_map(function (CategoryInterface $category): string {
+            return $category->getId();
+        }, $this->buildParents($category));
 
-            $category = $category->getParent();
-        }
-
-        return sprintf("%s/%s", self::CATEGORY_DEFAULT_PATH, implode("/", array_reverse($chunks)));
+        return sprintf("%s/%s", self::CATEGORY_DEFAULT_PATH, implode("/", $chunks));
     }
 
     public function countSeparator(string $haystack, string $needle): int
@@ -49,17 +55,10 @@ class DocumentHelper
 
     public function buildUrlPath(CategoryInterface $category): string
     {
-        $chunks = [
-            $this->slugify->slugify($category->getName())
-        ];
-        while ($category->getParentCategory() !== null) {
-            $category = $category->getParentCategory();
+        $chunks = array_map(function (CategoryInterface $category): string {
+            return $this->slugify->slugify($category->getName());
+        }, $this->buildParents($category));
 
-            if ($category !== null) {
-                $chunks[] = $this->slugify->slugify($category->getName());
-            }
-        }
-
-        return implode('/', array_reverse($chunks));
+        return implode('/', $chunks);
     }
 }

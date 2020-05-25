@@ -5,6 +5,7 @@ namespace CoreShop2VueStorefrontBundle\Bridge\DocumentMapper;
 use Cocur\Slugify\SlugifyInterface;
 use CoreShop\Component\Core\Model\ProductInterface;
 use CoreShop\Component\Core\Repository\ProductRepositoryInterface;
+use CoreShop2VueStorefrontBundle\Bridge\Helper\DocumentHelper;
 use CoreShop2VueStorefrontBundle\Bridge\Helper\PriceHelper;
 use CoreShop2VueStorefrontBundle\Document\DocumentFactory;
 use CoreShop2VueStorefrontBundle\Document\MediaGallery;
@@ -23,6 +24,8 @@ class DocumentProductMapper extends AbstractMapper implements DocumentMapperInte
     private $priceHelper;
     /** @var DocumentFactory */
     private $documentFactory;
+    /** @var DocumentHelper */
+    private $documentHelper;
 
     /**
      * @param SlugifyInterface           $slugify
@@ -34,12 +37,14 @@ class DocumentProductMapper extends AbstractMapper implements DocumentMapperInte
         SlugifyInterface $slugify,
         ProductRepositoryInterface $productRepository,
         PriceHelper $priceHelper,
-        DocumentFactory $documentFactory
+        DocumentFactory $documentFactory,
+        DocumentHelper $documentHelper
     ) {
         $this->slugify = $slugify;
         $this->productRepository = $productRepository;
         $this->priceHelper = $priceHelper;
         $this->documentFactory = $documentFactory;
+        $this->documentHelper = $documentHelper;
     }
 
     /**
@@ -93,13 +98,26 @@ class DocumentProductMapper extends AbstractMapper implements DocumentMapperInte
         $defaultCat = new ProductCategory(self::PRODUCT_DEFAULT_CATEGORY, self::PRODUCT_DEFAULT_CATEGORY_ID);
         $esProduct->addCategory($defaultCat);
 
-        $categories = $product->getCategories() ?: [];
+        // fetch all categories and their children
+        $assignedCategories = [];
+        $categories = $product->getCategories();
         foreach ($categories as $category) {
-            $before = $esProduct->getCategoryIds() ?: [];
-            $esProduct->setCategoryIds($before + [$category->getId()]);
-
-            $esProduct->addCategory(new ProductCategory($category->getName(), $category->getId()));
+            $assignedCategories[] = $this->documentHelper->buildParents($category);
         }
+        /** @var \CoreShop\Component\Core\Model\CategoryInterface $assignedCategories */
+        $assignedCategories = array_merge([], ...$assignedCategories);
+
+        // deduplicate and assign
+        $categoryIds = [];
+        foreach ($assignedCategories as $assignedCategory) {
+            $id = $assignedCategory->getId();
+
+            if (!in_array($id, $categoryIds, true)) {
+                $categoryIds[] = $id;
+                $esProduct->addCategory(new ProductCategory($assignedCategory->getName(), $id));
+            }
+        }
+        $esProduct->setCategoryIds($categoryIds);
     }
 
     /**
