@@ -19,8 +19,14 @@ class CoreShop2VueStorefrontExtension extends Extension
      */
     public function load(array $configs, ContainerBuilder $container)
     {
-        $configuration = new Configuration();
+        $languages = explode(',', $container->getParameter('pimcore.config')['general']['valid_languages']);
+
+        $configuration = new Configuration($languages);
         $config = $this->processConfiguration($configuration, $configs);
+
+        $container->setParameter('core_shop2_vue_storefront.elasticsearch.hosts', $config['elasticsearch']['hosts']);
+        $container->setParameter('core_shop2_vue_storefront.elasticsearch.index', $config['elasticsearch']['index']);
+        $container->setParameter('core_shop2_vue_storefront.stores', $config['stores']);
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.yml');

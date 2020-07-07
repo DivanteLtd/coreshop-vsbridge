@@ -13,22 +13,24 @@ class EnginePersister
     private $manager;
     /** @var DocumentMapperFactory */
     private $documentMapperFactory;
+    /** @var string|null */
+    private $language;
 
-    public function __construct(Manager $manager, DocumentMapperFactory $documentMapperFactory)
+    public function __construct(Manager $manager, DocumentMapperFactory $documentMapperFactory, ?string $language = null)
     {
         $this->manager = $manager;
         $this->documentMapperFactory = $documentMapperFactory;
+        $this->language = $language;
     }
 
     /**
      * @param ProductInterface $object
-     * @param string $lang
      * @throws BulkWithErrorsException
      */
-    public function persist($object, string $lang = 'en'): void
+    public function persist($object): void
     {
         $documentMapper = $this->documentMapperFactory->factory($object);
-        $esDocument = $documentMapper->mapToDocument($object);
+        $esDocument = $documentMapper->mapToDocument($object, $this->language);
         $this->manager->persist($esDocument);
         $this->manager->commit();
     }

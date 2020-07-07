@@ -53,10 +53,10 @@ class DocumentHelper
         return substr_count(trim($haystack, $needle), $needle);
     }
 
-    public function buildUrlPath(CategoryInterface $category): string
+    public function buildUrlPath(CategoryInterface $category, ?string $language = null): string
     {
-        $chunks = array_map(function (CategoryInterface $category): string {
-            return $this->slugify->slugify($category->getName());
+        $chunks = array_map(function (CategoryInterface $category) use ($language): string {
+            return $this->slugify->slugify($category->getName($language));
         }, $this->buildParents($category));
 
         return implode('/', $chunks);

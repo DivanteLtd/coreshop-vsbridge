@@ -12,13 +12,45 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
  */
 class Configuration implements ConfigurationInterface
 {
+    private $languages;
+
+    public function __construct(array $languages)
+    {
+        $this->languages = $languages;
+    }
+
     /**
      * {@inheritdoc}
      */
     public function getConfigTreeBuilder()
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('core_shop2_vue_storefront');
+        $treeBuilder = new TreeBuilder('core_shop2_vue_storefront');
+        $rootNode = $treeBuilder->getRootNode();
+        $rootNode
+            ->children()
+                ->arrayNode('elasticsearch')
+                    ->children()
+                        ->arrayNode('hosts')
+                            ->beforeNormalization()->castToArray()->end()
+                            ->scalarPrototype()->end()
+                        ->end()
+                        ->scalarNode('index')->end()
+                    ->end()
+                ->end()
+                ->arrayNode('stores')
+                    ->arrayPrototype()
+                        ->children()
+                            ->arrayNode('languages')
+                                ->beforeNormalization()->castToArray()->end()
+                                ->enumPrototype()
+                                    ->values($this->languages)
+                                ->end()
+                            ->end()
+                        ->end()
+                    ->end()
+                ->end()
+            ->end();
+
         return $treeBuilder;
     }
 }

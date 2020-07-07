@@ -5,11 +5,11 @@ namespace CoreShop2VueStorefrontBundle\Command;
 use CoreShop\Component\Core\Repository\CategoryRepositoryInterface;
 use CoreShop\Component\Core\Repository\ProductRepositoryInterface;
 use CoreShop\Component\Pimcore\BatchProcessing\BatchListing;
-use CoreShop2VueStorefrontBundle\Bridge\EnginePersister;
-use CoreShop2VueStorefrontBundle\Bridge\PersisterTrait;
+use CoreShop2VueStorefrontBundle\Bridge\ImporterFactory;
 use Pimcore\Console\AbstractCommand;
 use Pimcore\Model\DataObject\Listing;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -18,32 +18,28 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class IndexCommand extends AbstractCommand
 {
-    private const PRODUCT = 'product';
-    private const CATEGORY = 'category';
+    protected static $defaultName = 'vsbridge:index-objects';
 
-    /** @var EnginePersister */
-    private $enginePersister;
-    /** @var ProductRepositoryInterface */
-    private $repository;
-    /** @var CategoryRepositoryInterface */
-    private $categoryRepository;
+    /**
+     * @var ImporterFactory
+     */
+    private $importerFactory;
 
     protected function configure()
     {
         $this
-            ->addOption('type', null, InputOption::VALUE_REQUIRED, 'Object types to index, available: category, product')
+            ->addArgument('store', InputArgument::OPTIONAL, 'Store to index')
+            ->addArgument('type', InputArgument::OPTIONAL, 'Object types to index, available: category, product')
+            ->addArgument('language', InputArgument::OPTIONAL, 'Language to index')
             ->setName('vsbridge:index-objects')
             ->setDescription('Indexing objects of given type in vuestorefront');
     }
 
-    public function __construct(
-        EnginePersister $enginePersister,
-        ProductRepositoryInterface $repository,
-        CategoryRepositoryInterface $categoryRepository
-    ) {
-        parent::__construct();
+    public function __construct(ImporterFactory $importerFactory)
+    {
+        parent::__construct(self::$defaultName);
 
-        $this->enginePersister = $enginePersister;
+        $this->importerFactory = $importerFactory;
         $this->repository = $repository;
         $this->categoryRepository = $categoryRepository;
     }
@@ -58,62 +54,34 @@ class IndexCommand extends AbstractCommand
         $style = new SymfonyStyle($input, $output);
         $style->title('Coreshop => Vue Storefront data importer');
 
-        $type = $input->getOption('type');
+        $store = $input->getArgument('store');
+        $language = $input->getArgument('language');
+        $type = $input->getArgument('type');
 
-        if (null !== $type) {
-            switch ($type) {
-                case self::CATEGORY:
-                    $this->importCategories($style);
-                    break;
-                case self::PRODUCT:
-                    $this->importProducts($style);
-                    break;
-                default:
-                    throw new InvalidArgumentException('Unexpected type');
+        $importers = $this->importerFactory->create($store, $language, $type);
+        foreach ($importers as $importer) {
+            $style->section(sprintf('Importing: %1$s', $importer->describe()));
+
+            $count = $importer->count();
+            if ($count === 0) {
+                $style->warning('Nothing to import, skipping.');
+
+                continue;
             }
 
-            return 0;
+            $style->note(sprintf('Found %1$d items to import.', $count));
+            $progressBar = $style->createProgressBar($count);
+            $importer->import(function (object $object) use ($progressBar) {
+                $progressBar->setMessage($object->getPath());
+                $progressBar->advance();
+            });
+            $progressBar->clear();
+
+            $style->success(sprintf('Imported %1$d items.', $count));
         }
 
-        $this->importCategories($style);
-        $this->importProducts($style);
+        $style->success('Done.');
 
         return 0;
-    }
-
-    private function importCategories(StyleInterface $style): void
-    {
-        $this->import($style, self::CATEGORY, $this->categoryRepository->getList());
-    }
-
-    private function importProducts(StyleInterface $style): void
-    {
-        $this->import($style, self::PRODUCT, $this->repository->getList());
-    }
-
-    private function import(StyleInterface $style, string $type, Listing $list): void
-    {
-        $style->section(sprintf('Importing: %1$s', $type));
-
-        $count = $list->count();
-
-        if ($count === 0) {
-            $style->warning('Nothing to import, skipping.');
-            
-            return;
-        }
-
-        $style->note(sprintf('Found %1$d items to import.', $count));
-
-        $listing = new BatchListing($list, 100);
-        $progressBar = $style->createProgressBar($count);
-        foreach ($listing as $object) {
-            $progressBar->setMessage($object->getPath());
-            $this->enginePersister->persist($object);
-            $progressBar->advance();
-        }
-        $progressBar->clear();
-        
-        $style->success(sprintf('Imported %1$d items.', $count));
     }
 }
