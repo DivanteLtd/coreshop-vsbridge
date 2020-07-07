@@ -13,6 +13,7 @@ services:
         tags: ['controller.service_arguments']
 
     CoreShop2VueStorefrontBundle\Bridge\EnginePersister:
+        autoconfigure: false
         arguments:
             - '@es.manager.default'
 
@@ -75,10 +76,15 @@ services:
             - "@coreshop.order.transformer.cart_to_order"
             - "@coreshop.repository.customer"
 
+    CoreShop2VueStorefrontBundle\Bridge\ImporterFactory:
+        arguments:
+            $managerFactory: "@es.manager_factory"
+            $hosts: '%core_shop2_vue_storefront.elasticsearch.hosts%'
+            $indexTemplate: '%core_shop2_vue_storefront.elasticsearch.index%'
+            $stores: '%core_shop2_vue_storefront.stores%'
+
     CoreShop2VueStorefrontBundle\Command\IndexCommand:
         tags: ['console.command']
-        arguments:
-             $repository: '@coreshop.repository.product'
 
     CoreShop2VueStorefrontBundle\Document\DocumentFactory:
         arguments:
