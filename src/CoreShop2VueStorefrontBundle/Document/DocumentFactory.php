@@ -22,12 +22,12 @@ class DocumentFactory
     /**
      * @param string $className
      * @param int $objectId
-     * @return Attribute|Product|Category $object
+     * @return Attribute|Product|Category|null $object
      */
     public function getOrCreate(string $className, $objectId)
     {
         $object = $this->manager->find($className, $objectId);
-        if (!$object && class_exists($className, false)) {
+        if (!$object && class_exists($className)) {
             $object = new $className();
         }
 
