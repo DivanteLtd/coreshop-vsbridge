@@ -50,7 +50,7 @@ class OnRefreshTokenResponseListenerTest extends MockeryTestCase
         $this->assertFalse($this->listener->onKernelRequest($responseEvent));
     }
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->listener = new OnRefreshTokenResponseListener();
     }

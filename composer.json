@@ -10,7 +10,7 @@
   "homepage": "https://divante.co",
   "autoload": {
     "psr-4": {
-      "CoreShop2VueStorefrontBundle\\": "src/"
+      "CoreShop2VueStorefrontBundle\\": "src/CoreShop2VueStorefrontBundle"
     }
   },
   "require": {
@@ -28,7 +28,8 @@
   },
   "require-dev": {
     "cache/integration-tests": "^0.15.0",
-    "mockery/mockery": "^1.1"
+    "mockery/mockery": "^1.1",
+    "phpunit/phpunit": "^8.5"
   },
   "minimum-stability": "dev",
   "extra": {

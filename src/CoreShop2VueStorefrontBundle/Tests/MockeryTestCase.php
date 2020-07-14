@@ -7,7 +7,7 @@ use Pimcore\Test\KernelTestCase;
 
 class MockeryTestCase extends KernelTestCase
 {
-    protected function tearDown()
+    protected function tearDown(): void
     {
         parent::tearDown();
         m::close();
