@@ -5,6 +5,7 @@ namespace CoreShop2VueStorefrontBundle\Bridge\DocumentMapper;
 use Cocur\Slugify\SlugifyInterface;
 use CoreShop\Component\Core\Model\ProductInterface;
 use CoreShop\Component\Core\Repository\ProductRepositoryInterface;
+use CoreShop2VueStorefrontBundle\Bridge\DocumentMapperInterface;
 use CoreShop2VueStorefrontBundle\Bridge\Helper\DocumentHelper;
 use CoreShop2VueStorefrontBundle\Bridge\Helper\PriceHelper;
 use CoreShop2VueStorefrontBundle\Document\DocumentFactory;
@@ -13,6 +14,7 @@ use CoreShop2VueStorefrontBundle\Document\Product;
 use CoreShop2VueStorefrontBundle\Document\ProductCategory;
 use CoreShop2VueStorefrontBundle\Document\Stock;
 use Pimcore\Model\Asset\Image;
+use Pimcore\Model\DataObject\AbstractObject;
 
 class DocumentProductMapper extends AbstractMapper implements DocumentMapperInterface
 {
@@ -45,6 +47,11 @@ class DocumentProductMapper extends AbstractMapper implements DocumentMapperInte
         $this->priceHelper = $priceHelper;
         $this->documentFactory = $documentFactory;
         $this->documentHelper = $documentHelper;
+    }
+
+    public function supports($object): bool
+    {
+        return $object instanceof ProductInterface && [] === $object->getChildren([AbstractObject::OBJECT_TYPE_VARIANT], true);
     }
 
     /**

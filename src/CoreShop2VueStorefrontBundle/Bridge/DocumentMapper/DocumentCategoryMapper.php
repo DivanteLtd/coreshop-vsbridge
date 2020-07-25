@@ -3,6 +3,7 @@
 namespace CoreShop2VueStorefrontBundle\Bridge\DocumentMapper;
 
 use Cocur\Slugify\SlugifyInterface;
+use CoreShop2VueStorefrontBundle\Bridge\DocumentMapperInterface;
 use CoreShop\Component\Core\Model\CategoryInterface;
 use CoreShop\Component\Core\Repository\CategoryRepositoryInterface;
 use CoreShop2VueStorefrontBundle\Bridge\Helper\DocumentHelper;
@@ -36,6 +37,11 @@ class DocumentCategoryMapper extends AbstractMapper implements DocumentMapperInt
         $this->slugify = $slugify;
         $this->documentHelper = $documentHelper;
         $this->documentFactory = $documentFactory;
+    }
+
+    public function supports($object): bool
+    {
+        return $object instanceof CategoryInterface;
     }
 
     /**

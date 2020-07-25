@@ -5,8 +5,8 @@ namespace CoreShop2VueStorefrontBundle\EventListener;
 use CoreShop\Component\Core\Model\CategoryInterface;
 use CoreShop\Component\Core\Model\ProductInterface;
 use CoreShop2VueStorefrontBundle\Bridge\EnginePersister;
+use CoreShop2VueStorefrontBundle\Bridge\PersisterFactory;
 use Exception;
-use ONGR\ElasticsearchBundle\Service\Manager;
 use Pimcore\Event\Model\DataObjectEvent;
 use Pimcore\Model\DataObject\AbstractObject;
 use Pimcore\Model\DataObject\Concrete;
@@ -14,14 +14,17 @@ use Psr\Log\LoggerInterface;
 
 class ProductListener
 {
-    /** @var Manager */
-    private $enginePersister;
+    /**
+     * @var PersisterFactory
+     */
+    private $persisterFactory;
+
     /** @var LoggerInterface */
     private $logger;
 
-    public function __construct(EnginePersister $enginePersister, LoggerInterface $logger)
+    public function __construct(PersisterFactory $persisterFactory, LoggerInterface $logger)
     {
-        $this->enginePersister = $enginePersister;
+        $this->persisterFactory = $persisterFactory;
         $this->logger = $logger;
     }
 
@@ -30,11 +33,15 @@ class ProductListener
         try {
             /** @var ProductInterface|CategoryInterface|Concrete $object */
             $object = $event->getObject();
+
             if ($this->shouldSynchronizeWithVue($object)) {
-                if (!$object->isPublished() || $object->getType() == AbstractObject::OBJECT_TYPE_VARIANT) {
+                if ($object->getType() == AbstractObject::OBJECT_TYPE_VARIANT) {
                     return false;
                 }
-                $this->enginePersister->persist($object);
+
+                foreach ($this->persisterFactory->create() as $config) {
+                    $config['persister']->persist($object);
+                }
             }
         } catch (Exception $exception) {
             $this->logger->info(sprintf(

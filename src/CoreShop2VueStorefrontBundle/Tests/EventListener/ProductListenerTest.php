@@ -5,6 +5,7 @@ namespace CoreShop2VueStorefrontBundle\Tests\EventListener;
 use CoreShop\Component\Core\Model\CategoryInterface;
 use CoreShop\Component\Core\Model\ProductInterface;
 use CoreShop2VueStorefrontBundle\Bridge\EnginePersister;
+use CoreShop2VueStorefrontBundle\Bridge\PersisterFactory;
 use CoreShop2VueStorefrontBundle\EventListener\ProductListener;
 use CoreShop2VueStorefrontBundle\Tests\MockeryTestCase;
 use Mockery\Mock;
@@ -25,9 +26,17 @@ class ProductListenerTest extends MockeryTestCase
      */
     public function itShouldSynchronizeCategory($possibleObjectToSync)
     {
-        $possibleObjectToSync->shouldReceive('isPublished')->once()->andReturnTrue();
         $possibleObjectToSync->shouldReceive('getType')->once()->andReturn(AbstractObject::OBJECT_TYPE_OBJECT);
-        $this->enginePersisterMock->shouldReceive('persist')->once()->with($possibleObjectToSync);
+
+        $perister1 = mock(EnginePersister::class);
+        $perister1->shouldReceive('persist')->with($possibleObjectToSync);
+        $perister2 = mock(EnginePersister::class);
+        $perister2->shouldReceive('persist')->with($possibleObjectToSync);
+
+        $this->enginePersisterMock->shouldReceive('create')->once()->andReturn([
+            ['persister' => $perister1],
+            ['persister' => $perister2],
+        ]);
 
         $this->invokeListener($possibleObjectToSync);
     }
@@ -36,18 +45,7 @@ class ProductListenerTest extends MockeryTestCase
     public function itShouldNotSynchronizeVariants()
     {
         $product = \mock(ProductInterface::class);
-        $product->shouldReceive('isPublished')->once()->andReturnTrue();
         $product->shouldReceive('getType')->once()->andReturn(AbstractObject::OBJECT_TYPE_VARIANT);
-
-        $actual = $this->invokeListener($product, true);
-        $this->assertFalse($actual);
-    }
-
-    /** @test */
-    public function itShouldNotSynchronizeNotPublishedProduct()
-    {
-        $product = \mock(ProductInterface::class);
-        $product->shouldReceive('isPublished')->once()->andReturnFalse();
 
         $actual = $this->invokeListener($product, true);
         $this->assertFalse($actual);
@@ -81,7 +79,7 @@ class ProductListenerTest extends MockeryTestCase
 
     public function setUp(): void
     {
-        $this->enginePersisterMock = mock(EnginePersister::class);
+        $this->enginePersisterMock = mock(PersisterFactory::class);
         $this->logger = mock(LoggerInterface::class);
         $this->listener = new ProductListener($this->enginePersisterMock, $this->logger);
     }

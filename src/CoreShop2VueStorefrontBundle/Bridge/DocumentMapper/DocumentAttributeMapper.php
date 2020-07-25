@@ -2,6 +2,7 @@
 
 namespace CoreShop2VueStorefrontBundle\Bridge\DocumentMapper;
 
+use CoreShop2VueStorefrontBundle\Bridge\DocumentMapperInterface;
 use CoreShop2VueStorefrontBundle\Document\Attribute;
 use CoreShop2VueStorefrontBundle\Document\DocumentFactory;
 use CoreShop2VueStorefrontBundle\Repository\AttributeRepository;
@@ -22,6 +23,11 @@ class DocumentAttributeMapper extends AbstractMapper implements DocumentMapperIn
     ) {
         $this->attributeRepository = $attributeRepository;
         $this->documentFactory = $documentFactory;
+    }
+
+    public function supports($object): bool
+    {
+        return $object instanceof ClassDefinition\Data;
     }
 
     /**
