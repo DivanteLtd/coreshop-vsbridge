@@ -52,11 +52,11 @@ class DocumentProductMapper extends AbstractMapper implements DocumentMapperInte
      *
      * @return Product
      */
-    public function mapToDocument($product): Product
+    public function mapToDocument($product, ?string $language = null): Product
     {
         $esProduct = $this->documentFactory->getOrCreate(Product::class, $product->getId());
 
-        $productName = $product->getName() ?: $product->getKey();
+        $productName = $product->getName($language) ?: $product->getKey();
 
         $esProduct->setId($product->getId());
         $esProduct->setAttributeSetId(self::PRODUCT_DEFAULT_ATTRIBUTE_SET_ID);
@@ -74,15 +74,15 @@ class DocumentProductMapper extends AbstractMapper implements DocumentMapperInte
         $esProduct->setOptionTextStatus(self::PRODUCT_DEFAULT_OPTION_STATUS);
         $esProduct->setTaxClassId(self::PRODUCT_DEFAULT_TAX_CLASS_ID);
         $esProduct->setOptionTextTaxClassId(self::PRODUCT_DEFAULT_OPTION_CLASS_ID);
-        $esProduct->setDescription($product->getDescription());
-        $esProduct->setShortDescription($product->getShortDescription());
+        $esProduct->setDescription($product->getDescription($language));
+        $esProduct->setShortDescription($product->getShortDescription($language));
         $esProduct->setWeight($product->getWeight());
         $esProduct->setSku($product->getSku());
         $esProduct->setUrlKey($this->slugify->slugify($productName));
         $esProduct->setImage($product->getImage());
 
         $this->setMediaGallery($esProduct, $product->getImages());
-        $this->setCategories($esProduct, $product);
+        $this->setCategories($esProduct, $product, $language);
 
         return $esProduct;
     }
@@ -91,7 +91,7 @@ class DocumentProductMapper extends AbstractMapper implements DocumentMapperInte
      * @param Product $esProduct
      * @param ProductInterface $product
      */
-    private function setCategories(Product $esProduct, ProductInterface $product): void
+    private function setCategories(Product $esProduct, ProductInterface $product, ?string $language = null): void
     {
         $esProduct->getCategories()->clear();
 
@@ -114,7 +114,7 @@ class DocumentProductMapper extends AbstractMapper implements DocumentMapperInte
 
             if (!in_array($id, $categoryIds, true)) {
                 $categoryIds[] = $id;
-                $esProduct->addCategory(new ProductCategory($assignedCategory->getName(), $id));
+                $esProduct->addCategory(new ProductCategory($assignedCategory->getName($language), $id));
             }
         }
         $esProduct->setCategoryIds($categoryIds);

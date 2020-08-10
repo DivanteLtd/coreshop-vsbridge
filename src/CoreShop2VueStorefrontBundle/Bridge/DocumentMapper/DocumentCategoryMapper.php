@@ -41,11 +41,11 @@ class DocumentCategoryMapper extends AbstractMapper implements DocumentMapperInt
     /**
      * @param \CoreShop\Component\Product\Model\CategoryInterface $category
      */
-    public function mapToDocument($category): Category
+    public function mapToDocument($category, ?string $language = null): Category
     {
         $esCategory = $this->documentFactory->getOrCreate(Category::class, $category->getId());
 
-        $categoryName = $category->getName() ?: $category->getKey();
+        $categoryName = $category->getName($language) ?: $category->getKey();
         $parentCategory = $category->getParentCategory();
 
         $level = $this->documentHelper->countSeparator($category->getFullPath(), '/') + 1;
@@ -74,7 +74,7 @@ class DocumentCategoryMapper extends AbstractMapper implements DocumentMapperInt
             $slug = $this->slugify->slugify($categoryName);
             $esCategory->setSlug($slug);
             $esCategory->setUrlKey($slug);
-            $esCategory->setUrlPath($this->documentHelper->buildUrlPath($category));
+            $esCategory->setUrlPath($this->documentHelper->buildUrlPath($category, $language));
         }
 
         if ($category instanceof \CoreShop2VueStorefrontBundle\Bridge\Model\CategoryInterface) {

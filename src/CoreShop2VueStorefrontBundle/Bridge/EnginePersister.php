@@ -13,22 +13,34 @@ class EnginePersister
     private $manager;
     /** @var DocumentMapperFactory */
     private $documentMapperFactory;
+    /** @var string|null */
+    private $language;
 
-    public function __construct(Manager $manager, DocumentMapperFactory $documentMapperFactory)
+    /** @var null|bool */
+    private $indexExists;
+
+    public function __construct(Manager $manager, DocumentMapperFactory $documentMapperFactory, ?string $language = null)
     {
         $this->manager = $manager;
         $this->documentMapperFactory = $documentMapperFactory;
+        $this->language = $language;
     }
 
     /**
      * @param ProductInterface $object
-     * @param string $lang
      * @throws BulkWithErrorsException
      */
-    public function persist($object, string $lang = 'en'): void
+    public function persist($object): void
     {
+        if ($this->indexExists !== true) {
+            if (!$this->manager->indexExists()) {
+                $this->manager->createIndex();
+            }
+            $this->indexExists = true;
+        }
+
         $documentMapper = $this->documentMapperFactory->factory($object);
-        $esDocument = $documentMapper->mapToDocument($object);
+        $esDocument = $documentMapper->mapToDocument($object, $this->language);
         $this->manager->persist($esDocument);
         $this->manager->commit();
     }

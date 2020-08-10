@@ -79,7 +79,7 @@ class ProductListenerTest extends MockeryTestCase
         ];
     }
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->enginePersisterMock = mock(EnginePersister::class);
         $this->logger = mock(LoggerInterface::class);

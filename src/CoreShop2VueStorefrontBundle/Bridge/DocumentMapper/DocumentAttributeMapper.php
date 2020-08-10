@@ -29,7 +29,7 @@ class DocumentAttributeMapper extends AbstractMapper implements DocumentMapperIn
      *
      * @return Attribute
      */
-    public function mapToDocument($fieldDefinition): Attribute
+    public function mapToDocument($fieldDefinition, ?string $language = null): Attribute
     {
         $id = $fieldDefinition->id;
 

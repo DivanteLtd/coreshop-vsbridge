@@ -50,7 +50,7 @@ class DocumentConfigurableProductMapper extends DocumentProductMapper implements
      * @param ProductInterface $product
      * @return Product
      */
-    public function mapToDocument($product): Product
+    public function mapToDocument($product, ?string $language = null): Product
     {
         $esProduct = parent::mapToDocument($product);
         $esProduct->setTypeId(self::PRODUCT_TYPE_CONFIGURABLE);

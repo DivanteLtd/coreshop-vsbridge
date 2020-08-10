@@ -74,14 +74,14 @@ abstract class ApiTestCase extends WebTestCase
         }
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
         $this->client = static::createClient(['environment' => 'test']);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         parent::tearDown();
         static::$kernel = null;

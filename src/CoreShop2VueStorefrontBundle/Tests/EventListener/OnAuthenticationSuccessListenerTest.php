@@ -27,7 +27,7 @@ class OnAuthenticationSuccessListenerTest extends MockeryTestCase
         $this->assertTrue(true);
     }
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->listener = new OnAuthenticationSuccessListener();
     }
