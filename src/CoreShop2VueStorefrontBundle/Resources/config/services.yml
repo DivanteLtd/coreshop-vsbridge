@@ -44,6 +44,8 @@ services:
         arguments:
             - !tagged_iterator 'coreshop2vuestorefront.document_mapper'
 
+    CoreShop2VueStorefrontBundle\Bridge\RepositoryProvider: ~
+
     CoreShop2VueStorefrontBundle\Bridge\ImporterFactory: ~
 
     CoreShop2VueStorefrontBundle\Bridge\Response\ResponseBodyCreator:

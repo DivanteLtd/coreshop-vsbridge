@@ -29,7 +29,7 @@ class IndexCommand extends AbstractCommand
     {
         $this
             ->addArgument('store', InputArgument::OPTIONAL, 'Store to index')
-            ->addArgument('type', InputArgument::OPTIONAL, 'Object types to index, available: category, product')
+            ->addArgument('type', InputArgument::OPTIONAL, 'Object types to index')
             ->addArgument('language', InputArgument::OPTIONAL, 'Language to index')
             ->setName('vsbridge:index-objects')
             ->setDescription('Indexing objects of given type in vuestorefront');

@@ -14,9 +14,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class PersisterFactory
 {
-    public const TYPE_CATEGORY = 'category';
-    public const TYPE_PRODUCT = 'product';
-
     private $hosts;
     private $indexTemplate;
     private $stores;
@@ -32,24 +29,20 @@ class PersisterFactory
     private $documentMapperFactory;
 
     /**
-     * @var ProductRepositoryInterface
+     * @var RepositoryProvider
      */
-    private $productRepository;
-
-    /**
-     * @var CategoryRepositoryInterface
-     */
-    private $categoryRepository;
+    private $repositoryProvider;
 
     /**
      * @var OptionsResolver
      */
     private $resolver;
 
-    public function __construct(ManagerFactory $managerFactory, DocumentMapperFactoryInterface $documentMapperFactory, array $hosts, string $indexTemplate, array $stores = [])
+    public function __construct(ManagerFactory $managerFactory, DocumentMapperFactoryInterface $documentMapperFactory, RepositoryProvider $repositoryProvider, array $hosts, string $indexTemplate, array $stores = [])
     {
         $this->managerFactory = $managerFactory;
         $this->documentMapperFactory = $documentMapperFactory;
+        $this->repositoryProvider = $repositoryProvider;
 
         $this->hosts = $hosts;
         $this->indexTemplate = $indexTemplate;
@@ -72,7 +65,7 @@ class PersisterFactory
 
             $languages = (array) ($options['language'] ?? $store['languages']);
             foreach ($languages as $language) {
-                $types = (array) ($options['type'] ?? [self::TYPE_CATEGORY, self::TYPE_PRODUCT]);
+                $types = (array) ($options['type'] ?? $this->repositoryProvider->getAliases());
 
                 foreach ($types as $type) {
                     $variables = ['store' => $name, 'language' => $language, 'type' => $type];
@@ -97,6 +90,7 @@ class PersisterFactory
                         'store' => $name,
                         'language' => $language,
                         'type' => $type,
+                        'repository' => $this->repositoryProvider->getForAlias($type),
                     ];
                 }
             }
@@ -134,7 +128,7 @@ class PersisterFactory
             return $language;
         });
 
-        $resolver->setAllowedValues('type', [null, 'product', 'category']);
+        $resolver->setAllowedValues('type', array_merge([null], $this->repositoryProvider->getAliases()));
 
         return $resolver;
     }

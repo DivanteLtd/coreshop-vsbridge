@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace CoreShop2VueStorefrontBundle\Bridge;
 
-use CoreShop\Component\Core\Repository\CategoryRepositoryInterface;
-use CoreShop\Component\Core\Repository\ProductRepositoryInterface;
 use CoreShop2VueStorefrontBundle\Bridge\DocumentMapperFactoryInterface;
 
 class ImporterFactory
@@ -16,25 +14,13 @@ class ImporterFactory
     private $persisterFactory;
 
     /**
-     * @var ProductRepositoryInterface
-     */
-    private $productRepository;
-
-    /**
-     * @var CategoryRepositoryInterface
-     */
-    private $categoryRepository;
-
-    /**
      * @var OptionsResolver
      */
     private $resolver;
 
-    public function __construct(PersisterFactory $persisterFactory, ProductRepositoryInterface $productRepository, CategoryRepositoryInterface $categoryRepository)
+    public function __construct(PersisterFactory $persisterFactory)
     {
         $this->persisterFactory = $persisterFactory;
-        $this->productRepository = $productRepository;
-        $this->categoryRepository = $categoryRepository;
     }
 
     /**
@@ -45,16 +31,7 @@ class ImporterFactory
         $persisters = $this->persisterFactory->create($store, $language, $type);
         $importers = [];
         foreach ($persisters as $config) {
-            switch ($config['type']) {
-                case PersisterFactory::TYPE_CATEGORY:
-                    $repository = $this->categoryRepository;
-                    break;
-                case PersisterFactory::TYPE_PRODUCT:
-                    $repository = $this->productRepository;
-                    break;
-            }
-
-            $importers[] = new ElasticsearchImporter($repository, $config['persister'], $config['store'], $config['language'], $config['type']);
+            $importers[] = new ElasticsearchImporter($config['repository'], $config['persister'], $config['store'], $config['language'], $config['type']);
         }
 
         return $importers;
