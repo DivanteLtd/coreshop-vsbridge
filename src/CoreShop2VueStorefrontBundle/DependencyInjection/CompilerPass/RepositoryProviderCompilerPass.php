@@ -16,13 +16,14 @@ class RepositoryProviderCompilerPass implements CompilerPassInterface
     private const REPOSITORY = 'coreshop2vuestorefront.repository';
 
     private static $defaults = [
-        'coreshop.repository.category' => 'category',
-        'coreshop.repository.product' => 'product'
+        'category' => 'coreshop.repository.category',
+        'product' => 'coreshop.repository.product'
     ];
 
     public function process(ContainerBuilder $container): void
     {
-        foreach (self::$defaults as $id => $alias) {
+        $repositories = array_replace(self::$defaults, $container->getParameter('core_shop2_vue_storefront.repositories'));
+        foreach ($repositories as $alias => $id) {
             $definition = $container->getDefinition($id);
             $definition->addTag(self::REPOSITORY, ['alias' => $alias]);
         }
