@@ -36,8 +36,14 @@ class Stock
     /** @ES\Property(type="integer") */
     public $minQty;
 
-    /** @ES\Property(type="integer") */
+    /** @ES\Property(type="boolean") */
     public $useConfigMinSaleQty;
+
+    /** @ES\Property(type="integer") */
+    public $minSaleQty;
+
+    /** @ES\Property(type="boolean") */
+    public $useConfigMaxSaleQty;
 
     /** @ES\Property(type="integer") */
     public $maxSaleQty;
