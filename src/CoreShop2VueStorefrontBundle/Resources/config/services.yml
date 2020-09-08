@@ -6,11 +6,16 @@ services:
         autowire: true
         autoconfigure: true
         public: true
+    _instanceof:
+        CoreShop2VueStorefrontBundle\Bridge\DocumentMapperInterface:
+            tags: ['coreshop2vuestorefront.document_mapper']
 
     CoreShop2VueStorefrontBundle\Controller\:
         resource: '../../Controller'
         public: true
         tags: ['controller.service_arguments']
+
+    CoreShop2VueStorefrontBundle\Bridge\EnginePersisterFactory: ~
 
     CoreShop2VueStorefrontBundle\Bridge\EnginePersister:
         autoconfigure: false
@@ -33,7 +38,13 @@ services:
 
     CoreShop2VueStorefrontBundle\Bridge\Helper\PriceHelper: ~
 
-    CoreShop2VueStorefrontBundle\Bridge\DocumentMapper\DocumentMapperFactory: ~
+    CoreShop2VueStorefrontBundle\Bridge\DocumentMapperFactoryInterface:
+        alias: CoreShop2VueStorefrontBundle\Bridge\DocumentMapperFactory
+    CoreShop2VueStorefrontBundle\Bridge\DocumentMapperFactory:
+        arguments:
+            - !tagged_iterator 'coreshop2vuestorefront.document_mapper'
+
+    CoreShop2VueStorefrontBundle\Bridge\ImporterFactory: ~
 
     CoreShop2VueStorefrontBundle\Bridge\Response\ResponseBodyCreator:
         arguments:
@@ -76,7 +87,7 @@ services:
             - "@coreshop.order.transformer.cart_to_order"
             - "@coreshop.repository.customer"
 
-    CoreShop2VueStorefrontBundle\Bridge\ImporterFactory:
+    CoreShop2VueStorefrontBundle\Bridge\PersisterFactory:
         arguments:
             $managerFactory: "@es.manager_factory"
             $hosts: '%core_shop2_vue_storefront.elasticsearch.hosts%'

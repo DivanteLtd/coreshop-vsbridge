@@ -2,29 +2,20 @@
 
 namespace CoreShop2VueStorefrontBundle\Tests\Bridge;
 
-use CoreShop\Component\Core\Repository\CategoryRepositoryInterface;
-use CoreShop\Component\Core\Repository\ProductRepositoryInterface;
-use CoreShop2VueStorefrontBundle\Bridge\DocumentMapper\DocumentMapperFactory;
-use CoreShop2VueStorefrontBundle\Bridge\ElasticsearchImporter;
-use CoreShop2VueStorefrontBundle\Bridge\ImporterFactory;
+use CoreShop2VueStorefrontBundle\Bridge\DocumentMapperFactory;
+use CoreShop2VueStorefrontBundle\Bridge\PersisterFactory;
 use CoreShop2VueStorefrontBundle\Tests\MockeryTestCase;
 use Mockery as m;
 use ONGR\ElasticsearchBundle\Service\ManagerFactory;
 use ONGR\ElasticsearchBundle\Service\Manager;
 
-class ImporterFactoryTest extends MockeryTestCase
+class PersisterFactoryTest extends MockeryTestCase
 {
     /** @var ManagerFactory */
     private $managerFactory;
 
     /** @var DocumentMapperFactory */
     private $documentMapperFactory;
-
-    /** @var ProductRepositoryInterface */
-    private $productRepository;
-
-    /** @var CategoryRepositoryInterface */
-    private $categoryRepository;
 
     /** @var string[] */
     private $hosts = ['elasticsearch.local'];
@@ -45,17 +36,15 @@ class ImporterFactoryTest extends MockeryTestCase
     {
         $this->managerFactory = m::mock(ManagerFactory::class);
         $this->documentMapperFactory = m::mock(DocumentMapperFactory::class);
-        $this->productRepository = m::mock(ProductRepositoryInterface::class);
-        $this->categoryRepository = m::mock(CategoryRepositoryInterface::class);
     }
 
     /** @test **/
-    public function itCreatesNoImportersByDefault(): void
+    public function itCreatesNoPersistersByDefault(): void
     {
-        $factory = new ImporterFactory($this->managerFactory, $this->documentMapperFactory, $this->productRepository, $this->categoryRepository, $this->hosts, $this->indexTemplate);
-        $importers = $factory->create();
+        $factory = new PersisterFactory($this->managerFactory, $this->documentMapperFactory, $this->hosts, $this->indexTemplate);
+        $persisters = $factory->create();
 
-        self::assertCount(0, $importers);
+        self::assertCount(0, $persisters);
     }
 
     /** @test **/
@@ -64,7 +53,7 @@ class ImporterFactoryTest extends MockeryTestCase
         $this->expectException(\Symfony\Component\OptionsResolver\Exception\InvalidOptionsException::class);
         $this->expectExceptionMessage('The option "store" with value "foo" is invalid. Accepted values are: null, "example.com"');
 
-        $factory = new ImporterFactory($this->managerFactory, $this->documentMapperFactory, $this->productRepository, $this->categoryRepository, $this->hosts, $this->indexTemplate, $this->stores);
+        $factory = new PersisterFactory($this->managerFactory, $this->documentMapperFactory, $this->hosts, $this->indexTemplate, $this->stores);
         $factory->create('foo');
     }
 
@@ -74,7 +63,7 @@ class ImporterFactoryTest extends MockeryTestCase
         $this->expectException(\Symfony\Component\OptionsResolver\Exception\InvalidOptionsException::class);
         $this->expectExceptionMessage('The option "language" with value de is invalid. Accepted values are: null, "en", "es".');
 
-        $factory = new ImporterFactory($this->managerFactory, $this->documentMapperFactory, $this->productRepository, $this->categoryRepository, $this->hosts, $this->indexTemplate, $this->stores);
+        $factory = new PersisterFactory($this->managerFactory, $this->documentMapperFactory, $this->hosts, $this->indexTemplate, $this->stores);
         $factory->create('example.com', 'de');
     }
 
@@ -84,12 +73,12 @@ class ImporterFactoryTest extends MockeryTestCase
         $this->expectException(\Symfony\Component\OptionsResolver\Exception\InvalidOptionsException::class);
         $this->expectExceptionMessage('The option "type" with value "test" is invalid. Accepted values are: null, "product", "category".');
 
-        $factory = new ImporterFactory($this->managerFactory, $this->documentMapperFactory, $this->productRepository, $this->categoryRepository, $this->hosts, $this->indexTemplate, $this->stores);
+        $factory = new PersisterFactory($this->managerFactory, $this->documentMapperFactory, $this->hosts, $this->indexTemplate, $this->stores);
         $factory->create('example.com', 'en', 'test');
     }
 
     /** @test **/
-    public function itCreatesImportersForAllStores(): void
+    public function itCreatesPersistersForAllStores(): void
     {
         $manager = m::mock(Manager::class);
 
@@ -124,14 +113,14 @@ class ImporterFactoryTest extends MockeryTestCase
             ->withArgs($this->generateManagerArgs('coreshop2vuestorefront.example.de.product.de', 'some.index.template_example.de_product_de'))
             ->andReturn($manager);
 
-        $factory = new ImporterFactory($this->managerFactory, $this->documentMapperFactory, $this->productRepository, $this->categoryRepository, $this->hosts, $this->indexTemplate, $this->stores);
-        $importers = $factory->create();
+        $factory = new PersisterFactory($this->managerFactory, $this->documentMapperFactory, $this->hosts, $this->indexTemplate, $this->stores);
+        $persisters = $factory->create();
 
-        self::assertCount(6, $importers);
+        self::assertCount(6, $persisters);
     }
 
     /** @test **/
-    public function itCreatesImportersForASingleStore(): void
+    public function itCreatesPersistersForASingleStore(): void
     {
         $manager = m::mock(Manager::class);
 
@@ -146,14 +135,14 @@ class ImporterFactoryTest extends MockeryTestCase
             ->withArgs($this->generateManagerArgs('coreshop2vuestorefront.example.de.product.de', 'some.index.template_example.de_product_de'))
             ->andReturn($manager);
 
-        $factory = new ImporterFactory($this->managerFactory, $this->documentMapperFactory, $this->productRepository, $this->categoryRepository, $this->hosts, $this->indexTemplate, $this->stores);
-        $importers = $factory->create('example.de');
+        $factory = new PersisterFactory($this->managerFactory, $this->documentMapperFactory, $this->hosts, $this->indexTemplate, $this->stores);
+        $persisters = $factory->create('example.de');
 
-        self::assertCount(2, $importers);
+        self::assertCount(2, $persisters);
     }
 
     /** @test **/
-    public function itCreatesImportersForASingleStoreAndLanguage(): void
+    public function itCreatesPersistersForASingleStoreAndLanguage(): void
     {
         $manager = m::mock(Manager::class);
 
@@ -168,14 +157,14 @@ class ImporterFactoryTest extends MockeryTestCase
             ->withArgs($this->generateManagerArgs('coreshop2vuestorefront.example.com.product.en', 'some.index.template_example.com_product_en'))
             ->andReturn($manager);
 
-        $factory = new ImporterFactory($this->managerFactory, $this->documentMapperFactory, $this->productRepository, $this->categoryRepository, $this->hosts, $this->indexTemplate, $this->stores);
-        $importers = $factory->create('example.com', 'en');
+        $factory = new PersisterFactory($this->managerFactory, $this->documentMapperFactory, $this->hosts, $this->indexTemplate, $this->stores);
+        $persisters = $factory->create('example.com', 'en');
 
-        self::assertCount(2, $importers);
+        self::assertCount(2, $persisters);
     }
 
     /** @test **/
-    public function itCreatesImportersForASingleStoreAndLanguageAndType(): void
+    public function itCreatesPersistersForASingleStoreAndLanguageAndType(): void
     {
         $manager = m::mock(Manager::class);
 
@@ -185,10 +174,10 @@ class ImporterFactoryTest extends MockeryTestCase
             ->withArgs($this->generateManagerArgs('coreshop2vuestorefront.example.com.product.en', 'some.index.template_example.com_product_en'))
             ->andReturn($manager);
 
-        $factory = new ImporterFactory($this->managerFactory, $this->documentMapperFactory, $this->productRepository, $this->categoryRepository, $this->hosts, $this->indexTemplate, $this->stores);
-        $importers = $factory->create('example.com', 'en', 'product');
+        $factory = new PersisterFactory($this->managerFactory, $this->documentMapperFactory, $this->hosts, $this->indexTemplate, $this->stores);
+        $Persisters = $factory->create('example.com', 'en', 'product');
 
-        self::assertCount(1, $importers);
+        self::assertCount(1, $Persisters);
     }
 
     private function generateManagerArgs(string $id, string $index): array

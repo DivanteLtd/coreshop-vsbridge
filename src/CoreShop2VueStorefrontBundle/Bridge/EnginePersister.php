@@ -3,7 +3,7 @@
 namespace CoreShop2VueStorefrontBundle\Bridge;
 
 use CoreShop\Component\Core\Model\ProductInterface;
-use CoreShop2VueStorefrontBundle\Bridge\DocumentMapper\DocumentMapperFactory;
+use CoreShop2VueStorefrontBundle\Bridge\DocumentMapperFactory;
 use ONGR\ElasticsearchBundle\Exception\BulkWithErrorsException;
 use ONGR\ElasticsearchBundle\Service\Manager;
 

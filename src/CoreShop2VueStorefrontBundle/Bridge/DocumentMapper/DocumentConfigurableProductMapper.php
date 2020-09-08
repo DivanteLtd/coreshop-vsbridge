@@ -5,6 +5,7 @@ namespace CoreShop2VueStorefrontBundle\Bridge\DocumentMapper;
 use Cocur\Slugify\SlugifyInterface;
 use CoreShop\Component\Core\Model\ProductInterface;
 use CoreShop\Component\Core\Repository\ProductRepositoryInterface;
+use CoreShop2VueStorefrontBundle\Bridge\DocumentMapperInterface;
 use CoreShop2VueStorefrontBundle\Bridge\Helper\DocumentHelper;
 use CoreShop2VueStorefrontBundle\Bridge\Helper\PriceHelper;
 use CoreShop2VueStorefrontBundle\Document\Attribute;
@@ -44,6 +45,11 @@ class DocumentConfigurableProductMapper extends DocumentProductMapper implements
     ) {
         parent::__construct($slugify, $productRepository, $priceHelper, $documentFactory, $documentHelper);
         $this->attributeRepository = $attributeRepository;
+    }
+
+    public function supports($object): bool
+    {
+        return $object instanceof ProductInterface && [] !== $object->getChildren([AbstractObject::OBJECT_TYPE_VARIANT], true);
     }
 
     /**
