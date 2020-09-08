@@ -72,7 +72,7 @@ class IndexCommand extends AbstractCommand
             $style->note(sprintf('Found %1$d items to import.', $count));
             $progressBar = $style->createProgressBar($count);
             $importer->import(function (object $object) use ($progressBar) {
-                $progressBar->setMessage($object->getPath());
+                // $progressBar->setMessage($object->getPath());
                 $progressBar->advance();
             });
             $progressBar->clear();

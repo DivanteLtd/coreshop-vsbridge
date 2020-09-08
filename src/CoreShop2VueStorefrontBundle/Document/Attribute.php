@@ -2,10 +2,12 @@
 
 namespace CoreShop2VueStorefrontBundle\Document;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use ONGR\ElasticsearchBundle\Annotation as ES;
 
 /**
  * @ES\Document()
+ * @ES\ObjectType()
  */
 class Attribute
 {
@@ -17,7 +19,7 @@ class Attribute
     /** @ES\Property(type="integer") */
     public $id;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="keyword") */
     public $attributeCode;
 
     /** @ES\Property(type="string") */
@@ -124,8 +126,9 @@ class Attribute
 
     /** @ES\Property(type="integer") */
     public $searchWeight;
-    
-    public $options = [];
+
+    /** @ES\Embedded(class=\CoreShop2VueStorefrontBundle\Document\AttributeOption::class, multiple=true) */
+    public $options;
 
     /** @ES\Property(type="boolean") */
     public $isVisibleInGrid;
@@ -138,6 +141,11 @@ class Attribute
 
     /** @ES\Property(type="string") */
     public $entityTypeId;
+
+    public function __construct()
+    {
+        $this->options = new ArrayCollection();
+    }
 
     public function setId(string $id)
     {
@@ -465,7 +473,7 @@ class Attribute
 
     public function getOptions(): array
     {
-        return $this->options;
+        return $this->options->toArray();
     }
 
     public function getAttributeCode(): string
