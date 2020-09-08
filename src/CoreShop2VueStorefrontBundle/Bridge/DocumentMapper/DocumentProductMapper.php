@@ -161,6 +161,15 @@ class DocumentProductMapper extends AbstractMapper implements DocumentMapperInte
         $stock->isQtyDecimal = false;
         $stock->stockId = 1;
 
+        if (null !== $minSaleQty = $product->getMinimumQuantityToOrder()) {
+            $stock->useConfigMinSaleQty = true;
+            $stock->minSaleQty = $minSaleQty;
+        }
+        if (null !== $maxSaleQty = $product->getMaximumQuantityToOrder()) {
+            $stock->useConfigMaxSaleQty = true;
+            $stock->maxSaleQty = $maxSaleQty;
+        }
+
         return $stock;
     }
 }

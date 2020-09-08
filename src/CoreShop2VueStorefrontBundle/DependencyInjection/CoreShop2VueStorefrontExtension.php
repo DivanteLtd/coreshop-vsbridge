@@ -27,6 +27,7 @@ class CoreShop2VueStorefrontExtension extends Extension
         $container->setParameter('core_shop2_vue_storefront.elasticsearch.hosts', $config['elasticsearch']['hosts']);
         $container->setParameter('core_shop2_vue_storefront.elasticsearch.index', $config['elasticsearch']['index']);
         $container->setParameter('core_shop2_vue_storefront.stores', $config['stores']);
+        $container->setParameter('core_shop2_vue_storefront.repositories', array_combine(array_keys($config['repositories']), array_column($config['repositories'], 'id')));
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.yml');

@@ -28,6 +28,15 @@ class Configuration implements ConfigurationInterface
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
             ->children()
+                ->arrayNode('repositories')
+                    ->useAttributeAsKey('alias')
+                    ->arrayPrototype()
+                        ->addDefaultsIfNotSet()
+                        ->children()
+                            ->scalarNode('id')->end()
+                        ->end()
+                    ->end()
+                ->end()
                 ->arrayNode('elasticsearch')
                     ->children()
                         ->arrayNode('hosts')
