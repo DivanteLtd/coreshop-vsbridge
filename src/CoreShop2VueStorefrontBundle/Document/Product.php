@@ -3,6 +3,7 @@
 namespace CoreShop2VueStorefrontBundle\Document;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use ONGR\ElasticsearchBundle\Annotation as ES;
 
 /**
@@ -22,6 +23,9 @@ class Product
 
     /** @ES\Property(type="integer") */
     public $attributeSetId;
+
+    /** @ES\Embedded(class=\CoreShop2VueStorefrontBundle\Document\Attribute::class, multiple=true) */
+    public $attributesMetadata;
 
     /** @ES\Property(type="text") */
     public $typeId;
@@ -133,11 +137,12 @@ class Product
 
     /** @ES\Property(type="integer") */
     public $requiredOptions = 0;
-    
+
     public $productLinks = [];
 
     public function __construct()
     {
+        $this->attributesMetadata = new ArrayCollection();
         $this->category = new ArrayCollection();
         $this->configurableChildren = new ArrayCollection();
         $this->configurableOptions = new ArrayCollection();
