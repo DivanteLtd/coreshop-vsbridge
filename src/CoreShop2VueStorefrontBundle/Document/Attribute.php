@@ -59,6 +59,9 @@ class Attribute
     public $defaultValue;
 
     /** @ES\Property(type="string") */
+    public $defaultFrontendLabel;
+
+    /** @ES\Property(type="string") */
     public $isUnique = "0";
 
     /** @ES\Property(type="string") */
@@ -270,6 +273,14 @@ class Attribute
     public function setDefaultValue($defaultValue): void
     {
         $this->defaultValue = $defaultValue;
+    }
+
+    /**
+     * @param mixed $defaultFrontendLabel
+     */
+    public function setDefaultFrontendLabel($defaultFrontendLabel): void
+    {
+        $this->defaultFrontendLabel = $defaultFrontendLabel;
     }
 
     /**
