@@ -8,6 +8,7 @@ use ONGR\ElasticsearchBundle\Service\ManagerFactory;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use CoreShop\Component\Store\Repository\StoreRepositoryInterface;
 
 /**
  * @internal
@@ -17,6 +18,7 @@ class PersisterFactory
     private $hosts;
     private $indexTemplate;
     private $stores;
+    private $storeAware;
 
     /**
      * @var ManagerFactory
@@ -34,19 +36,27 @@ class PersisterFactory
     private $repositoryProvider;
 
     /**
+     * @var StoreRepositoryInterface
+     */
+    private $storeRepository;
+
+    /**
      * @var OptionsResolver
      */
     private $resolver;
 
-    public function __construct(ManagerFactory $managerFactory, DocumentMapperFactoryInterface $documentMapperFactory, RepositoryProvider $repositoryProvider, array $hosts, string $indexTemplate, array $stores = [])
+
+    public function __construct(ManagerFactory $managerFactory, DocumentMapperFactoryInterface $documentMapperFactory, RepositoryProvider $repositoryProvider, StoreRepositoryInterface $storeRepository, array $hosts, string $indexTemplate, array $stores = [], bool $storeAware = false)
     {
         $this->managerFactory = $managerFactory;
         $this->documentMapperFactory = $documentMapperFactory;
         $this->repositoryProvider = $repositoryProvider;
+        $this->storeRepository = $storeRepository;
 
         $this->hosts = $hosts;
         $this->indexTemplate = $indexTemplate;
         $this->stores = $stores;
+        $this->storeAware = $storeAware;
         $this->resolver = $this->configureOptions(new OptionsResolver());
     }
 
@@ -62,6 +72,10 @@ class PersisterFactory
         $persisters = [];
         foreach ($stores as $name) {
             $store = $this->stores[$name];
+
+            if ($this->storeAware) {
+                $concreteStore = $this->storeRepository->findOneBy(['name' => $name]);
+            }
 
             $languages = (array) ($options['language'] ?? $store['languages']);
             foreach ($languages as $language) {
@@ -91,6 +105,7 @@ class PersisterFactory
                         'language' => $language,
                         'type' => $type,
                         'repository' => $this->repositoryProvider->getForAlias($type),
+                        'concreteStore' => $concreteStore
                     ];
                 }
             }
