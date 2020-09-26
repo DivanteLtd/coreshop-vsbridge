@@ -41,7 +41,7 @@ class Attribute
     public $frontendInput;
 
     /** @ES\Property(type="string") */
-    public $frontedLabel;
+    public $frontendLabel;
 
     /** @ES\Property(type="string") */
     public $frontendClass;
@@ -57,6 +57,9 @@ class Attribute
 
     /** @ES\Property(type="string") */
     public $defaultValue;
+
+    /** @ES\Property(type="string") */
+    public $defaultFrontendLabel;
 
     /** @ES\Property(type="string") */
     public $isUnique = "0";
@@ -225,11 +228,11 @@ class Attribute
     }
 
     /**
-     * @param mixed $frontedLabel
+     * @param mixed $frontendLabel
      */
-    public function setFrontedLabel($frontedLabel): void
+    public function setFrontendLabel($frontendLabel): void
     {
-        $this->frontedLabel = $frontedLabel;
+        $this->frontendLabel = $frontendLabel;
     }
 
     /**
@@ -270,6 +273,14 @@ class Attribute
     public function setDefaultValue($defaultValue): void
     {
         $this->defaultValue = $defaultValue;
+    }
+
+    /**
+     * @param mixed $defaultFrontendLabel
+     */
+    public function setDefaultFrontendLabel($defaultFrontendLabel): void
+    {
+        $this->defaultFrontendLabel = $defaultFrontendLabel;
     }
 
     /**
@@ -481,7 +492,7 @@ class Attribute
         return $this->attributeCode;
     }
 
-    public function getFrontedLabel():? string
+    public function getFrontendLabel():? string
     {
         return $this->frontedLabel;
     }
