@@ -31,7 +31,7 @@ class ImporterFactory
         $persisters = $this->persisterFactory->create($store, $language, $type);
         $importers = [];
         foreach ($persisters as $config) {
-            $importers[] = new ElasticsearchImporter($config['repository'], $config['persister'], $config['store'], $config['language'], $config['type']);
+            $importers[] = new ElasticsearchImporter($config['repository'], $config['persister'], $config['store'], $config['language'], $config['type'], $config['concreteStore']);
         }
 
         return $importers;

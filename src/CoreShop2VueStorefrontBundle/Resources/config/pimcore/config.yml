@@ -2,6 +2,7 @@ imports:
     - { resource: security.yml }
     - { resource: jwt.yml }
     - { resource: cors.yml }
+    - { resource: coreshop.yml }
 
 gesdinet_jwt_refresh_token:
     firewall: vsbridge_refresh

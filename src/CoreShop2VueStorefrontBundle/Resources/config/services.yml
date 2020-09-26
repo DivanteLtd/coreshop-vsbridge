@@ -95,6 +95,8 @@ services:
             $hosts: '%core_shop2_vue_storefront.elasticsearch.hosts%'
             $indexTemplate: '%core_shop2_vue_storefront.elasticsearch.index%'
             $stores: '%core_shop2_vue_storefront.stores%'
+            $storeRepository: '@coreshop.repository.store'
+            $storeAware: '%core_shop2_vue_storefront.store_aware%'
 
     CoreShop2VueStorefrontBundle\Command\IndexCommand:
         tags: ['console.command']
