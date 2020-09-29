@@ -6,7 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use ONGR\ElasticsearchBundle\Annotation as ES;
 
 /**
- * @ES\Document()
+ * @ES\Index()
  * @ES\ObjectType()
  */
 class Attribute
@@ -130,7 +130,7 @@ class Attribute
     /** @ES\Property(type="integer") */
     public $searchWeight;
 
-    /** @ES\Embedded(class=\CoreShop2VueStorefrontBundle\Document\AttributeOption::class, multiple=true) */
+    /** @ES\Embedded(class=\CoreShop2VueStorefrontBundle\Document\AttributeOption::class) */
     public $options;
 
     /** @ES\Property(type="boolean") */

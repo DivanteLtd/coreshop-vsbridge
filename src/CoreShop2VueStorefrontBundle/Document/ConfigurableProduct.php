@@ -30,13 +30,13 @@ trait ConfigurableProduct
     public $climate;
 
     /**
-     * @ES\Embedded(class="CoreShop2VueStorefrontBundle:ConfigurableOption", multiple=true)
+     * @ES\Embedded(class="CoreShop2VueStorefrontBundle:ConfigurableOption")
      * @var ArrayCollection $configurableChildren
      */
     public $configurableOptions;
 
     /**
-     * @ES\Embedded(class="CoreShop2VueStorefrontBundle:ConfigurableChildren", multiple=true)
+     * @ES\Embedded(class="CoreShop2VueStorefrontBundle:ConfigurableChildren")
      * @var ArrayCollection $configurableChildren
      */
     public $configurableChildren;
