@@ -100,7 +100,7 @@ class PersisterFactory
                     );
 
                     $persisters[] = [
-                        'persister' => new EnginePersister($manager, $this->documentMapperFactory, $language),
+                        'persister' => new EnginePersister($manager, $this->documentMapperFactory, $concreteStore, $language),
                         'store' => $name,
                         'language' => $language,
                         'type' => $type,

@@ -16,6 +16,7 @@ use CoreShop2VueStorefrontBundle\Document\Product;
 use CoreShop2VueStorefrontBundle\Document\ProductCategory;
 use CoreShop2VueStorefrontBundle\Repository\AttributeRepository;
 use Pimcore\Model\DataObject\AbstractObject;
+use CoreShop\Component\Store\Model\StoreInterface;
 
 class DocumentConfigurableProductMapper extends DocumentProductMapper implements DocumentMapperInterface
 {
@@ -54,11 +55,14 @@ class DocumentConfigurableProductMapper extends DocumentProductMapper implements
 
     /**
      * @param ProductInterface $product
+     * @param StoreInterface|null $store
+     * @param string|null $language
+     *
      * @return Product
      */
-    public function mapToDocument($product, ?string $language = null): Product
+    public function mapToDocument($product, ?StoreInterface $store = null, ?string $language = null): Product
     {
-        $esProduct = parent::mapToDocument($product);
+        $esProduct = parent::mapToDocument($product, $store, $language);
         $esProduct->setTypeId(self::PRODUCT_TYPE_CONFIGURABLE);
 
         $this->setConfigurable($product, $esProduct);

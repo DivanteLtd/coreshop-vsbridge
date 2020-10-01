@@ -9,6 +9,7 @@ use CoreShop\Component\Core\Repository\CategoryRepositoryInterface;
 use CoreShop2VueStorefrontBundle\Bridge\Helper\DocumentHelper;
 use CoreShop2VueStorefrontBundle\Document\Category;
 use CoreShop2VueStorefrontBundle\Document\DocumentFactory;
+use CoreShop\Component\Store\Model\StoreInterface;
 
 class DocumentCategoryMapper extends AbstractMapper implements DocumentMapperInterface
 {
@@ -46,8 +47,12 @@ class DocumentCategoryMapper extends AbstractMapper implements DocumentMapperInt
 
     /**
      * @param \CoreShop\Component\Product\Model\CategoryInterface $category
+     * @param StoreInterface|null $store
+     * @param string|null $language
+     *
+     * @return Category
      */
-    public function mapToDocument($category, ?string $language = null): Category
+    public function mapToDocument($category, ?StoreInterface $store = null, ?string $language = null): Category
     {
         $esCategory = $this->documentFactory->getOrCreate(Category::class, $category->getId());
 
@@ -64,7 +69,7 @@ class DocumentCategoryMapper extends AbstractMapper implements DocumentMapperInt
         $esCategory->setPath($this->documentHelper->buildPath($category));
         $esCategory->setDisplayMode(self::CATEGORY_DEFAULT_DISPLAY_MODE);
         $esCategory->setPageLayout(self::CATEGORY_DEFAULT_PAGE_LAYOUT);
-        $esCategory->setChildrenData($this->buildChildrenData($category->getChildCategories(), $level));
+        $esCategory->setChildrenData($this->buildChildrenData($category->getChildCategories(), $store, $language, $level));
         $esCategory->setChildren($this->documentHelper->buildChildrenIds($category->getChildCategories()));
         $esCategory->setChildrenCount($this->documentHelper->countSeparator($esCategory->children, ','));
         $esCategory->setIsAnchor("0");
@@ -98,15 +103,17 @@ class DocumentCategoryMapper extends AbstractMapper implements DocumentMapperInt
 
     /**
      * @param array<\CoreShop\Component\Product\Model\CategoryInterface> $categories
+     * @param StoreInterface|null $store
+     * @param string|null $language
      *
      * @return array<CoreShop2VueStorefrontBundle\Document\Category>
      */
-    private function buildChildrenData(array $categories): array
+    private function buildChildrenData(array $categories, ?StoreInterface $store = null, ?string $language = null): array
     {
         $children = [];
         foreach ($categories as $category) {
             if ($category instanceof CategoryInterface) {
-                $children[] = $this->mapToDocument($category);
+                $children[] = $this->mapToDocument($category, $store, $language);
             }
         }
 

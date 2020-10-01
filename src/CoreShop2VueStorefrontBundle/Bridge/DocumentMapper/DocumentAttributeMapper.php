@@ -7,6 +7,7 @@ use CoreShop2VueStorefrontBundle\Document\Attribute;
 use CoreShop2VueStorefrontBundle\Document\DocumentFactory;
 use CoreShop2VueStorefrontBundle\Repository\AttributeRepository;
 use Pimcore\Model\DataObject\ClassDefinition;
+use CoreShop\Component\Store\Model\StoreInterface;
 
 class DocumentAttributeMapper extends AbstractMapper implements DocumentMapperInterface
 {
@@ -32,10 +33,12 @@ class DocumentAttributeMapper extends AbstractMapper implements DocumentMapperIn
 
     /**
      * @param ClassDefinition\Data $fieldDefinition
+     * @param StoreInterface|null $store
+     * @param string|null $language
      *
      * @return Attribute
      */
-    public function mapToDocument($fieldDefinition, ?string $language = null): Attribute
+    public function mapToDocument($fieldDefinition, ?StoreInterface $store = null, ?string $language = null): Attribute
     {
         $id = $fieldDefinition->id;
 

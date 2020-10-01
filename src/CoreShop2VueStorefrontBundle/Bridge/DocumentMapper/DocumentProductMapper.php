@@ -15,6 +15,7 @@ use CoreShop2VueStorefrontBundle\Document\ProductCategory;
 use CoreShop2VueStorefrontBundle\Document\Stock;
 use Pimcore\Model\Asset\Image;
 use Pimcore\Model\DataObject\AbstractObject;
+use CoreShop\Component\Store\Model\StoreInterface;
 
 class DocumentProductMapper extends AbstractMapper implements DocumentMapperInterface
 {
@@ -56,10 +57,12 @@ class DocumentProductMapper extends AbstractMapper implements DocumentMapperInte
 
     /**
      * @param ProductInterface $product
+     * @param StoreInterface|null $store
+     * @param string|null $language
      *
      * @return Product
      */
-    public function mapToDocument($product, ?string $language = null): Product
+    public function mapToDocument($product, ?StoreInterface $store = null, ?string $language = null): Product
     {
         $esProduct = $this->documentFactory->getOrCreate(Product::class, $product->getId());
 
