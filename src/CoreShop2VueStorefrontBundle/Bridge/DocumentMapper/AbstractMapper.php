@@ -36,7 +36,7 @@ abstract class AbstractMapper
         return Carbon::createFromTimestamp($date)->format(\DateTimeInterface::RFC3339);
     }
 
-    protected function find(IndexService $service, object $object): object
+    public function find(IndexService $service, object $object): object
     {
         $document = $service->findOneBy(['id' => $object->getId()]);
         if ($document === null) {

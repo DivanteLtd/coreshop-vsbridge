@@ -12,7 +12,6 @@ use CoreShop2VueStorefrontBundle\Document\MediaGallery;
 use CoreShop2VueStorefrontBundle\Document\Product;
 use CoreShop2VueStorefrontBundle\Document\ProductCategory;
 use CoreShop2VueStorefrontBundle\Document\Stock;
-use ONGR\ElasticsearchBundle\Service\IndexService;
 use Pimcore\Model\Asset\Image;
 use Pimcore\Model\DataObject\AbstractObject;
 
@@ -58,10 +57,8 @@ class DocumentProductMapper extends AbstractMapper implements DocumentMapperInte
      *
      * @return Product
      */
-    public function mapToDocument(IndexService $service, object $product, ?string $language = null): Product
+    public function mapToDocument(object $product, object $esProduct, ?string $language = null): Product
     {
-        $esProduct = $this->find($service, $product);
-
         $productName = $product->getName($language) ?: $product->getKey();
 
         $esProduct->setId($product->getId());

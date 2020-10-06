@@ -8,8 +8,6 @@ use ONGR\ElasticsearchBundle\Mapping\Converter;
 use ONGR\ElasticsearchBundle\Mapping\IndexSettings;
 use ONGR\ElasticsearchBundle\Service\IndexService;
 use ONGR\ElasticsearchBundle\Service\ManagerFactory;
-use Psr\Container\ContainerInterface;
-use Sami\Renderer\Index;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -21,14 +19,10 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class PersisterFactory
 {
-    private $elasticsearchConfig;
+    private $hosts;
+    private $indexTemplate;
     private $stores;
     private $storeAware;
-
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
 
     /**
      * @var Converter
@@ -60,9 +54,9 @@ class PersisterFactory
      */
     private $resolver;
 
-    public function __construct(ContainerInterface $container, Converter $converter, EventDispatcherInterface $eventDispatcher, DocumentMapperFactoryInterface $documentMapperFactory, RepositoryProvider $repositoryProvider, StoreRepositoryInterface $storeRepository, array $elasticsearchConfig, array $stores = [], bool $storeAware = false)
+
+    public function __construct(Converter $converter, EventDispatcherInterface $eventDispatcher, DocumentMapperFactoryInterface $documentMapperFactory, RepositoryProvider $repositoryProvider, StoreRepositoryInterface $storeRepository, array $hosts, string $indexTemplate, array $stores = [], bool $storeAware = false)
     {
-        $this->container = $container;
         $this->converter = $converter;
         $this->eventDispatcher = $eventDispatcher;
 
@@ -70,7 +64,8 @@ class PersisterFactory
         $this->repositoryProvider = $repositoryProvider;
         $this->storeRepository = $storeRepository;
 
-        $this->elasticsearchConfig = $elasticsearchConfig;
+        $this->hosts = $hosts;
+        $this->indexTemplate = $indexTemplate;
         $this->stores = $stores;
         $this->storeAware = $storeAware;
         $this->resolver = $this->configureOptions(new OptionsResolver());
@@ -103,26 +98,15 @@ class PersisterFactory
                     $repository = $this->repositoryProvider->getForAlias($type);
                     $className = $this->documentMapperFactory->getDocumentClass($repository->getClassName());
 
-                    $indexName = $this->inject($this->elasticsearchConfig['index'], $variables);
+                    $indexName = $this->inject($this->indexTemplate, $variables);
                     $settings = new IndexSettings(
                         $className,
                         $indexName,
                         $indexName,
-                        $this->elasticsearchConfig['templates'][$className] ?? [],
-                        $this->inject($this->elasticsearchConfig['hosts'], $variables)
+                        [],
+                        $this->inject($this->hosts, $variables)
                     );
-
-                    /** @var IndexService $indexService */
-                    $indexService = $this->container->get($className);
-                    $indexSettings = $indexService->getIndexSettings();
-                    $indexSettings = new IndexSettings(
-                        $className,
-                        $indexName,
-                        $indexName,
-                        array_replace_recursive($indexSettings->getIndexMetadata(), $this->elasticsearchConfig['templates'][$className] ?? []),
-                        $this->inject($this->elasticsearchConfig['hosts'], $variables)
-                    );
-                    $indexService = new IndexService($className, $this->converter, $this->eventDispatcher, $indexSettings);
+                    $indexService = new IndexService($className, $this->converter, $this->eventDispatcher, $settings);
                     $persisters[] = [
                         'persister' => new EnginePersister($indexService, $this->documentMapperFactory, $language),
                         'store' => $name,
