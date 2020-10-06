@@ -7,7 +7,7 @@ use Doctrine\Common\Collections\Collection;
 use ONGR\ElasticsearchBundle\Annotation as ES;
 
 /**
- * @ES\Document()
+ * @ES\Index()
  */
 class Product
 {

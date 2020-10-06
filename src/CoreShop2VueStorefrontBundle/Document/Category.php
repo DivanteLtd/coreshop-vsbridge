@@ -6,7 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use ONGR\ElasticsearchBundle\Annotation as ES;
 
 /**
- * @ES\Document()
+ * @ES\Index()
  */
 class Category
 {
@@ -50,7 +50,7 @@ class Category
     /** @ES\Property(type="text") */
     public $path;
 
-    
+
     public $available_sort_by = [];
 
     /** @ES\Property(type="boolean", name="include_in_menu") */

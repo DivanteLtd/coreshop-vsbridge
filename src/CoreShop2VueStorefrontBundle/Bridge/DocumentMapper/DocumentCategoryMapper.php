@@ -39,18 +39,16 @@ class DocumentCategoryMapper extends AbstractMapper implements DocumentMapperInt
         $this->documentFactory = $documentFactory;
     }
 
-    public function supports($object): bool
+    public function supports($objectOrClass): bool
     {
-        return $object instanceof CategoryInterface;
+        return is_a($object, CategoryInterface::class);
     }
 
     /**
      * @param \CoreShop\Component\Product\Model\CategoryInterface $category
      */
-    public function mapToDocument($category, ?string $language = null): Category
+    public function mapToDocument($category, $esCategory, ?string $language = null): Category
     {
-        $esCategory = $this->documentFactory->getOrCreate(Category::class, $category->getId());
-
         $categoryName = $category->getName($language) ?: $category->getKey();
         $parentCategory = $category->getParentCategory();
 
@@ -94,6 +92,11 @@ class DocumentCategoryMapper extends AbstractMapper implements DocumentMapperInt
         }
 
         return $esCategory;
+    }
+
+    public function getDocumentClass(): string
+    {
+        return Category::class;
     }
 
     /**

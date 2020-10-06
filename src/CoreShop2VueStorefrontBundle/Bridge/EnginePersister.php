@@ -4,13 +4,17 @@ namespace CoreShop2VueStorefrontBundle\Bridge;
 
 use CoreShop\Component\Core\Model\ProductInterface;
 use CoreShop2VueStorefrontBundle\Bridge\DocumentMapperFactory;
+use CoreShop2VueStorefrontBundle\Document\Attribute;
+use CoreShop2VueStorefrontBundle\Document\Category;
+use CoreShop2VueStorefrontBundle\Document\Product;
 use ONGR\ElasticsearchBundle\Exception\BulkWithErrorsException;
+use ONGR\ElasticsearchBundle\Service\IndexService;
 use ONGR\ElasticsearchBundle\Service\Manager;
 
 class EnginePersister
 {
     /** @var Manager */
-    private $manager;
+    private $indexService;
     /** @var DocumentMapperFactory */
     private $documentMapperFactory;
     /** @var string|null */
@@ -19,9 +23,9 @@ class EnginePersister
     /** @var null|bool */
     private $indexExists;
 
-    public function __construct(Manager $manager, DocumentMapperFactory $documentMapperFactory, ?string $language = null)
+    public function __construct(IndexService $indexService, DocumentMapperFactory $documentMapperFactory, ?string $language = null)
     {
-        $this->manager = $manager;
+        $this->indexService = $indexService;
         $this->documentMapperFactory = $documentMapperFactory;
         $this->language = $language;
     }
@@ -33,15 +37,17 @@ class EnginePersister
     public function persist($object): void
     {
         if ($this->indexExists !== true) {
-            if (!$this->manager->indexExists()) {
-                $this->manager->createIndex();
+            if (!$this->indexService->indexExists()) {
+                $this->indexService->createIndex();
             }
             $this->indexExists = true;
         }
 
         $documentMapper = $this->documentMapperFactory->factory($object);
-        $esDocument = $documentMapper->mapToDocument($object, $this->language);
-        $this->manager->persist($esDocument);
-        $this->manager->commit();
+        $document = $documentMapper->find($this->indexService, $object);
+        $document = $documentMapper->mapToDocument($object, $document, $this->language);
+        $this->indexService->persist($document);
+        $this->indexService->commit();
+        $this->indexService->flush();
     }
 }

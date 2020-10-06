@@ -8,7 +8,6 @@ use CoreShop\Component\Core\Repository\ProductRepositoryInterface;
 use CoreShop2VueStorefrontBundle\Bridge\DocumentMapperInterface;
 use CoreShop2VueStorefrontBundle\Bridge\Helper\DocumentHelper;
 use CoreShop2VueStorefrontBundle\Bridge\Helper\PriceHelper;
-use CoreShop2VueStorefrontBundle\Document\DocumentFactory;
 use CoreShop2VueStorefrontBundle\Document\MediaGallery;
 use CoreShop2VueStorefrontBundle\Document\Product;
 use CoreShop2VueStorefrontBundle\Document\ProductCategory;
@@ -24,8 +23,6 @@ class DocumentProductMapper extends AbstractMapper implements DocumentMapperInte
     protected $productRepository;
     /** @var PriceHelper */
     private $priceHelper;
-    /** @var DocumentFactory */
-    private $documentFactory;
     /** @var DocumentHelper */
     private $documentHelper;
 
@@ -33,25 +30,26 @@ class DocumentProductMapper extends AbstractMapper implements DocumentMapperInte
      * @param SlugifyInterface           $slugify
      * @param ProductRepositoryInterface $productRepository
      * @param PriceHelper                $priceHelper
-     * @param DocumentFactory            $documentFactory
      */
     public function __construct(
         SlugifyInterface $slugify,
         ProductRepositoryInterface $productRepository,
         PriceHelper $priceHelper,
-        DocumentFactory $documentFactory,
         DocumentHelper $documentHelper
     ) {
         $this->slugify = $slugify;
         $this->productRepository = $productRepository;
         $this->priceHelper = $priceHelper;
-        $this->documentFactory = $documentFactory;
         $this->documentHelper = $documentHelper;
     }
 
-    public function supports($object): bool
+    public function supports($objectOrClass): bool
     {
-        return $object instanceof ProductInterface && [] === $object->getChildren([AbstractObject::OBJECT_TYPE_VARIANT], true);
+        if (is_string($objectOrClass)) {
+            return is_a($objectOrClass, ProductInterface::class, true);
+        }
+
+        return $objectOrClass instanceof ProductInterface && [] === $objectOrClass->getChildren([AbstractObject::OBJECT_TYPE_VARIANT], true);
     }
 
     /**
@@ -59,10 +57,8 @@ class DocumentProductMapper extends AbstractMapper implements DocumentMapperInte
      *
      * @return Product
      */
-    public function mapToDocument($product, ?string $language = null): Product
+    public function mapToDocument(object $product, object $esProduct, ?string $language = null): Product
     {
-        $esProduct = $this->documentFactory->getOrCreate(Product::class, $product->getId());
-
         $productName = $product->getName($language) ?: $product->getKey();
 
         $esProduct->setId($product->getId());
@@ -92,6 +88,11 @@ class DocumentProductMapper extends AbstractMapper implements DocumentMapperInte
         $this->setCategories($esProduct, $product, $language);
 
         return $esProduct;
+    }
+
+    public function getDocumentClass(): string
+    {
+        return Product::class;
     }
 
     /**

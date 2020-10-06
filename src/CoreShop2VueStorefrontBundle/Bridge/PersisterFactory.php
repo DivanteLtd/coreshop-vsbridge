@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace CoreShop2VueStorefrontBundle\Bridge;
 
+use ONGR\ElasticsearchBundle\Mapping\Converter;
+use ONGR\ElasticsearchBundle\Mapping\IndexSettings;
+use ONGR\ElasticsearchBundle\Service\IndexService;
 use ONGR\ElasticsearchBundle\Service\ManagerFactory;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use CoreShop\Component\Store\Repository\StoreRepositoryInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -21,9 +25,14 @@ class PersisterFactory
     private $storeAware;
 
     /**
-     * @var ManagerFactory
+     * @var Converter
      */
-    private $managerFactory;
+    private $converter;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
 
     /**
      * @var DocumentMapperFactoryInterface
@@ -46,9 +55,11 @@ class PersisterFactory
     private $resolver;
 
 
-    public function __construct(ManagerFactory $managerFactory, DocumentMapperFactoryInterface $documentMapperFactory, RepositoryProvider $repositoryProvider, StoreRepositoryInterface $storeRepository, array $hosts, string $indexTemplate, array $stores = [], bool $storeAware = false)
+    public function __construct(Converter $converter, EventDispatcherInterface $eventDispatcher, DocumentMapperFactoryInterface $documentMapperFactory, RepositoryProvider $repositoryProvider, StoreRepositoryInterface $storeRepository, array $hosts, string $indexTemplate, array $stores = [], bool $storeAware = false)
     {
-        $this->managerFactory = $managerFactory;
+        $this->converter = $converter;
+        $this->eventDispatcher = $eventDispatcher;
+
         $this->documentMapperFactory = $documentMapperFactory;
         $this->repositoryProvider = $repositoryProvider;
         $this->storeRepository = $storeRepository;
@@ -83,24 +94,21 @@ class PersisterFactory
 
                 foreach ($types as $type) {
                     $variables = ['store' => $name, 'language' => $language, 'type' => $type];
-                    $manager = $this->managerFactory->createManager(
-                        sprintf('coreshop2vuestorefront.%1$s.%2$s.%3$s', $name, $type, $language),
-                        [
-                            'hosts' => $this->inject($this->hosts, $variables),
-                            'index_name' => $this->inject($this->indexTemplate, $variables),
-                            'settings' => [],
-                        ],
-                        [],
-                        [
-                            'logger' => ['enabled' => false],
-                            'mappings' => ['CoreShop2VueStorefrontBundle'],
-                            'commit_mode' => 'flush',
-                            'bulk_size' => 100,
-                        ]
-                    );
 
+                    $repository = $this->repositoryProvider->getForAlias($type);
+                    $className = $this->documentMapperFactory->getDocumentClass($repository->getClassName());
+
+                    $indexName = $this->inject($this->indexTemplate, $variables);
+                    $settings = new IndexSettings(
+                        $className,
+                        $indexName,
+                        $indexName,
+                        [],
+                        $this->inject($this->hosts, $variables)
+                    );
+                    $indexService = new IndexService($className, $this->converter, $this->eventDispatcher, $settings);
                     $persisters[] = [
-                        'persister' => new EnginePersister($manager, $this->documentMapperFactory, $language),
+                        'persister' => new EnginePersister($indexService, $this->documentMapperFactory, $language),
                         'store' => $name,
                         'language' => $language,
                         'type' => $type,

@@ -15,24 +15,17 @@ services:
         public: true
         tags: ['controller.service_arguments']
 
-    CoreShop2VueStorefrontBundle\Bridge\EnginePersisterFactory: ~
-
-    CoreShop2VueStorefrontBundle\Bridge\EnginePersister:
-        autoconfigure: false
-        arguments:
-            - '@es.manager.default'
-
     CoreShop2VueStorefrontBundle\Bridge\DocumentMapper\DocumentProductMapper: ~
 
     CoreShop2VueStorefrontBundle\Bridge\DocumentMapper\DocumentCategoryMapper: ~
 
-    CoreShop2VueStorefrontBundle\Bridge\DocumentMapper\DocumentAttributeMapper: ~
+    # CoreShop2VueStorefrontBundle\Bridge\DocumentMapper\DocumentAttributeMapper: ~
 
-    CoreShop2VueStorefrontBundle\Bridge\DocumentMapper\DocumentConfigurableProductMapper: ~
+    # CoreShop2VueStorefrontBundle\Bridge\DocumentMapper\DocumentConfigurableProductMapper: ~
 
     CoreShop2VueStorefrontBundle\Bridge\Attribute\AttributeIdGenerator: ~
 
-    CoreShop2VueStorefrontBundle\Bridge\Attribute\AttributeResolver: ~
+    # CoreShop2VueStorefrontBundle\Bridge\Attribute\AttributeResolver: ~
 
     CoreShop2VueStorefrontBundle\Bridge\Helper\DocumentHelper: ~
 
@@ -91,7 +84,6 @@ services:
 
     CoreShop2VueStorefrontBundle\Bridge\PersisterFactory:
         arguments:
-            $managerFactory: "@es.manager_factory"
             $hosts: '%core_shop2_vue_storefront.elasticsearch.hosts%'
             $indexTemplate: '%core_shop2_vue_storefront.elasticsearch.index%'
             $stores: '%core_shop2_vue_storefront.stores%'
@@ -100,29 +92,6 @@ services:
 
     CoreShop2VueStorefrontBundle\Command\IndexCommand:
         tags: ['console.command']
-
-    CoreShop2VueStorefrontBundle\Document\DocumentFactory:
-        arguments:
-            - '@es.manager.default'
-
-    CoreShop2VueStorefrontBundle\Repository\AttributeRepository:
-        arguments:
-            - '@es.manager.default'
-
-    CoreShop2VueStorefrontBundle\Worker\ElasticSearchWorker:
-        arguments:
-            $extensionsRegistry: '@coreshop.registry.index.extensions'
-            $getterServiceRegistry: '@coreshop.registry.index.getter'
-            $interpreterServiceRegistry: '@coreshop.registry.index.interpreter'
-            $filterGroupHelper: '@coreshop.index.filter_group_helper'
-            $conditionRenderer: '@coreshop.index.condition.renderer'
-            $orderRenderer: '@coreshop.index.order.renderer'
-            $manager: '@es.manager.default'
-        shared: false
-        calls:
-            - { method: setLogger, arguments: ['@logger'] }
-        tags:
-            - { name: coreshop.index.worker, type: elasticsearch, form-type: CoreShop2VueStorefrontBundle\Worker\Type\ElasticSearchWorkerType }
 
     CoreShop2VueStorefrontBundle\Bridge\Cart\CartContext:
         arguments:

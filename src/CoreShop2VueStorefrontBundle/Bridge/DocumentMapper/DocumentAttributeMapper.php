@@ -4,7 +4,6 @@ namespace CoreShop2VueStorefrontBundle\Bridge\DocumentMapper;
 
 use CoreShop2VueStorefrontBundle\Bridge\DocumentMapperInterface;
 use CoreShop2VueStorefrontBundle\Document\Attribute;
-use CoreShop2VueStorefrontBundle\Document\DocumentFactory;
 use CoreShop2VueStorefrontBundle\Repository\AttributeRepository;
 use Pimcore\Model\DataObject\ClassDefinition;
 
@@ -14,20 +13,15 @@ class DocumentAttributeMapper extends AbstractMapper implements DocumentMapperIn
 
     /** @var AttributeRepository */
     private $attributeRepository;
-    /** @var DocumentFactory */
-    private $documentFactory;
 
-    public function __construct(
-        AttributeRepository $attributeRepository,
-        DocumentFactory $documentFactory
-    ) {
+    public function __construct(AttributeRepository $attributeRepository)
+    {
         $this->attributeRepository = $attributeRepository;
-        $this->documentFactory = $documentFactory;
     }
 
-    public function supports($object): bool
+    public function supports($objectOrClass): bool
     {
-        return $object instanceof ClassDefinition\Data;
+        return is_a($object, ClassDefinition\Data::class, true);
     }
 
     /**
@@ -35,11 +29,9 @@ class DocumentAttributeMapper extends AbstractMapper implements DocumentMapperIn
      *
      * @return Attribute
      */
-    public function mapToDocument($fieldDefinition, ?string $language = null): Attribute
+    public function mapToDocument(object $fieldDefinition, object $attribute, ?string $language = null): Attribute
     {
         $id = $fieldDefinition->id;
-
-        $attribute = $this->documentFactory->getOrCreate(Attribute::class, $id);
 
         $attribute->setId($id);
         $attribute->setIsWyswigEnabled(self::BOOLEAN_FALSE);
@@ -65,6 +57,11 @@ class DocumentAttributeMapper extends AbstractMapper implements DocumentMapperIn
         $attribute->setBackendType(self::ATTR_BACKEND_TYPE_VARCHAR);
 
         return $attribute;
+    }
+
+    public function getDocumentClass(): string
+    {
+        return Attribute::class;
     }
 
     /**
