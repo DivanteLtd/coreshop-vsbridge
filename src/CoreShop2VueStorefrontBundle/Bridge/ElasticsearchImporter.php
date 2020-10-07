@@ -7,6 +7,7 @@ namespace CoreShop2VueStorefrontBundle\Bridge;
 use CoreShop\Component\Pimcore\BatchProcessing\BatchListing;
 use CoreShop\Component\Resource\Repository\PimcoreRepositoryInterface;
 use CoreShop\Component\Store\Model\StoreInterface;
+use CoreShop2VueStorefrontBundle\Repository\LanguageAwareRepositoryInterface;
 use CoreShop2VueStorefrontBundle\Repository\StoreAwareRepositoryInterface;
 use Pimcore\Model\Listing\AbstractListing;
 
@@ -58,6 +59,9 @@ class ElasticsearchImporter implements ImporterInterface
 
             if ($this->repository instanceof StoreAwareRepositoryInterface && $this->concreteStore instanceof StoreInterface) {
                 $this->repository->addStoreCondition($this->list, $this->concreteStore);
+            }
+            if($this->repository instanceof LanguageAwareRepositoryInterface && $this->language) {
+                $this->repository->addLanguageCondition($this->list, $this->language);
             }
         }
 
