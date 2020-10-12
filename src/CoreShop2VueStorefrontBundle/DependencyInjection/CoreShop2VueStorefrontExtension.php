@@ -24,8 +24,7 @@ class CoreShop2VueStorefrontExtension extends Extension
         $configuration = new Configuration($languages);
         $config = $this->processConfiguration($configuration, $configs);
 
-        $container->setParameter('core_shop2_vue_storefront.elasticsearch.hosts', $config['elasticsearch']['hosts']);
-        $container->setParameter('core_shop2_vue_storefront.elasticsearch.index', $config['elasticsearch']['index']);
+        $container->setParameter('core_shop2_vue_storefront.elasticsearch_config', $config['elasticsearch']);
         $container->setParameter('core_shop2_vue_storefront.stores', $config['stores']);
         $container->setParameter('core_shop2_vue_storefront.repositories', array_combine(array_keys($config['repositories']), array_column($config['repositories'], 'id')));
         $container->setParameter('core_shop2_vue_storefront.store_aware', $config['store_aware']);
