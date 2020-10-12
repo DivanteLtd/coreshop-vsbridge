@@ -16,10 +16,4 @@ class AttributeOption
 
     /** @ES\Property(type="keyword") */
     public $label;
-
-    public function __construct($value, $label)
-    {
-        $this->value = $value;
-        $this->label = $label;
-    }
 }
