@@ -8,6 +8,8 @@ use ONGR\ElasticsearchBundle\Mapping\Converter;
 use ONGR\ElasticsearchBundle\Mapping\IndexSettings;
 use ONGR\ElasticsearchBundle\Service\IndexService;
 use ONGR\ElasticsearchBundle\Service\ManagerFactory;
+use Psr\Container\ContainerInterface;
+use Sami\Renderer\Index;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -22,6 +24,11 @@ class PersisterFactory
     private $elasticsearchConfig;
     private $stores;
     private $storeAware;
+
+    /**
+     * @var ContainerInterface
+     */
+    private $container;
 
     /**
      * @var Converter
@@ -53,9 +60,9 @@ class PersisterFactory
      */
     private $resolver;
 
-
-    public function __construct(Converter $converter, EventDispatcherInterface $eventDispatcher, DocumentMapperFactoryInterface $documentMapperFactory, RepositoryProvider $repositoryProvider, StoreRepositoryInterface $storeRepository, array $elasticsearchConfig, array $stores = [], bool $storeAware = false)
+    public function __construct(ContainerInterface $container, Converter $converter, EventDispatcherInterface $eventDispatcher, DocumentMapperFactoryInterface $documentMapperFactory, RepositoryProvider $repositoryProvider, StoreRepositoryInterface $storeRepository, array $elasticsearchConfig, array $stores = [], bool $storeAware = false)
     {
+        $this->container = $container;
         $this->converter = $converter;
         $this->eventDispatcher = $eventDispatcher;
 
@@ -104,7 +111,18 @@ class PersisterFactory
                         $this->elasticsearchConfig['templates'][$className] ?? [],
                         $this->inject($this->elasticsearchConfig['hosts'], $variables)
                     );
-                    $indexService = new IndexService($className, $this->converter, $this->eventDispatcher, $settings);
+
+                    /** @var IndexService $indexService */
+                    $indexService = $this->container->get($className);
+                    $indexSettings = $indexService->getIndexSettings();
+                    $indexSettings = new IndexSettings(
+                        $className,
+                        $indexName,
+                        $indexName,
+                        array_replace_recursive($indexSettings->getIndexMetadata(), $this->elasticsearchConfig['templates'][$className] ?? []),
+                        $this->inject($this->elasticsearchConfig['hosts'], $variables)
+                    );
+                    $indexService = new IndexService($className, $this->converter, $this->eventDispatcher, $indexSettings);
                     $persisters[] = [
                         'persister' => new EnginePersister($indexService, $this->documentMapperFactory, $language),
                         'store' => $name,
