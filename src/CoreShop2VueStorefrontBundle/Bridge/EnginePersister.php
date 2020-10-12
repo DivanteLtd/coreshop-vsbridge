@@ -44,8 +44,7 @@ class EnginePersister
         }
 
         $documentMapper = $this->documentMapperFactory->factory($object);
-        $document = $documentMapper->find($this->indexService, $object);
-        $document = $documentMapper->mapToDocument($object, $document, $this->language);
+        $document = $documentMapper->mapToDocument($this->indexService, $object, $this->language);
         $this->indexService->persist($document);
         $this->indexService->commit();
         $this->indexService->flush();
