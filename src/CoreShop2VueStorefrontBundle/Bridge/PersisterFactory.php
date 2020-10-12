@@ -19,8 +19,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  */
 class PersisterFactory
 {
-    private $hosts;
-    private $indexTemplate;
+    private $elasticsearchConfig;
     private $stores;
     private $storeAware;
 
@@ -55,7 +54,7 @@ class PersisterFactory
     private $resolver;
 
 
-    public function __construct(Converter $converter, EventDispatcherInterface $eventDispatcher, DocumentMapperFactoryInterface $documentMapperFactory, RepositoryProvider $repositoryProvider, StoreRepositoryInterface $storeRepository, array $hosts, string $indexTemplate, array $stores = [], bool $storeAware = false)
+    public function __construct(Converter $converter, EventDispatcherInterface $eventDispatcher, DocumentMapperFactoryInterface $documentMapperFactory, RepositoryProvider $repositoryProvider, StoreRepositoryInterface $storeRepository, array $elasticsearchConfig, array $stores = [], bool $storeAware = false)
     {
         $this->converter = $converter;
         $this->eventDispatcher = $eventDispatcher;
@@ -64,8 +63,7 @@ class PersisterFactory
         $this->repositoryProvider = $repositoryProvider;
         $this->storeRepository = $storeRepository;
 
-        $this->hosts = $hosts;
-        $this->indexTemplate = $indexTemplate;
+        $this->elasticsearchConfig = $elasticsearchConfig;
         $this->stores = $stores;
         $this->storeAware = $storeAware;
         $this->resolver = $this->configureOptions(new OptionsResolver());
@@ -98,13 +96,13 @@ class PersisterFactory
                     $repository = $this->repositoryProvider->getForAlias($type);
                     $className = $this->documentMapperFactory->getDocumentClass($repository->getClassName());
 
-                    $indexName = $this->inject($this->indexTemplate, $variables);
+                    $indexName = $this->inject($this->elasticsearchConfig['index'], $variables);
                     $settings = new IndexSettings(
                         $className,
                         $indexName,
                         $indexName,
-                        [],
-                        $this->inject($this->hosts, $variables)
+                        $this->elasticsearchConfig['templates'][$className] ?? [],
+                        $this->inject($this->elasticsearchConfig['hosts'], $variables)
                     );
                     $indexService = new IndexService($className, $this->converter, $this->eventDispatcher, $settings);
                     $persisters[] = [

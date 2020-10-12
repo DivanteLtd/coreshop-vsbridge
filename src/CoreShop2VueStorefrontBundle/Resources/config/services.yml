@@ -84,8 +84,7 @@ services:
 
     CoreShop2VueStorefrontBundle\Bridge\PersisterFactory:
         arguments:
-            $hosts: '%core_shop2_vue_storefront.elasticsearch.hosts%'
-            $indexTemplate: '%core_shop2_vue_storefront.elasticsearch.index%'
+            $elasticsearchConfig: '%core_shop2_vue_storefront.elasticsearch_config%'
             $stores: '%core_shop2_vue_storefront.stores%'
             $storeRepository: '@coreshop.repository.store'
             $storeAware: '%core_shop2_vue_storefront.store_aware%'
