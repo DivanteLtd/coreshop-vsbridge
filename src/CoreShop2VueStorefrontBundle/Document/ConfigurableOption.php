@@ -15,18 +15,18 @@ class ConfigurableOption
     /** @ES\Property(type="integer") */
     public $attributeId;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $label;
 
     /** @ES\Property(type="integer") */
     public $position;
-    
+
     public $values = [];
 
     /** @ES\Property(type="integer") */
     public $productId;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $attributeCode;
 
     /** @param mixed $id */

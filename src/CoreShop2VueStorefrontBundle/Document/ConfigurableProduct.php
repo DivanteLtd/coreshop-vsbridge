@@ -11,22 +11,22 @@ trait ConfigurableProduct
 
     public $sizeOptions = [];
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $performanceFabric;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $erinRecommends;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $new;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $sale;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $pattern;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $climate;
 
     /**

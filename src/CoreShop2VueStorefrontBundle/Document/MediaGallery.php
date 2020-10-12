@@ -9,16 +9,16 @@ use ONGR\ElasticsearchBundle\Annotation as ES;
  */
 class MediaGallery
 {
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $image;
 
     /** @ES\Property(type="integer") */
     public $pos;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $typ;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $lab;
 
     public function __construct(string $imagePath = null, int $position = 1, string $type = 'image', string $lab = null)
