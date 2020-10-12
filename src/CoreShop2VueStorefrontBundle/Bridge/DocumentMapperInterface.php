@@ -16,12 +16,7 @@ interface DocumentMapperInterface
     /**
      * @param AbstractObject|Data $object
      */
-    public function mapToDocument(object $object, object $document, ?string $language = null);
-
-    /**
-     * @param AbstractObject|Data $object
-     */
-    public function find(IndexService $service, object $object): object;
+    public function mapToDocument(IndexService $service, object $object, ?string $language = null);
 
     public function getDocumentClass(): string;
 }
