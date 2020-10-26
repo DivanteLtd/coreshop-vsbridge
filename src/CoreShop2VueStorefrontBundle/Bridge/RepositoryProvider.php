@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace CoreShop2VueStorefrontBundle\Bridge;
 
-use CoreShop\Component\Resource\Repository\PimcoreRepositoryInterface;
+use CoreShop\Component\Resource\Repository\RepositoryInterface;
 
 class RepositoryProvider
 {
@@ -15,7 +15,7 @@ class RepositoryProvider
         $this->repositories = $repositories;
     }
 
-    public function getForAlias(string $alias): PimcoreRepositoryInterface
+    public function getForAlias(string $alias): RepositoryInterface
     {
         return $this->repositories[$alias];
     }
