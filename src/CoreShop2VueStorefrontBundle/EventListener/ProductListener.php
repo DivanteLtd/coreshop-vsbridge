@@ -6,6 +6,7 @@ use CoreShop\Component\Core\Model\CategoryInterface;
 use CoreShop\Component\Core\Model\ProductInterface;
 use CoreShop2VueStorefrontBundle\Bridge\EnginePersister;
 use CoreShop2VueStorefrontBundle\Bridge\PersisterFactory;
+use CoreShop2VueStorefrontBundle\Bridge\RepositoryProvider;
 use Exception;
 use Pimcore\Event\Model\DataObjectEvent;
 use Pimcore\Model\DataObject\AbstractObject;
@@ -19,12 +20,18 @@ class ProductListener
      */
     private $persisterFactory;
 
+    /**
+     * @var RepositoryProvider
+     */
+    private $repositoryProvider;
+
     /** @var LoggerInterface */
     private $logger;
 
-    public function __construct(PersisterFactory $persisterFactory, LoggerInterface $logger)
+    public function __construct(PersisterFactory $persisterFactory, RepositoryProvider $repositoryProvider, LoggerInterface $logger)
     {
         $this->persisterFactory = $persisterFactory;
+        $this->repositoryProvider = $repositoryProvider;
         $this->logger = $logger;
     }
 
@@ -39,7 +46,7 @@ class ProductListener
                     return false;
                 }
 
-                foreach ($this->persisterFactory->create() as $config) {
+                foreach ($this->persisterFactory->create(null, null, $this->repositoryProvider->getAliasFor($object)) as $config) {
                     $config['persister']->persist($object);
                 }
             }
