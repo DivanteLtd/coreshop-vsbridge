@@ -98,10 +98,14 @@ class PersisterFactory
                 $types = (array) ($options['type'] ?? $this->repositoryProvider->getAliases());
 
                 foreach ($types as $type) {
-                    $variables = ['store' => $name, 'language' => $language, 'type' => $type];
-
                     $repository = $this->repositoryProvider->getForAlias($type);
                     $className = $this->documentMapperFactory->getDocumentClass($repository->getClassName());
+
+                    /** @var IndexService $indexService */
+                    $indexService = $this->container->get($className);
+                    $indexSettings = $indexService->getIndexSettings();
+
+                    $variables = ['store' => $name, 'language' => $language, 'type' => $indexSettings->getIndexName() ?? $type];
 
                     $indexName = $this->inject($this->elasticsearchConfig['index'], $variables);
                     $settings = new IndexSettings(
@@ -111,10 +115,6 @@ class PersisterFactory
                         $this->elasticsearchConfig['templates'][$className] ?? [],
                         $this->inject($this->elasticsearchConfig['hosts'], $variables)
                     );
-
-                    /** @var IndexService $indexService */
-                    $indexService = $this->container->get($className);
-                    $indexSettings = $indexService->getIndexSettings();
                     $indexSettings = new IndexSettings(
                         $className,
                         $indexName,

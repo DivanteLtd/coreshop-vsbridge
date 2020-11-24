@@ -6,6 +6,7 @@ namespace CoreShop2VueStorefrontBundle\Bridge;
 
 use CoreShop\Component\Pimcore\BatchProcessing\BatchListing;
 use CoreShop\Component\Resource\Repository\PimcoreRepositoryInterface;
+use CoreShop\Component\Resource\Repository\RepositoryInterface;
 use CoreShop\Component\Store\Model\StoreInterface;
 use CoreShop2VueStorefrontBundle\Repository\StoreAwareRepositoryInterface;
 use Pimcore\Model\Listing\AbstractListing;
@@ -21,7 +22,7 @@ class ElasticsearchImporter implements ImporterInterface
     /** @var StoreInterface|null */
     private $concreteStore;
 
-    public function __construct(PimcoreRepositoryInterface $repository, EnginePersister $persister, string $store, string $language, string $type, ?StoreInterface $concreteStore = null)
+    public function __construct(RepositoryInterface $repository, EnginePersister $persister, string $store, string $language, string $type, ?StoreInterface $concreteStore = null)
     {
         $this->repository = $repository;
         $this->persister = $persister;
@@ -38,12 +39,25 @@ class ElasticsearchImporter implements ImporterInterface
 
     public function count(): int
     {
-        return $this->getList()->count();
+        // TODO: with Pimcore 6.8 can just
+        // return count($this->getList());
+        $list = $this->getList();
+        if ($list instanceof AbstractListing) {
+            return $this->getList()->count();
+        }
+
+        return \count($list);
     }
 
     public function import(callable $callback): void
     {
-        $listing = new BatchListing($this->getList(), 100);
+        $list = $this->getList();
+        if ($list instanceof AbstractListing) {
+            $listing = new BatchListing($list, 100);
+        } elseif (is_iterable($list)) {
+            $listing = $list;
+        }
+
         foreach ($listing as $object) {
             $this->persister->persist($object);
 
@@ -51,13 +65,17 @@ class ElasticsearchImporter implements ImporterInterface
         }
     }
 
-    private function getList(): AbstractListing
+    private function getList(): iterable
     {
         if (null === $this->list) {
-            $this->list = $this->repository->getList();
+            if ($this->repository instanceof PimcoreRepositoryInterface) {
+                $this->list = $this->repository->getList();
 
-            if ($this->repository instanceof StoreAwareRepositoryInterface && $this->concreteStore instanceof StoreInterface) {
-                $this->repository->addStoreCondition($this->list, $this->concreteStore);
+                if ($this->repository instanceof StoreAwareRepositoryInterface && $this->concreteStore instanceof StoreInterface) {
+                    $this->repository->addStoreCondition($this->list, $this->concreteStore);
+                }
+            } else {
+                $this->list = $this->repository->findAll();
             }
         }
 
