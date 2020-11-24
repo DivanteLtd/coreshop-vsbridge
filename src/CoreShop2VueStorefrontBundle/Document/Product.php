@@ -7,7 +7,7 @@ use Doctrine\Common\Collections\Collection;
 use ONGR\ElasticsearchBundle\Annotation as ES;
 
 /**
- * @ES\Document()
+ * @ES\Index()
  */
 class Product
 {
@@ -24,7 +24,7 @@ class Product
     /** @ES\Property(type="integer") */
     public $attributeSetId;
 
-    /** @ES\Embedded(class=\CoreShop2VueStorefrontBundle\Document\Attribute::class, multiple=true) */
+    /** @ES\Embedded(class=\CoreShop2VueStorefrontBundle\Document\Attribute::class) */
     public $attributesMetadata;
 
     /** @ES\Property(type="text") */
@@ -120,13 +120,13 @@ class Product
     /** @ES\Property(type="text") */
     public $specialPrice;
 
-    /** @ES\Embedded(class="CoreShop2VueStorefrontBundle:Stock") */
+    /** @ES\Embedded(class=\CoreShop2VueStorefrontBundle\Document\Stock::class) */
     public $stock;
 
-    /** @ES\Embedded(class="CoreShop2VueStorefrontBundle:ProductCategory", multiple=true) */
+    /** @ES\Embedded(class=\CoreShop2VueStorefrontBundle\Document\ProductCategory::class) */
     public $category;
 
-    /** @ES\Embedded(class="CoreShop2VueStorefrontBundle:MediaGallery", multiple=true) */
+    /** @ES\Embedded(class=\CoreShop2VueStorefrontBundle\Document\MediaGallery::class) */
     public $mediaGallery;
 
     /** @ES\Property(type="integer") */

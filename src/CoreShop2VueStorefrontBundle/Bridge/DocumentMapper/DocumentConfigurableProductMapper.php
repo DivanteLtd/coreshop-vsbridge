@@ -11,7 +11,6 @@ use CoreShop2VueStorefrontBundle\Bridge\Helper\PriceHelper;
 use CoreShop2VueStorefrontBundle\Document\Attribute;
 use CoreShop2VueStorefrontBundle\Document\ConfigurableChildren;
 use CoreShop2VueStorefrontBundle\Document\ConfigurableOption;
-use CoreShop2VueStorefrontBundle\Document\DocumentFactory;
 use CoreShop2VueStorefrontBundle\Document\Product;
 use CoreShop2VueStorefrontBundle\Document\ProductCategory;
 use CoreShop2VueStorefrontBundle\Repository\AttributeRepository;
@@ -32,33 +31,36 @@ class DocumentConfigurableProductMapper extends DocumentProductMapper implements
      * @param SlugifyInterface $slugify
      * @param ProductRepositoryInterface $productRepository
      * @param AttributeRepository $attributeRepository
-     * @param DocumentFactory $documentFactory
      * @param PriceHelper $priceHelper
      */
     public function __construct(
         SlugifyInterface $slugify,
         ProductRepositoryInterface $productRepository,
         AttributeRepository $attributeRepository,
-        DocumentFactory $documentFactory,
         DocumentHelper $documentHelper,
         PriceHelper $priceHelper
     ) {
-        parent::__construct($slugify, $productRepository, $priceHelper, $documentFactory, $documentHelper);
+        parent::__construct($slugify, $productRepository, $priceHelper, $documentHelper);
+
         $this->attributeRepository = $attributeRepository;
     }
 
-    public function supports($object): bool
+    public function supports($objectOrClass): bool
     {
-        return $object instanceof ProductInterface && [] !== $object->getChildren([AbstractObject::OBJECT_TYPE_VARIANT], true);
+        if (is_string($objectOrClass)) {
+            return is_a($object, ProductInterface::class, true);
+        }
+
+        return $objectOrClass instanceof ProductInterface && [] !== $objectOrClass->getChildren([AbstractObject::OBJECT_TYPE_VARIANT], true);
     }
 
     /**
      * @param ProductInterface $product
      * @return Product
      */
-    public function mapToDocument($product, ?string $language = null): Product
+    public function mapToDocument($product, object $document, ?string $language = null): Product
     {
-        $esProduct = parent::mapToDocument($product);
+        $esProduct = parent::mapToDocument($product, $document, $language);
         $esProduct->setTypeId(self::PRODUCT_TYPE_CONFIGURABLE);
 
         $this->setConfigurable($product, $esProduct);

@@ -6,7 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use ONGR\ElasticsearchBundle\Annotation as ES;
 
 /**
- * @ES\Document()
+ * @ES\Index()
  * @ES\ObjectType()
  */
 class Attribute
@@ -22,31 +22,31 @@ class Attribute
     /** @ES\Property(type="keyword") */
     public $attributeCode;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $attributeModel;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $backendModel;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $backendType;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $backendTable;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $frontendModel;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $frontendInput;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $frontendLabel;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $frontendClass;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $sourceModel;
 
     /** @ES\Property(type="boolean") */
@@ -55,22 +55,22 @@ class Attribute
     /** @ES\Property(type="boolean") */
     public $isUserDefined;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $defaultValue;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $defaultFrontendLabel;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $isUnique = "0";
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $note;
 
     /** @ES\Property(type="integer") */
     public $attributeId;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $frontendInputRenderer;
 
     /** @ES\Property(type="boolean") */
@@ -79,16 +79,16 @@ class Attribute
     /** @ES\Property(type="boolean") */
     public $isVisible = false;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $isSearchable = "0";
 
     /** @ES\Property(type="boolean") */
     public $isFilterable;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $isComparable = "0";
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $isVisibleOnFront = "0";
 
     /** @ES\Property(type="boolean") */
@@ -100,7 +100,7 @@ class Attribute
     /** @ES\Property(type="boolean") */
     public $isFilterableInSearch;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $usedInProductListing = "0";
 
     /** @ES\Property(type="boolean") */
@@ -109,10 +109,10 @@ class Attribute
     /** @ES\Property(type="boolean") */
     public $isConfigurable;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $applyTo;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $isVisibleInAdvanceSearch = "0";
 
     /** @ES\Property(type="integer") */
@@ -121,7 +121,7 @@ class Attribute
     /** @ES\Property(type="boolean") */
     public $isWyswigEnabled;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $isUsedForPromoRules = "0";
 
     /** @ES\Property(type="boolean") */
@@ -130,7 +130,7 @@ class Attribute
     /** @ES\Property(type="integer") */
     public $searchWeight;
 
-    /** @ES\Embedded(class=\CoreShop2VueStorefrontBundle\Document\AttributeOption::class, multiple=true) */
+    /** @ES\Embedded(class=\CoreShop2VueStorefrontBundle\Document\AttributeOption::class) */
     public $options;
 
     /** @ES\Property(type="boolean") */
@@ -139,10 +139,10 @@ class Attribute
     /** @ES\Property(type="boolean") */
     public $isFilterableInGrid;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $scope;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $entityTypeId;
 
     public function __construct()

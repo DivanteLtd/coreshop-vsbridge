@@ -11,32 +11,32 @@ trait ConfigurableProduct
 
     public $sizeOptions = [];
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $performanceFabric;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $erinRecommends;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $new;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $sale;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $pattern;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $climate;
 
     /**
-     * @ES\Embedded(class="CoreShop2VueStorefrontBundle:ConfigurableOption", multiple=true)
+     * @ES\Embedded(class=\CoreShop2VueStorefrontBundle\Document\ConfigurableOption::class)
      * @var ArrayCollection $configurableChildren
      */
     public $configurableOptions;
 
     /**
-     * @ES\Embedded(class="CoreShop2VueStorefrontBundle:ConfigurableChildren", multiple=true)
+     * @ES\Embedded(class=\CoreShop2VueStorefrontBundle\Document\ConfigurableChildren::class)
      * @var ArrayCollection $configurableChildren
      */
     public $configurableChildren;

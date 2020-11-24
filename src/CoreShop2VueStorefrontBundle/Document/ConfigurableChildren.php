@@ -27,10 +27,10 @@ class ConfigurableChildren
     /** @ES\Property(type="float") */
     public $price;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $color;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $size;
 
     /** @ES\Property(type="float") */
@@ -51,18 +51,18 @@ class ConfigurableChildren
     /** @ES\Property(type="text") */
     public $image;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $taxClassId = "2";
 
     public $categoryIds = [];
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $hasOptions = "0";
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $requiredOptions = "0";
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $msrpDisplayActualPriceType = "0";
 
     public function setSku(string $sku)

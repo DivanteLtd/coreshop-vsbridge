@@ -3,6 +3,7 @@
 namespace CoreShop2VueStorefrontBundle\Bridge\DocumentMapper;
 
 use Carbon\Carbon;
+use ONGR\ElasticsearchBundle\Service\IndexService;
 
 abstract class AbstractMapper
 {
@@ -33,5 +34,17 @@ abstract class AbstractMapper
     protected function getDateTime(int $date): string
     {
         return Carbon::createFromTimestamp($date)->format(\DateTimeInterface::RFC3339);
+    }
+
+    protected function find(IndexService $service, object $object): object
+    {
+        $document = $service->findOneBy(['id' => $object->getId()]);
+        if ($document === null) {
+            $documentClass = $this->getDocumentClass();
+
+            return new $documentClass;
+        }
+
+        return $service->find($object->getId());
     }
 }

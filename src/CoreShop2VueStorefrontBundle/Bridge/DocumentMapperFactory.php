@@ -18,11 +18,22 @@ class DocumentMapperFactory implements DocumentMapperFactoryInterface
         $this->documentMappers = $documentMappers;
     }
 
-    public function factory($object): DocumentMapperInterface
+    public function factory(object $object): DocumentMapperInterface
     {
         foreach ($this->documentMappers as $documentMapper) {
             if ($documentMapper->supports($object)) {
                 return $documentMapper;
+            }
+        }
+
+        throw new \LogicException('No mapper available');
+    }
+
+    public function getDocumentClass(string $objectClass): string
+    {
+        foreach ($this->documentMappers as $documentMapper) {
+            if ($documentMapper->supports($objectClass)) {
+                return $documentMapper->getDocumentClass();
             }
         }
 

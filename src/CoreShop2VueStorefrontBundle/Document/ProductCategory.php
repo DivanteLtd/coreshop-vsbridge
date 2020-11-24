@@ -15,7 +15,7 @@ class ProductCategory
     /** @ES\Property(type="boolean") */
     public $isParent = true;
 
-    /** @ES\Property(type="string") */
+    /** @ES\Property(type="text") */
     public $name;
 
     public function __construct(string $name = null, int $categoryId = null)

@@ -8,7 +8,7 @@ use CoreShop\Component\Core\Model\CategoryInterface;
 use CoreShop\Component\Core\Repository\CategoryRepositoryInterface;
 use CoreShop2VueStorefrontBundle\Bridge\Helper\DocumentHelper;
 use CoreShop2VueStorefrontBundle\Document\Category;
-use CoreShop2VueStorefrontBundle\Document\DocumentFactory;
+use ONGR\ElasticsearchBundle\Service\IndexService;
 
 class DocumentCategoryMapper extends AbstractMapper implements DocumentMapperInterface
 {
@@ -18,38 +18,33 @@ class DocumentCategoryMapper extends AbstractMapper implements DocumentMapperInt
     private $slugify;
     /** @var DocumentHelper */
     private $documentHelper;
-    /** @var DocumentFactory */
-    private $documentFactory;
 
     /**
      * @param CategoryRepositoryInterface $categoryRepository
      * @param SlugifyInterface            $slugify
      * @param DocumentHelper              $documentHelper
-     * @param DocumentFactory             $documentFactory
      */
     public function __construct(
         CategoryRepositoryInterface $categoryRepository,
         SlugifyInterface $slugify,
-        DocumentHelper $documentHelper,
-        DocumentFactory $documentFactory
+        DocumentHelper $documentHelper
     ) {
         $this->categoryRepository = $categoryRepository;
         $this->slugify = $slugify;
         $this->documentHelper = $documentHelper;
-        $this->documentFactory = $documentFactory;
     }
 
-    public function supports($object): bool
+    public function supports($objectOrClass): bool
     {
-        return $object instanceof CategoryInterface;
+        return is_a($object, CategoryInterface::class);
     }
 
     /**
      * @param \CoreShop\Component\Product\Model\CategoryInterface $category
      */
-    public function mapToDocument($category, ?string $language = null): Category
+    public function mapToDocument(IndexService $service, $category, ?string $language = null): Category
     {
-        $esCategory = $this->documentFactory->getOrCreate(Category::class, $category->getId());
+        $esCategory = $this->find($service, $category);
 
         $categoryName = $category->getName($language) ?: $category->getKey();
         $parentCategory = $category->getParentCategory();
@@ -64,7 +59,7 @@ class DocumentCategoryMapper extends AbstractMapper implements DocumentMapperInt
         $esCategory->setPath($this->documentHelper->buildPath($category));
         $esCategory->setDisplayMode(self::CATEGORY_DEFAULT_DISPLAY_MODE);
         $esCategory->setPageLayout(self::CATEGORY_DEFAULT_PAGE_LAYOUT);
-        $esCategory->setChildrenData($this->buildChildrenData($category->getChildCategories(), $level));
+        $esCategory->setChildrenData($this->buildChildrenData($service, $category->getChildCategories(), $level));
         $esCategory->setChildren($this->documentHelper->buildChildrenIds($category->getChildCategories()));
         $esCategory->setChildrenCount($this->documentHelper->countSeparator($esCategory->children, ','));
         $esCategory->setIsAnchor("0");
@@ -96,17 +91,22 @@ class DocumentCategoryMapper extends AbstractMapper implements DocumentMapperInt
         return $esCategory;
     }
 
+    public function getDocumentClass(): string
+    {
+        return Category::class;
+    }
+
     /**
      * @param array<\CoreShop\Component\Product\Model\CategoryInterface> $categories
      *
      * @return array<CoreShop2VueStorefrontBundle\Document\Category>
      */
-    private function buildChildrenData(array $categories): array
+    private function buildChildrenData(IndexService $service, array $categories): array
     {
         $children = [];
         foreach ($categories as $category) {
             if ($category instanceof CategoryInterface) {
-                $children[] = $this->mapToDocument($category);
+                $children[] = $this->mapToDocument($service, $category);
             }
         }
 

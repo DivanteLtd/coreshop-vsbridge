@@ -4,26 +4,41 @@ declare(strict_types=1);
 
 namespace CoreShop2VueStorefrontBundle\Bridge;
 
+use ONGR\ElasticsearchBundle\Mapping\Converter;
+use ONGR\ElasticsearchBundle\Mapping\IndexSettings;
+use ONGR\ElasticsearchBundle\Service\IndexService;
 use ONGR\ElasticsearchBundle\Service\ManagerFactory;
+use Psr\Container\ContainerInterface;
+use Sami\Renderer\Index;
 use Symfony\Component\OptionsResolver\Exception\InvalidOptionsException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use CoreShop\Component\Store\Repository\StoreRepositoryInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
  */
 class PersisterFactory
 {
-    private $hosts;
-    private $indexTemplate;
+    private $elasticsearchConfig;
     private $stores;
     private $storeAware;
 
     /**
-     * @var ManagerFactory
+     * @var ContainerInterface
      */
-    private $managerFactory;
+    private $container;
+
+    /**
+     * @var Converter
+     */
+    private $converter;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
 
     /**
      * @var DocumentMapperFactoryInterface
@@ -45,16 +60,17 @@ class PersisterFactory
      */
     private $resolver;
 
-
-    public function __construct(ManagerFactory $managerFactory, DocumentMapperFactoryInterface $documentMapperFactory, RepositoryProvider $repositoryProvider, StoreRepositoryInterface $storeRepository, array $hosts, string $indexTemplate, array $stores = [], bool $storeAware = false)
+    public function __construct(ContainerInterface $container, Converter $converter, EventDispatcherInterface $eventDispatcher, DocumentMapperFactoryInterface $documentMapperFactory, RepositoryProvider $repositoryProvider, StoreRepositoryInterface $storeRepository, array $elasticsearchConfig, array $stores = [], bool $storeAware = false)
     {
-        $this->managerFactory = $managerFactory;
+        $this->container = $container;
+        $this->converter = $converter;
+        $this->eventDispatcher = $eventDispatcher;
+
         $this->documentMapperFactory = $documentMapperFactory;
         $this->repositoryProvider = $repositoryProvider;
         $this->storeRepository = $storeRepository;
 
-        $this->hosts = $hosts;
-        $this->indexTemplate = $indexTemplate;
+        $this->elasticsearchConfig = $elasticsearchConfig;
         $this->stores = $stores;
         $this->storeAware = $storeAware;
         $this->resolver = $this->configureOptions(new OptionsResolver());
@@ -83,24 +99,32 @@ class PersisterFactory
 
                 foreach ($types as $type) {
                     $variables = ['store' => $name, 'language' => $language, 'type' => $type];
-                    $manager = $this->managerFactory->createManager(
-                        sprintf('coreshop2vuestorefront.%1$s.%2$s.%3$s', $name, $type, $language),
-                        [
-                            'hosts' => $this->inject($this->hosts, $variables),
-                            'index_name' => $this->inject($this->indexTemplate, $variables),
-                            'settings' => [],
-                        ],
-                        [],
-                        [
-                            'logger' => ['enabled' => false],
-                            'mappings' => ['CoreShop2VueStorefrontBundle'],
-                            'commit_mode' => 'flush',
-                            'bulk_size' => 100,
-                        ]
+
+                    $repository = $this->repositoryProvider->getForAlias($type);
+                    $className = $this->documentMapperFactory->getDocumentClass($repository->getClassName());
+
+                    $indexName = $this->inject($this->elasticsearchConfig['index'], $variables);
+                    $settings = new IndexSettings(
+                        $className,
+                        $indexName,
+                        $indexName,
+                        $this->elasticsearchConfig['templates'][$className] ?? [],
+                        $this->inject($this->elasticsearchConfig['hosts'], $variables)
                     );
 
+                    /** @var IndexService $indexService */
+                    $indexService = $this->container->get($className);
+                    $indexSettings = $indexService->getIndexSettings();
+                    $indexSettings = new IndexSettings(
+                        $className,
+                        $indexName,
+                        $indexName,
+                        array_replace_recursive($indexSettings->getIndexMetadata(), $this->elasticsearchConfig['templates'][$className] ?? []),
+                        $this->inject($this->elasticsearchConfig['hosts'], $variables)
+                    );
+                    $indexService = new IndexService($className, $this->converter, $this->eventDispatcher, $indexSettings);
                     $persisters[] = [
-                        'persister' => new EnginePersister($manager, $this->documentMapperFactory, $language),
+                        'persister' => new EnginePersister($indexService, $this->documentMapperFactory, $language),
                         'store' => $name,
                         'language' => $language,
                         'type' => $type,

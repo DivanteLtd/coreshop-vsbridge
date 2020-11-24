@@ -7,26 +7,21 @@ use CoreShop\Component\Address\Model\AddressInterface;
 use CoreShop\Component\Core\Model\CustomerInterface;
 use CoreShop\Component\Core\Model\ProductInterface;
 use CoreShop\Component\Resource\Repository\RepositoryInterface;
-use CoreShop2VueStorefrontBundle\Repository\AttributeRepository;
 use CoreShop\Component\Index\Model\IndexInterface;
 
 class ResponseBodyCreator
 {
     /** @var RepositoryInterface */
     protected $indicesRepository;
-    /** @var AttributeRepository */
-    protected $attributeRepository;
 
     /**
      * ResponseBodyCreator constructor.
      *
      * @param RepositoryInterface $indicesRepository
-     * @param AttributeRepository $attributeRepository
      */
-    public function __construct(RepositoryInterface $indicesRepository, AttributeRepository $attributeRepository)
+    public function __construct(RepositoryInterface $indicesRepository)
     {
         $this->indicesRepository   = $indicesRepository;
-        $this->attributeRepository = $attributeRepository;
     }
 
     /**
@@ -76,7 +71,7 @@ class ResponseBodyCreator
         $response['store_id'] = 1;
         $response['website_id'] = 1;
         $response['addresses'][] = $this->getAddress($address, $customer->getId());
-            
+
         $response['disable_auto_group_change'] = 0;
 
         return $response;
