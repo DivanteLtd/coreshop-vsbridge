@@ -49,4 +49,9 @@ class EnginePersister
         $this->indexService->commit();
         $this->indexService->flush();
     }
+
+    public function getIndexName(): string
+    {
+        return $this->indexService->getIndexName();
+    }
 }

@@ -6,6 +6,7 @@ use CoreShop\Component\Core\Repository\CategoryRepositoryInterface;
 use CoreShop\Component\Core\Repository\ProductRepositoryInterface;
 use CoreShop\Component\Pimcore\BatchProcessing\BatchListing;
 use CoreShop2VueStorefrontBundle\Bridge\ImporterFactory;
+use CoreShop2VueStorefrontBundle\Bridge\ImporterInterface;
 use Pimcore\Console\AbstractCommand;
 use Pimcore\Model\DataObject\Listing;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
@@ -31,6 +32,7 @@ class IndexCommand extends AbstractCommand
             ->addArgument('store', InputArgument::OPTIONAL, 'Store to index')
             ->addArgument('type', InputArgument::OPTIONAL, 'Object types to index')
             ->addArgument('language', InputArgument::OPTIONAL, 'Language to index')
+            ->addArgument('currency', InputArgument::OPTIONAL, 'Currency to index')
             ->setName('vsbridge:index-objects')
             ->setDescription('Indexing objects of given type in vuestorefront');
     }
@@ -55,12 +57,16 @@ class IndexCommand extends AbstractCommand
         $style->title('Coreshop => Vue Storefront data importer');
 
         $store = $input->getArgument('store');
-        $language = $input->getArgument('language');
         $type = $input->getArgument('type');
+        $language = $input->getArgument('language');
+        $currency = $input->getArgument('currency');
 
-        $importers = $this->importerFactory->create($store, $language, $type);
+        $importers = $this->importerFactory->create($store, $type, $language, $currency);
+
+        /** @var ImporterInterface $importer */
         foreach ($importers as $importer) {
             $style->section(sprintf('Importing: %1$s', $importer->describe()));
+            $style->note(sprintf('Target: %1$s', $importer->getTarget()));
 
             $count = $importer->count();
             if ($count === 0) {

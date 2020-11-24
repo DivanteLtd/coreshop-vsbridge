@@ -20,8 +20,10 @@ class CoreShop2VueStorefrontExtension extends Extension
     public function load(array $configs, ContainerBuilder $container)
     {
         $languages = explode(',', $container->getParameter('pimcore.config')['general']['valid_languages']);
+        // TODO: actually valid currencies
+        $currencies = ['EUR', 'GBP', 'USD'];
 
-        $configuration = new Configuration($languages);
+        $configuration = new Configuration($languages, $currencies);
         $config = $this->processConfiguration($configuration, $configs);
 
         $container->setParameter('core_shop2_vue_storefront.elasticsearch_config', $config['elasticsearch']);

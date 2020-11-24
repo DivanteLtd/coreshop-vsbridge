@@ -13,10 +13,12 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 class Configuration implements ConfigurationInterface
 {
     private $languages;
+    private $currencies;
 
-    public function __construct(array $languages)
+    public function __construct(array $languages, array $currencies)
     {
         $this->languages = $languages;
+        $this->currencies = $currencies;
     }
 
     /**
@@ -64,6 +66,12 @@ class Configuration implements ConfigurationInterface
                                 ->beforeNormalization()->castToArray()->end()
                                 ->enumPrototype()
                                     ->values($this->languages)
+                                ->end()
+                            ->end()
+                            ->arrayNode('currencies')
+                                ->beforeNormalization()->castToArray()->end()
+                                ->enumPrototype()
+                                    ->values($this->currencies)
                                 ->end()
                             ->end()
                         ->end()

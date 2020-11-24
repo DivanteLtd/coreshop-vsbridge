@@ -8,6 +8,8 @@ interface ImporterInterface
 {
     public function describe(): string;
 
+    public function getTarget(): string;
+
     public function count(): int;
 
     public function import(callable $callback): void;

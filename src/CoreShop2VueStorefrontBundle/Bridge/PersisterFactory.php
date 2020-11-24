@@ -79,9 +79,9 @@ class PersisterFactory
     /**
      * @return array<array{persister: PersisterFactory, store: string, language: string, type: string}>
      */
-    public function create(?string $store = null, ?string $language = null, ?string $type = null): array
+    public function create(?string $store = null, ?string $type = null, ?string $language = null, ?string $currency = null): array
     {
-        $options = $this->resolver->resolve(['store' => $store, 'language' => $language, 'type' => $type]);
+        $options = $this->resolver->resolve(['store' => $store, 'type' => $type, 'language' => $language, 'currency' => $currency]);
 
         $stores = (array) ($options['store'] ?? array_keys($this->stores));
 
@@ -93,44 +93,61 @@ class PersisterFactory
                 $concreteStore = $this->storeRepository->findOneBy(['name' => $name]);
             }
 
-            $languages = (array) ($options['language'] ?? $store['languages']);
-            foreach ($languages as $language) {
-                $types = (array) ($options['type'] ?? $this->repositoryProvider->getAliases());
+            $types = (array) ($options['type'] ?? $this->repositoryProvider->getAliases());
+            foreach ($types as $type) {
+                $languages = (array) ($options['language'] ?? $store['languages']);
+                foreach ($languages as $language) {
+                    $currencies = (array) ($options['currency'] ?? $store['currencies']);
 
-                foreach ($types as $type) {
-                    $repository = $this->repositoryProvider->getForAlias($type);
-                    $className = $this->documentMapperFactory->getDocumentClass($repository->getClassName());
+                    foreach ($currencies as $currency) {
+                        $repository = $this->repositoryProvider->getForAlias($type);
+                        $className = $this->documentMapperFactory->getDocumentClass($repository->getClassName());
 
-                    /** @var IndexService $indexService */
-                    $indexService = $this->container->get($className);
-                    $indexSettings = $indexService->getIndexSettings();
+                        /** @var IndexService $indexService */
+                        $indexService = $this->container->get($className);
+                        $indexSettings = $indexService->getIndexSettings();
 
-                    $variables = ['store' => $name, 'language' => $language, 'type' => $indexSettings->getIndexName() ?? $type];
+                        $variables = [
+                            'store' => $name,
+                            'type' => $indexSettings->getIndexName() ?? $type,
+                            'language' => $language,
+                            'currency' => $currency,
+                        ];
 
-                    $indexName = $this->inject($this->elasticsearchConfig['index'], $variables);
-                    $settings = new IndexSettings(
-                        $className,
-                        $indexName,
-                        $indexName,
-                        $this->elasticsearchConfig['templates'][$className] ?? [],
-                        $this->inject($this->elasticsearchConfig['hosts'], $variables)
-                    );
-                    $indexSettings = new IndexSettings(
-                        $className,
-                        $indexName,
-                        $indexName,
-                        array_replace_recursive($indexSettings->getIndexMetadata(), $this->elasticsearchConfig['templates'][$className] ?? []),
-                        $this->inject($this->elasticsearchConfig['hosts'], $variables)
-                    );
-                    $indexService = new IndexService($className, $this->converter, $this->eventDispatcher, $indexSettings);
-                    $persisters[] = [
-                        'persister' => new EnginePersister($indexService, $this->documentMapperFactory, $language),
-                        'store' => $name,
-                        'language' => $language,
-                        'type' => $type,
-                        'repository' => $this->repositoryProvider->getForAlias($type),
-                        'concreteStore' => $concreteStore
-                    ];
+                        $indexName = $this->inject($this->elasticsearchConfig['index'], $variables);
+                        $settings = new IndexSettings(
+                            $className,
+                            $indexName,
+                            $indexName,
+                            $this->elasticsearchConfig['templates'][$className] ?? [],
+                            $this->inject($this->elasticsearchConfig['hosts'], $variables)
+                        );
+                        $indexSettings = new IndexSettings(
+                            $className,
+                            $indexName,
+                            $indexName,
+                            array_replace_recursive(
+                                $indexSettings->getIndexMetadata(),
+                                $this->elasticsearchConfig['templates'][$className] ?? []
+                            ),
+                            $this->inject($this->elasticsearchConfig['hosts'], $variables, true)
+                        );
+                        $indexService = new IndexService(
+                            $className,
+                            $this->converter,
+                            $this->eventDispatcher,
+                            $indexSettings
+                        );
+                        $persisters[] = [
+                            'persister' => new EnginePersister($indexService, $this->documentMapperFactory, $language),
+                            'store' => $name,
+                            'type' => $type,
+                            'language' => $language,
+                            'currency' => $currency,
+                            'repository' => $this->repositoryProvider->getForAlias($type),
+                            'concreteStore' => $concreteStore
+                        ];
+                    }
                 }
             }
         }
@@ -142,9 +159,11 @@ class PersisterFactory
     {
         $stores = $this->stores;
 
-        $resolver->setDefined(['store', 'language', 'type']);
+        $resolver->setDefined(['store', 'type', 'language', 'currency']);
 
         $resolver->setAllowedValues('store', array_merge([null], array_keys($stores)));
+
+        $resolver->setAllowedValues('type', array_merge([null], $this->repositoryProvider->getAliases()));
 
         $resolver->setAllowedTypes('language', ['null' ,'string']);
         $resolver->setNormalizer('language', function (Options $options, $language) use ($stores) {
@@ -167,7 +186,26 @@ class PersisterFactory
             return $language;
         });
 
-        $resolver->setAllowedValues('type', array_merge([null], $this->repositoryProvider->getAliases()));
+        $resolver->setAllowedTypes('currency', ['null' ,'string']);
+        $resolver->setNormalizer('currency', function (Options $options, $currency) use ($stores) {
+            $store = $options['store'];
+            if ($currency === null || $store === null) {
+                return null;
+            }
+
+            $storeCurrencies = $stores[$store]['currencies'];
+            if (!in_array($currency, $storeCurrencies, true)) {
+                $message = sprintf(
+                    'The option "currency" with value %s is invalid. Accepted values are: null, "%s".',
+                    $currency,
+                    implode('", "', $storeCurrencies)
+                );
+
+                throw new InvalidOptionsException($message);
+            }
+
+            return $currency;
+        });
 
         return $resolver;
     }
@@ -178,7 +216,7 @@ class PersisterFactory
      *
      * @return array|string
      */
-    private function inject($template, array $variables)
+    private function inject($template, array $variables, bool $validate = false)
     {
         if (is_array($template)) {
             foreach ($template as $idx => $item) {
@@ -191,7 +229,17 @@ class PersisterFactory
         $keys = array_map(function(string $key) {
             return '{'. $key .'}';
         }, array_keys($variables));
+        $variables = array_combine($keys, array_map(function(string $value) {
+            return strtolower($value);
+        }, array_values($variables)));
+        if ($validate) {
+            foreach ($variables as $key => $value) {
+                if (false === strpos($template, $key) && $value !== null) {
+                    throw new \LogicException(sprintf('Placeholder "%1$s" missing in index "%2$s"', $key, $template));
+                }
+            }
+        }
 
-        return str_replace($keys, array_values($variables), $template);
+        return str_replace(array_keys($variables), array_values($variables), $template);
     }
 }
