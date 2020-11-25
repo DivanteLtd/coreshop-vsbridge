@@ -29,10 +29,10 @@ class IndexCommand extends AbstractCommand
     protected function configure()
     {
         $this
-            ->addArgument('store', InputArgument::OPTIONAL, 'Store to index')
+            ->addArgument('site', InputArgument::OPTIONAL, 'Site to index')
             ->addArgument('type', InputArgument::OPTIONAL, 'Object types to index')
             ->addArgument('language', InputArgument::OPTIONAL, 'Language to index')
-            ->addArgument('currency', InputArgument::OPTIONAL, 'Currency to index')
+            ->addArgument('store', InputArgument::OPTIONAL, 'Site store to index')
             ->setName('vsbridge:index-objects')
             ->setDescription('Indexing objects of given type in vuestorefront');
     }
@@ -56,12 +56,12 @@ class IndexCommand extends AbstractCommand
         $style = new SymfonyStyle($input, $output);
         $style->title('Coreshop => Vue Storefront data importer');
 
-        $store = $input->getArgument('store');
+        $site = $input->getArgument('site');
         $type = $input->getArgument('type');
         $language = $input->getArgument('language');
-        $currency = $input->getArgument('currency');
+        $store = $input->getArgument('store');
 
-        $importers = $this->importerFactory->create($store, $type, $language, $currency);
+        $importers = $this->importerFactory->create($site, $type, $language, $store);
 
         /** @var ImporterInterface $importer */
         foreach ($importers as $importer) {

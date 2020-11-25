@@ -4,10 +4,12 @@ namespace CoreShop2VueStorefrontBundle\Bridge\DocumentMapper;
 
 use Cocur\Slugify\SlugifyInterface;
 use CoreShop\Component\Core\Model\ProductInterface;
+use CoreShop\Component\Core\Model\StoreInterface;
 use CoreShop\Component\Core\Repository\ProductRepositoryInterface;
 use CoreShop2VueStorefrontBundle\Bridge\DocumentMapperInterface;
 use CoreShop2VueStorefrontBundle\Bridge\Helper\DocumentHelper;
 use CoreShop2VueStorefrontBundle\Bridge\Helper\PriceHelper;
+use CoreShop2VueStorefrontBundle\Bridge\StoreAwareDocumentMapperInterface;
 use CoreShop2VueStorefrontBundle\Document\MediaGallery;
 use CoreShop2VueStorefrontBundle\Document\Product;
 use CoreShop2VueStorefrontBundle\Document\ProductCategory;
@@ -16,7 +18,7 @@ use ONGR\ElasticsearchBundle\Service\IndexService;
 use Pimcore\Model\Asset\Image;
 use Pimcore\Model\DataObject\AbstractObject;
 
-class DocumentProductMapper extends AbstractMapper implements DocumentMapperInterface
+class DocumentProductMapper extends AbstractMapper implements StoreAwareDocumentMapperInterface
 {
     /** @var SlugifyInterface */
     protected $slugify;
@@ -58,7 +60,7 @@ class DocumentProductMapper extends AbstractMapper implements DocumentMapperInte
      *
      * @return Product
      */
-    public function mapToDocument(IndexService $service, object $product, ?string $language = null): Product
+    public function mapToDocument(IndexService $service, object $product, ?string $language = null, ?StoreInterface $store = null): Product
     {
         $esProduct = $this->find($service, $product);
 
@@ -66,8 +68,8 @@ class DocumentProductMapper extends AbstractMapper implements DocumentMapperInte
 
         $esProduct->setId($product->getId());
         $esProduct->setAttributeSetId(self::PRODUCT_DEFAULT_ATTRIBUTE_SET_ID);
-        $esProduct->setPrice($this->priceHelper->getItemPrice($product));
-        $esProduct->setFinalPrice($this->priceHelper->getItemPrice($product));
+        $esProduct->setPrice($this->priceHelper->getItemPrice($product, $store));
+        $esProduct->setFinalPrice($this->priceHelper->getItemPrice($product, $store));
         $esProduct->setStatus(self::PRODUCT_DEFAULT_STATUS);
         $esProduct->setVisibility(self::PRODUCT_DEFAULT_VISIBILITY);
         $esProduct->setTypeId(self::PRODUCT_SIMPLE_TYPE);

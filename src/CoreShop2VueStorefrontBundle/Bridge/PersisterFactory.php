@@ -22,8 +22,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class PersisterFactory
 {
     private $elasticsearchConfig;
-    private $stores;
-    private $storeAware;
+    private $sites;
 
     /**
      * @var ContainerInterface
@@ -60,7 +59,7 @@ class PersisterFactory
      */
     private $resolver;
 
-    public function __construct(ContainerInterface $container, Converter $converter, EventDispatcherInterface $eventDispatcher, DocumentMapperFactoryInterface $documentMapperFactory, RepositoryProvider $repositoryProvider, StoreRepositoryInterface $storeRepository, array $elasticsearchConfig, array $stores = [], bool $storeAware = false)
+    public function __construct(ContainerInterface $container, Converter $converter, EventDispatcherInterface $eventDispatcher, DocumentMapperFactoryInterface $documentMapperFactory, RepositoryProvider $repositoryProvider, StoreRepositoryInterface $storeRepository, array $elasticsearchConfig, array $sites = [])
     {
         $this->container = $container;
         $this->converter = $converter;
@@ -71,35 +70,35 @@ class PersisterFactory
         $this->storeRepository = $storeRepository;
 
         $this->elasticsearchConfig = $elasticsearchConfig;
-        $this->stores = $stores;
-        $this->storeAware = $storeAware;
+        $this->sites = $sites;
         $this->resolver = $this->configureOptions(new OptionsResolver());
     }
 
     /**
      * @return array<array{persister: PersisterFactory, store: string, language: string, type: string}>
      */
-    public function create(?string $store = null, ?string $type = null, ?string $language = null, ?string $currency = null): array
+    public function create(?string $site = null, ?string $type = null, ?string $language = null, ?string $store = null): array
     {
-        $options = $this->resolver->resolve(['store' => $store, 'type' => $type, 'language' => $language, 'currency' => $currency]);
+        $options = $this->resolver->resolve(['site' => $site, 'type' => $type, 'language' => $language, 'store' => $store]);
 
-        $stores = (array) ($options['store'] ?? array_keys($this->stores));
+        $sites = (array) ($options['site'] ?? array_keys($this->sites));
 
         $persisters = [];
-        foreach ($stores as $name) {
-            $store = $this->stores[$name];
-
-            if ($this->storeAware) {
-                $concreteStore = $this->storeRepository->findOneBy(['name' => $name]);
-            }
+        foreach ($sites as $name) {
+            $site = $this->sites[$name];
 
             $types = (array) ($options['type'] ?? $this->repositoryProvider->getAliases());
             foreach ($types as $type) {
-                $languages = (array) ($options['language'] ?? $store['languages']);
+                $languages = (array) ($options['language'] ?? $site['languages']);
                 foreach ($languages as $language) {
-                    $currencies = (array) ($options['currency'] ?? $store['currencies']);
+                    $stores = (array) ($options['store'] ?? $site['stores']);
 
-                    foreach ($currencies as $currency) {
+                    foreach ($stores as $store) {
+                        $concreteStore = $this->storeRepository->findOneBy(['name' => $store]);
+                        if ($concreteStore === null) {
+                            throw new \LogicException('Invalid store name '. $store);
+                        }
+
                         $repository = $this->repositoryProvider->getForAlias($type);
                         $className = $this->documentMapperFactory->getDocumentClass($repository->getClassName());
 
@@ -108,10 +107,11 @@ class PersisterFactory
                         $indexSettings = $indexService->getIndexSettings();
 
                         $variables = [
-                            'store' => $name,
+                            'site' => $name,
                             'type' => $indexSettings->getIndexName() ?? $type,
                             'language' => $language,
-                            'currency' => $currency,
+                            'currency' => $concreteStore->getCurrency()->getISOCode(),
+                            'store' => $store,
                         ];
 
                         $indexName = $this->inject($this->elasticsearchConfig['index'], $variables);
@@ -120,7 +120,7 @@ class PersisterFactory
                             $indexName,
                             $indexName,
                             $this->elasticsearchConfig['templates'][$className] ?? [],
-                            $this->inject($this->elasticsearchConfig['hosts'], $variables)
+                            $this->inject($this->elasticsearchConfig['hosts'], $variables, true)
                         );
                         $indexSettings = new IndexSettings(
                             $className,
@@ -130,7 +130,7 @@ class PersisterFactory
                                 $indexSettings->getIndexMetadata(),
                                 $this->elasticsearchConfig['templates'][$className] ?? []
                             ),
-                            $this->inject($this->elasticsearchConfig['hosts'], $variables, true)
+                            $this->inject($this->elasticsearchConfig['hosts'], $variables)
                         );
                         $indexService = new IndexService(
                             $className,
@@ -138,14 +138,14 @@ class PersisterFactory
                             $this->eventDispatcher,
                             $indexSettings
                         );
+
                         $persisters[] = [
-                            'persister' => new EnginePersister($indexService, $this->documentMapperFactory, $language),
-                            'store' => $name,
+                            'persister' => new EnginePersister($indexService, $this->documentMapperFactory, $language, $concreteStore),
+                            'site' => $name,
                             'type' => $type,
                             'language' => $language,
-                            'currency' => $currency,
+                            'store' => $concreteStore,
                             'repository' => $this->repositoryProvider->getForAlias($type),
-                            'concreteStore' => $concreteStore
                         ];
                     }
                 }
@@ -157,22 +157,22 @@ class PersisterFactory
 
     private function configureOptions(OptionsResolver $resolver): OptionsResolver
     {
-        $stores = $this->stores;
+        $sites = $this->sites;
 
-        $resolver->setDefined(['store', 'type', 'language', 'currency']);
+        $resolver->setDefined(['site', 'type', 'language', 'store']);
 
-        $resolver->setAllowedValues('store', array_merge([null], array_keys($stores)));
+        $resolver->setAllowedValues('site', array_merge([null], array_keys($sites)));
 
         $resolver->setAllowedValues('type', array_merge([null], $this->repositoryProvider->getAliases()));
 
         $resolver->setAllowedTypes('language', ['null' ,'string']);
-        $resolver->setNormalizer('language', function (Options $options, $language) use ($stores) {
-            $store = $options['store'];
-            if ($language === null || $store === null) {
+        $resolver->setNormalizer('language', function (Options $options, $language) use ($sites) {
+            $site = $options['site'];
+            if ($language === null || $site === null) {
                 return null;
             }
 
-            $storeLanguages = $stores[$store]['languages'];
+            $storeLanguages = $sites[$site]['languages'];
             if (!in_array($language, $storeLanguages, true)) {
                 $message = sprintf(
                     'The option "language" with value %s is invalid. Accepted values are: null, "%s".',
@@ -186,25 +186,25 @@ class PersisterFactory
             return $language;
         });
 
-        $resolver->setAllowedTypes('currency', ['null' ,'string']);
-        $resolver->setNormalizer('currency', function (Options $options, $currency) use ($stores) {
-            $store = $options['store'];
-            if ($currency === null || $store === null) {
+        $resolver->setAllowedTypes('store', ['null' ,'string']);
+        $resolver->setNormalizer('store', function (Options $options, $store) use ($sites) {
+            $site = $options['site'];
+            if ($store === null || $site === null) {
                 return null;
             }
 
-            $storeCurrencies = $stores[$store]['currencies'];
-            if (!in_array($currency, $storeCurrencies, true)) {
+            $stores = $sites[$site]['stores'];
+            if (!in_array($store, $stores, true)) {
                 $message = sprintf(
-                    'The option "currency" with value %s is invalid. Accepted values are: null, "%s".',
-                    $currency,
-                    implode('", "', $storeCurrencies)
+                    'The option "store" with value %s is invalid. Accepted values are: null, "%s".',
+                    $store,
+                    implode('", "', $stores)
                 );
 
                 throw new InvalidOptionsException($message);
             }
 
-            return $currency;
+            return $store;
         });
 
         return $resolver;

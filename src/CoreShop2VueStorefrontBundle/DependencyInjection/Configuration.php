@@ -13,12 +13,10 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 class Configuration implements ConfigurationInterface
 {
     private $languages;
-    private $currencies;
 
-    public function __construct(array $languages, array $currencies)
+    public function __construct(array $languages)
     {
         $this->languages = $languages;
-        $this->currencies = $currencies;
     }
 
     /**
@@ -56,10 +54,7 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
-                ->booleanNode('store_aware')
-                    ->defaultFalse()
-                ->end()
-                ->arrayNode('stores')
+                ->arrayNode('sites')
                     ->arrayPrototype()
                         ->children()
                             ->arrayNode('languages')
@@ -68,10 +63,9 @@ class Configuration implements ConfigurationInterface
                                     ->values($this->languages)
                                 ->end()
                             ->end()
-                            ->arrayNode('currencies')
+                            ->arrayNode('stores')
                                 ->beforeNormalization()->castToArray()->end()
-                                ->enumPrototype()
-                                    ->values($this->currencies)
+                                ->prototype('scalar')
                                 ->end()
                             ->end()
                         ->end()

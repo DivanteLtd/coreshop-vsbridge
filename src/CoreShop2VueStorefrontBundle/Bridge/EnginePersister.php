@@ -3,6 +3,7 @@
 namespace CoreShop2VueStorefrontBundle\Bridge;
 
 use CoreShop\Component\Core\Model\ProductInterface;
+use CoreShop\Component\Core\Model\StoreInterface;
 use CoreShop2VueStorefrontBundle\Bridge\DocumentMapperFactory;
 use CoreShop2VueStorefrontBundle\Document\Attribute;
 use CoreShop2VueStorefrontBundle\Document\Category;
@@ -19,15 +20,18 @@ class EnginePersister
     private $documentMapperFactory;
     /** @var string|null */
     private $language;
+    /** @var StoreInterface|null */
+    private $store;
 
     /** @var null|bool */
     private $indexExists;
 
-    public function __construct(IndexService $indexService, DocumentMapperFactory $documentMapperFactory, ?string $language = null)
+    public function __construct(IndexService $indexService, DocumentMapperFactory $documentMapperFactory, ?string $language = null, ?StoreInterface $store = null)
     {
         $this->indexService = $indexService;
         $this->documentMapperFactory = $documentMapperFactory;
         $this->language = $language;
+        $this->store = $store;
     }
 
     /**
@@ -44,7 +48,11 @@ class EnginePersister
         }
 
         $documentMapper = $this->documentMapperFactory->factory($object);
-        $document = $documentMapper->mapToDocument($this->indexService, $object, $this->language);
+        if ($documentMapper instanceof StoreAwareDocumentMapperInterface) {
+            $document = $documentMapper->mapToDocument($this->indexService, $object, $this->language, $this->store);
+        } else {
+            $document = $documentMapper->mapToDocument($this->indexService, $object, $this->language);
+        }
         $this->indexService->persist($document);
         $this->indexService->commit();
         $this->indexService->flush();

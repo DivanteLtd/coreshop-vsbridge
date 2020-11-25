@@ -15,28 +15,26 @@ class ElasticsearchImporter implements ImporterInterface
 {
     private $repository;
     private $list;
-    private $store;
+    private $site;
     private $type;
     private $language;
-    private $currency;
     private $persister;
-    /** @var StoreInterface|null */
-    private $concreteStore;
+    /** @var StoreInterface */
+    private $store;
 
-    public function __construct(RepositoryInterface $repository, EnginePersister $persister, string $store, string $type, string $language, string $currency, ?StoreInterface $concreteStore = null)
+    public function __construct(RepositoryInterface $repository, EnginePersister $persister, string $site, string $type, string $language, StoreInterface $store)
     {
         $this->repository = $repository;
         $this->persister = $persister;
-        $this->store = $store;
+        $this->site = $site;
         $this->type = $type;
         $this->language = $language;
-        $this->currency = $currency;
-        $this->concreteStore = $concreteStore;
+        $this->store = $store;
     }
 
     public function describe(): string
     {
-        return sprintf('%1$s: %2$s (%3$s, %4$s)', $this->store, $this->type, $this->language, $this->currency);
+        return sprintf('%1$s: %2$s (%3$s, %4$s)', $this->site, $this->type, $this->language, $this->store->getCurrency()->getIsoCode());
     }
 
     public function getTarget(): string
