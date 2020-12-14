@@ -85,9 +85,8 @@ services:
     CoreShop2VueStorefrontBundle\Bridge\PersisterFactory:
         arguments:
             $elasticsearchConfig: '%core_shop2_vue_storefront.elasticsearch_config%'
-            $stores: '%core_shop2_vue_storefront.stores%'
+            $sites: '%core_shop2_vue_storefront.sites%'
             $storeRepository: '@coreshop.repository.store'
-            $storeAware: '%core_shop2_vue_storefront.store_aware%'
 
     CoreShop2VueStorefrontBundle\Command\IndexCommand:
         tags: ['console.command']
