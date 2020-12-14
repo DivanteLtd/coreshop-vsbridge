@@ -10,6 +10,7 @@ use CoreShop2VueStorefrontBundle\Bridge\ImporterInterface;
 use Pimcore\Console\AbstractCommand;
 use Pimcore\Model\DataObject\Listing;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -77,8 +78,9 @@ class IndexCommand extends AbstractCommand
 
             $style->note(sprintf('Found %1$d items to import.', $count));
             $progressBar = $style->createProgressBar($count);
+            $progressBar->setFormat('%current%/%max% [%bar%] %percent:3s%% %elapsed:6s%/%estimated:-6s% %message:6s%');
             $importer->import(function (object $object) use ($progressBar) {
-                // $progressBar->setMessage($object->getPath());
+                $progressBar->setMessage(sprintf('<info>%1$s</info>', $this->describe($object)));
                 $progressBar->advance();
             });
             $progressBar->clear();
@@ -89,5 +91,15 @@ class IndexCommand extends AbstractCommand
         $style->success('Done.');
 
         return 0;
+    }
+
+    private function describe(object $object): string
+    {
+        $callable = [$object, 'getFullPath'];
+        if (method_exists($object, 'getFullPath')) {
+            return $callable();
+        }
+
+        return get_class($object);
     }
 }

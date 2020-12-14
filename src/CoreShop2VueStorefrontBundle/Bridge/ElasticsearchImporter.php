@@ -64,9 +64,9 @@ class ElasticsearchImporter implements ImporterInterface
         }
 
         foreach ($listing as $object) {
-            $this->persister->persist($object);
-
             $callback($object);
+
+            $this->persister->persist($object);
         }
     }
 
