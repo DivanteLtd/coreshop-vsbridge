@@ -46,7 +46,7 @@ class ProductListener
                     return false;
                 }
 
-                foreach ($this->persisterFactory->create(null, null, $this->repositoryProvider->getAliasFor($object)) as $config) {
+                foreach ($this->persisterFactory->create(null, $this->repositoryProvider->getAliasFor($object)) as $config) {
                     $config['persister']->persist($object);
                 }
             }
