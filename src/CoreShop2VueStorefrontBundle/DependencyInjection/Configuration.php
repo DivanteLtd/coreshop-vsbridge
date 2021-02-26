@@ -49,6 +49,7 @@ class Configuration implements ConfigurationInterface
                             ->arrayPrototype()
                                 ->children()
                                     ->variableNode('mappings')->end()
+                                    ->variableNode('settings')->end()
                                 ->end()
                             ->end()
                         ->end()

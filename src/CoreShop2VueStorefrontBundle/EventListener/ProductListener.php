@@ -41,12 +41,12 @@ class ProductListener
             /** @var ProductInterface|CategoryInterface|Concrete $object */
             $object = $event->getObject();
 
-            if ($this->shouldSynchronizeWithVue($object)) {
+            if ($this->repositoryProvider->hasRepositoryFor($object)) {
                 if ($object->getType() == AbstractObject::OBJECT_TYPE_VARIANT) {
                     return false;
                 }
 
-                foreach ($this->persisterFactory->create(null, null, $this->repositoryProvider->getAliasFor($object)) as $config) {
+                foreach ($this->persisterFactory->create(null, $this->repositoryProvider->getAliasFor($object)) as $config) {
                     $config['persister']->persist($object);
                 }
             }
@@ -56,11 +56,5 @@ class ProductListener
                 $exception->getMessage()
             ));
         }
-    }
-
-    private function shouldSynchronizeWithVue($object): bool
-    {
-        return $object instanceof CategoryInterface
-            || $object instanceof ProductInterface;
     }
 }

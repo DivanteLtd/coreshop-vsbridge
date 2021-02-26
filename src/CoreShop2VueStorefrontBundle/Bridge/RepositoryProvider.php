@@ -18,6 +18,26 @@ class RepositoryProvider
         $this->repositories = $repositories;
     }
 
+    public function hasRepositoryFor(object $object): bool
+    {
+        $className = get_class($object);
+
+        if (isset($cache[$className])) {
+            return $cache[$className];
+        }
+
+        /** @var RepositoryInterface $repository */
+        foreach ($this->repositories as $repository) {
+            if ($repository->getClassName() === $className) {
+                $cache[$className] = true;
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function getAliasFor(object $object): string
     {
         $className = get_class($object);
