@@ -41,7 +41,7 @@ class ProductListener
             /** @var ProductInterface|CategoryInterface|Concrete $object */
             $object = $event->getObject();
 
-            if ($this->shouldSynchronizeWithVue($object)) {
+            if ($this->repositoryProvider->hasRepositoryFor($object)) {
                 if ($object->getType() == AbstractObject::OBJECT_TYPE_VARIANT) {
                     return false;
                 }
@@ -56,11 +56,5 @@ class ProductListener
                 $exception->getMessage()
             ));
         }
-    }
-
-    private function shouldSynchronizeWithVue($object): bool
-    {
-        return $object instanceof CategoryInterface
-            || $object instanceof ProductInterface;
     }
 }
