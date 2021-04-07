@@ -21,8 +21,10 @@ class ElasticsearchImporter implements ImporterInterface
     private $persister;
     /** @var StoreInterface */
     private $store;
+    /** @var null|\DateTimeInterface */
+    private $since;
 
-    public function __construct(RepositoryInterface $repository, EnginePersister $persister, string $site, string $type, string $language, StoreInterface $store)
+    public function __construct(RepositoryInterface $repository, EnginePersister $persister, string $site, string $type, string $language, StoreInterface $store, ?\DateTimeInterface $since = null)
     {
         $this->repository = $repository;
         $this->persister = $persister;
@@ -30,6 +32,7 @@ class ElasticsearchImporter implements ImporterInterface
         $this->type = $type;
         $this->language = $language;
         $this->store = $store;
+        $this->since = $since;
     }
 
     public function describe(): string
@@ -79,7 +82,12 @@ class ElasticsearchImporter implements ImporterInterface
                 if ($this->repository instanceof StoreAwareRepositoryInterface && $this->concreteStore instanceof StoreInterface) {
                     $this->repository->addStoreCondition($this->list, $this->concreteStore);
                 }
+
+                if ($this->since !== null) {
+                    $this->list->addConditionParam('o_modificationDate >= ?', $this->since->getTimestamp());
+                }
             } else {
+                // TODO: how to do since here?
                 $this->list = $this->repository->findAll();
             }
         }
