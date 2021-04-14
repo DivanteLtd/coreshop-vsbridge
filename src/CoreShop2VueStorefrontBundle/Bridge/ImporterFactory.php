@@ -26,12 +26,12 @@ class ImporterFactory
     /**
      * @return array<ImporterFactory>
      */
-    public function create(?string $site = null, ?string $type = null, ?string $language = null, ?string $store = null): array
+    public function create(?string $site = null, ?string $type = null, ?string $language = null, ?string $store = null, ?\DateTimeInterface $since = null): array
     {
         $persisters = $this->persisterFactory->create($site, $type, $language, $store);
         $importers = [];
         foreach ($persisters as $config) {
-            $importers[] = new ElasticsearchImporter($config['repository'], $config['persister'], $config['site'], $config['type'], $config['language'], $config['store']);
+            $importers[] = new ElasticsearchImporter($config['repository'], $config['persister'], $config['site'], $config['type'], $config['language'], $config['store'], $since);
         }
 
         return $importers;
