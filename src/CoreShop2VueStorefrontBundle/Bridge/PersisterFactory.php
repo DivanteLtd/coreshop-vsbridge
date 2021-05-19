@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace CoreShop2VueStorefrontBundle\Bridge;
 
+use CoreShop2VueStorefrontBundle\Bridge\SwappingIndexService;
 use ONGR\ElasticsearchBundle\Mapping\Converter;
 use ONGR\ElasticsearchBundle\Mapping\IndexSettings;
 use ONGR\ElasticsearchBundle\Service\IndexService;
@@ -77,7 +78,7 @@ class PersisterFactory
     /**
      * @return array<array{persister: PersisterFactory, store: string, language: string, type: string}>
      */
-    public function create(?string $site = null, ?string $type = null, ?string $language = null, ?string $store = null): array
+    public function create(?string $site = null, ?string $type = null, ?string $language = null, ?string $store = null, ?string $runTimestamp = null): array
     {
         $options = $this->resolver->resolve(['site' => $site, 'type' => $type, 'language' => $language, 'store' => $store]);
 
@@ -115,16 +116,9 @@ class PersisterFactory
                         ];
 
                         $indexName = $this->inject($this->elasticsearchConfig['index'], $variables);
-                        $settings = new IndexSettings(
-                            $className,
-                            $indexName,
-                            $indexName,
-                            $this->elasticsearchConfig['templates'][$className] ?? [],
-                            $this->inject($this->elasticsearchConfig['hosts'], $variables, true)
-                        );
                         $indexSettings = new IndexSettings(
                             $className,
-                            $indexName,
+                            $runTimestamp ? $indexName.'_'.$runTimestamp : $indexName,
                             $indexName,
                             array_replace_recursive(
                                 $indexSettings->getIndexMetadata(),
@@ -138,6 +132,10 @@ class PersisterFactory
                             $this->eventDispatcher,
                             $indexSettings
                         );
+
+                        if ($runTimestamp) {
+                            $indexService = new SwappingIndexService($indexService, $runTimestamp);
+                        }
 
                         $persisters[] = [
                             'persister' => new EnginePersister($indexService, $this->documentMapperFactory, $language, $concreteStore),

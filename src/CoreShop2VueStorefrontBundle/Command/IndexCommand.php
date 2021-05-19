@@ -35,6 +35,7 @@ class IndexCommand extends AbstractCommand
             ->addArgument('language', InputArgument::OPTIONAL, 'Language to index')
             ->addArgument('store', InputArgument::OPTIONAL, 'Site store to index')
             ->addOption('updated-since', 's', InputOption::VALUE_OPTIONAL, 'Fetch objects updated in the relative timeframe ("5minute", "2hour", "1day", "yesterday" etc)')
+            ->addOption('swap', null, InputOption::VALUE_OPTIONAL, 'Do a full reingest by swapping indices', false)
             ->setName('vsbridge:index-objects')
             ->setDescription('Indexing objects of given type in vuestorefront');
     }
@@ -63,6 +64,7 @@ class IndexCommand extends AbstractCommand
         $language = $input->getArgument('language');
         $store = $input->getArgument('store');
 
+        $runTimestamp = date('YmdHis');
         $sinceDatetime = null;
         if (null !== $since = $input->getOption('updated-since')) {
             $sinceDatetime = new \Datetime();
@@ -78,7 +80,7 @@ class IndexCommand extends AbstractCommand
             $style->warning(sprintf('Indexing only updated since: %1$s', $sinceDatetime->format('c')));
         }
 
-        $importers = $this->importerFactory->create($site, $type, $language, $store, $sinceDatetime);
+        $importers = $this->importerFactory->create($site, $type, $language, $store, $sinceDatetime, $input->getOption('swap') ? $runTimestamp : null);
 
         /** @var ImporterInterface $importer */
         foreach ($importers as $importer) {
