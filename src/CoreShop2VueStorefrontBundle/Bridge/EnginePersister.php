@@ -14,7 +14,7 @@ use ONGR\ElasticsearchBundle\Service\Manager;
 
 class EnginePersister
 {
-    /** @var Manager */
+    /** @var IndexService */
     private $indexService;
     /** @var DocumentMapperFactory */
     private $documentMapperFactory;
