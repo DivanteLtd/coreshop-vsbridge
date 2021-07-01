@@ -1,4 +1,3 @@
-NEUSTA - internal version of Coreshop 2 Vuestorefront Bridge
 
 # First Progressive Web App for Pimcore and CoreShop
 [![Build Status](https://travis-ci.org/DivanteLtd/coreshop-vsbridge.svg?branch=master)](https://travis-ci.org/DivanteLtd/coreshop-vsbridge)
