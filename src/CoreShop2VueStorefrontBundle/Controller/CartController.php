@@ -17,7 +17,7 @@ use CoreShop\Component\StorageList\StorageListModifierInterface;
 use CoreShop2VueStorefrontBundle\Bridge\Response\Cart\CartResponse;
 use CoreShop2VueStorefrontBundle\Bridge\Attribute\AttributeResolver;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,8 +26,7 @@ use Symfony\Component\Translation\TranslatorInterface;
 class CartController extends Controller
 {
     /**
-     * @Route("/vsbridge/cart/create")
-     * @Method("POST")
+     * @Route("/vsbridge/cart/create", methods={"POST"})
      *
      * @return JsonResponse
      */
@@ -40,8 +39,7 @@ class CartController extends Controller
     }
 
     /**
-     * @Route("/vsbridge/cart/pull")
-     * @Method("GET")
+     * @Route("/vsbridge/cart/pull", methods={"GET"})
      *
      * @param CartResponse $cartResponse
      *
@@ -60,8 +58,7 @@ class CartController extends Controller
     }
 
     /**
-     * @Route("/vsbridge/cart/update")
-     * @Method("POST")
+     * @Route("/vsbridge/cart/update", methods={"POST"})
      *
      * @param Request                    $request
      * @param CartResponse               $cartResponse
@@ -129,8 +126,7 @@ class CartController extends Controller
     }
 
     /**
-     * @Route("/vsbridge/cart/delete")
-     * @Method("POST")
+     * @Route("/vsbridge/cart/delete", methods={"POST"})
      *
      * @param Request           $request
      *
@@ -179,8 +175,7 @@ class CartController extends Controller
     }
 
     /**
-     * @Route("/vsbridge/cart/shipping-methods")
-     * @Method("POST")
+     * @Route("/vsbridge/cart/shipping-methods", methods={"POST"})
      *
      * @param Request           $request
      * @param CarrierRepository $carrierRepository
@@ -205,8 +200,7 @@ class CartController extends Controller
     }
 
     /**
-     * @Route("/vsbridge/cart/shipping-information")
-     * @Method("POST")
+     * @Route("/vsbridge/cart/shipping-information", methods={"POST"})
      *
      * @param Request                   $request
      * @param PaymentProviderRepository $paymentProviderRepository
@@ -231,8 +225,7 @@ class CartController extends Controller
     }
 
     /**
-     * @Route("/vsbridge/cart/payment-methods")
-     * @Method("GET")
+     * @Route("/vsbridge/cart/payment-methods", methods={"GET"})
      *
      * @param PaymentProviderRepository $paymentProviderRepository
      * @param CartResponse              $cartResponse
