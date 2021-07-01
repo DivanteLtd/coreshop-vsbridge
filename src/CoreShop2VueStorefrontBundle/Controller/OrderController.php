@@ -11,7 +11,7 @@ use CoreShop\Component\Store\Model\StoreInterface;
 use CoreShop2VueStorefrontBundle\Bridge\Order\OrderManager;
 use Exception;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -19,9 +19,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 class OrderController extends Controller
 {
     /**
-     * @Route("/vsbridge/order")
-     * @Route("/vsbridge/order/create")
-     * @Method("POST")
+     * @Route("/vsbridge/order", methods={"POST"})
+     * @Route("/vsbridge/order/create", methods={"POST"})
      *
      * @param Request $request
      *

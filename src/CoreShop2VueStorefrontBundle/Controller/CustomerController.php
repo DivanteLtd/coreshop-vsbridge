@@ -13,7 +13,7 @@ use CoreShop2VueStorefrontBundle\Bridge\Response\Order\OrderResponse;
 use CoreShop2VueStorefrontBundle\Bridge\Response\ResponseBodyCreator;
 use Exception;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -24,8 +24,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 class CustomerController extends AbstractController
 {
     /**
-     * @Route("/vsbridge/user/login")
-     * @Method("POST")
+     * @Route("/vsbridge/user/login", methods={"POST"})
      *
      * @return Response
      */
@@ -35,8 +34,7 @@ class CustomerController extends AbstractController
     }
 
     /**
-     * @Route("/vsbridge/user/create")
-     * @Method("POST")
+     * @Route("/vsbridge/user/create", methods={"POST"})
      *
      * @param Request $request
      * @param CustomerManager $customerManager
@@ -67,8 +65,7 @@ class CustomerController extends AbstractController
     }
 
     /**
-     * @Route("/vsbridge/user/me")
-     * @Method("POST")
+     * @Route("/vsbridge/user/me", methods={"POST"})
      *
      * @param Request $request
      * @param CustomerManager $customerManager
@@ -100,8 +97,7 @@ class CustomerController extends AbstractController
     }
 
     /**
-     * @Route("/vsbridge/user/me")
-     * @Method("GET")
+     * @Route("/vsbridge/user/me", methods={"GET"})
      *
      * @param ResponseBodyCreator $responseBodyCreator
      *
@@ -116,8 +112,7 @@ class CustomerController extends AbstractController
     }
 
     /**
-     * @Route("/vsbridge/user/reset-password")
-     * @Method("POST")
+     * @Route("/vsbridge/user/reset-password", methods={"POST"})
      *
      * @param Request $request
      * @param CustomerRepository $customerRepository
@@ -163,8 +158,7 @@ class CustomerController extends AbstractController
     }
 
     /**
-     * @Route("/vsbridge/user/change-password")
-     * @Method("POST")
+     * @Route("/vsbridge/user/change-password", methods={"POST"})
      *
      * @param Request $request
      * @param CustomerRepository $customerRepository
@@ -195,8 +189,7 @@ class CustomerController extends AbstractController
     }
 
     /**
-     * @Route("/vsbridge/user/order-history")
-     * @Method("GET")
+     * @Route("/vsbridge/user/order-history", methods={"GET"})
      *
      * @param OrderRepository $orderRepository
      * @param OrderResponse $orderResponse

@@ -6,7 +6,7 @@ use Pimcore\Model\Asset;
 use Pimcore\Model\Asset\Image\Thumbnail\Config;
 use Pimcore\Model\Asset\Image\Thumbnail\Processor;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,10 +18,9 @@ class ImageController extends AbstractController
      * @Route(
      *     "/img/{width}/{height}/{operation}/{imgPath}",
      *     name="get_image",
-     *     requirements={"imgPath"=".+"}
+     *     requirements={"imgPath"=".+"},
+     *     methods={"GET"}
      * )
-     *
-     * @Method("GET")
      *
      * @param Request $request
      *
