@@ -4,7 +4,7 @@ namespace CoreShop2VueStorefrontBundle\Bridge\Order;
 
 use CoreShop\Bundle\CoreBundle\Doctrine\ORM\CountryRepository;
 use CoreShop\Component\Address\Model\AddressInterface;
-use CoreShop\Component\Core\Model\OrderInterface;
+use CoreShop\Component\Core\Model\CartInterface;
 use CoreShop\Component\Pimcore\DataObject\ObjectService;
 use CoreShop\Component\Pimcore\DataObject\ObjectServiceInterface;
 use CoreShop\Component\Resource\Factory\PimcoreFactory;
@@ -32,10 +32,10 @@ class AddressDataToAddressItemTransformer
         $this->pathForAddress = $pathForAddress;
     }
 
-    public function transform(array $addressData, OrderInterface $order, string $key)
+    public function transform(array $addressData, CartInterface $cart, string $key)
     {
         $addressesFolder = $this->objectService->createFolderByPath(
-            sprintf('%s/%s', $order->getFullPath(), $this->pathForAddress)
+            sprintf('%s/%s', $cart->getFullPath(), $this->pathForAddress)
         );
 
         /** @var AddressInterface $address */

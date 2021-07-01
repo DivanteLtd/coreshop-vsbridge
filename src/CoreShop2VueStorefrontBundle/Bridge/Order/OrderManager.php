@@ -101,7 +101,7 @@ class OrderManager
             $cart->setShippingAddress(
                 $this->addressDataToAddressItemTransformer->transform(
                     $addressInformation['shippingAddress'],
-                    $newOrder,
+                    $cart,
                     self::SHIPPING_ADDRESS
                 )
             );
@@ -111,7 +111,7 @@ class OrderManager
             $cart->setInvoiceAddress(
                 $this->addressDataToAddressItemTransformer->transform(
                     $addressInformation['billingAddress'],
-                    $newOrder,
+                    $cart,
                     self::INVOICE_ADDRESS
                 )
             );
