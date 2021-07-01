@@ -5,9 +5,8 @@ namespace CoreShop2VueStorefrontBundle\Bridge\Response;
 use Carbon\Carbon;
 use CoreShop\Component\Address\Model\AddressInterface;
 use CoreShop\Component\Core\Model\CustomerInterface;
-use CoreShop\Component\Core\Model\ProductInterface;
-use CoreShop\Component\Resource\Repository\RepositoryInterface;
 use CoreShop\Component\Index\Model\IndexInterface;
+use CoreShop\Component\Resource\Repository\RepositoryInterface;
 
 class ResponseBodyCreator
 {
@@ -107,18 +106,6 @@ class ResponseBodyCreator
         $address['default_shipping'] = true;
 
         return $address;
-    }
-
-    public function stockResponse(ProductInterface $product): array
-    {
-        $stock = [];
-        $stock['item_id'] = $product->getId();
-        $stock['product_id'] = $product->getId();
-        $stock['stock_id'] = 1;
-        $stock['qty'] = $product->getOnHand() ?: 0;
-        $stock['is_in_stock'] = $product->getOnHand() > 0 ? true : false;
-
-        return $stock;
     }
 
     protected function formatDate(string $dateTime): string
