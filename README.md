@@ -1,3 +1,4 @@
+NEUSTA adaption of Coreshop VsBridge
 
 # First Progressive Web App for Pimcore and CoreShop
 [![Build Status](https://travis-ci.org/DivanteLtd/coreshop-vsbridge.svg?branch=master)](https://travis-ci.org/DivanteLtd/coreshop-vsbridge)
