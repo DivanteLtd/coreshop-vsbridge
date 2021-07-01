@@ -34,9 +34,9 @@ class OrderController extends Controller
             $orderRepository = $this->get('coreshop.repository.order');
             $orderId = $request->get('order_id', 0);
 
-            $order = $orderRepository->findOneBy(['orderNumber' => $orderNumber]); //@FIXME
+            $order = $orderRepository->findOneBy(['orderNumber' => $orderId]);
             if ($order instanceof OrderInterface) {
-                throw new LogicException(sprintf("Order number %s already exists", $orderNumber));
+                throw new LogicException(sprintf("Order number %s already exists", $orderId));
             }
 
             $cart = $this->findLatestByStoreAndCustomer(
