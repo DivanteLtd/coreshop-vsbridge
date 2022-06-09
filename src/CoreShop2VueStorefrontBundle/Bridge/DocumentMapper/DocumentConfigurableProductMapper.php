@@ -4,6 +4,7 @@ namespace CoreShop2VueStorefrontBundle\Bridge\DocumentMapper;
 
 use Cocur\Slugify\SlugifyInterface;
 use CoreShop\Component\Core\Model\ProductInterface;
+use CoreShop\Component\Core\Model\StoreInterface;
 use CoreShop\Component\Core\Repository\ProductRepositoryInterface;
 use CoreShop2VueStorefrontBundle\Bridge\DocumentMapperInterface;
 use CoreShop2VueStorefrontBundle\Bridge\Helper\DocumentHelper;
@@ -14,6 +15,7 @@ use CoreShop2VueStorefrontBundle\Document\ConfigurableOption;
 use CoreShop2VueStorefrontBundle\Document\Product;
 use CoreShop2VueStorefrontBundle\Document\ProductCategory;
 use CoreShop2VueStorefrontBundle\Repository\AttributeRepository;
+use ONGR\ElasticsearchBundle\Service\IndexService;
 use Pimcore\Model\DataObject\AbstractObject;
 
 class DocumentConfigurableProductMapper extends DocumentProductMapper implements DocumentMapperInterface
@@ -55,12 +57,16 @@ class DocumentConfigurableProductMapper extends DocumentProductMapper implements
     }
 
     /**
-     * @param ProductInterface $product
+     * @param IndexService $service
+     * @param object $product
+     * @param string $language
+     * @param StoreInterface $store
+     * 
      * @return Product
      */
-    public function mapToDocument($product, object $document, ?string $language = null): Product
+    public function mapToDocument(IndexService $service, object $product, ?string $language = null, ?StoreInterface $store = null): Product
     {
-        $esProduct = parent::mapToDocument($product, $document, $language);
+        $esProduct = parent::mapToDocument($service, $product, $language, $store);
         $esProduct->setTypeId(self::PRODUCT_TYPE_CONFIGURABLE);
 
         $this->setConfigurable($product, $esProduct);
